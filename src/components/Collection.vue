@@ -453,10 +453,10 @@ export default {
       afficherDetails: false,
       oldAfficherStats: false,
       sortingTypes: [
-        { value: 'translations.name', label: 'Nom Asc.' },
+        { value: 'name', label: 'Nom Asc.' },
         { value: 'mainCost', label: 'Mana Asc.' },
         { value: 'recallCost', label: 'Réserve Asc.' },
-        { value: 'translations.name,0', label: 'Nom Desc.' },
+        { value: 'name,0', label: 'Nom Desc.' },
         { value: 'mainCost,0', label: 'Mana Desc.' },
         { value: 'recallCost,0', label: 'Réserve Desc.' },
       ],
@@ -1155,17 +1155,16 @@ export default {
       }
       if(streq.length > 0) req = req.or(streq.join(','));
 
-      //mot-clé : convertir les codes en termes à recherche dans main_effet et echo_effect
-      //if (this.currentKeywords.length > 0) $.extend(params, { keyword: this.currentKeywords });
       var keywords = [];
       this.currentKeywords.forEach(kw => {
         var label = this.g_getKeywordLabel(kw);
         keywords.push('main_effect.ilike.%' + label + '%,echo_effect.ilike.%' + label + '%');
       });
       if(keywords.length > 0) req = req.or(keywords.join(','));
-
+      
       this.currentSort.forEach(sortref => {
-        req = req.order('name', { ascending: true })
+        var tab = sortref.split(',');
+        req = req.order(tab[0], { ascending: tab.length == 1 })
       });      
       req = req.range((this.currentPage - 1) * 12, (this.currentPage * 12) );
       const { data: cards, error } = await req;
