@@ -10,7 +10,10 @@ declare module 'vue' {
     Accueil: typeof import('./src/components/Accueil.vue')['default']
     AuthDiscord: typeof import('./src/components/AuthDiscord.vue')['default']
     BButton: typeof import('bootstrap-vue-next')['BButton']
+    BCollapse: typeof import('bootstrap-vue-next')['BCollapse']
     BFormCheckbox: typeof import('bootstrap-vue-next')['BFormCheckbox']
+    BFormInput: typeof import('bootstrap-vue-next')['BFormInput']
+    BInputGroup: typeof import('bootstrap-vue-next')['BInputGroup']
     BLink: typeof import('bootstrap-vue-next')['BLink']
     BModal: typeof import('bootstrap-vue-next')['BModal']
     Card: typeof import('./src/components/Card.vue')['default']
@@ -31,10 +34,12 @@ declare module 'vue' {
     Menu: typeof import('./src/components/Menu.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Test: typeof import('./src/components/Test.vue')['default']
     TheWelcome: typeof import('./src/components/TheWelcome.vue')['default']
     WelcomeItem: typeof import('./src/components/WelcomeItem.vue')['default']
   }
   export interface ComponentCustomProperties {
     vBModal: typeof import('bootstrap-vue-next')['vBModal']
+    vBToggle: typeof import('bootstrap-vue-next')['vBToggle']
   }
 }

@@ -42,10 +42,13 @@
               <div class="card-header" v-if="currentFaction != ''">
                 <div class="card-tools">
                   <BButton @click="searchCards(false, false, false)" variant="unique" size="sm"><font-awesome-icon
-                      :icon="['fas', 'magnifying-glass']" class="me-2" />Rechercher</BButton>
-                  <BButton @click="searchPlayset" variant="common" size="sm ms-2" v-if="bearer && !deckbuilder">
+                      :icon="['fas', 'magnifying-glass']" class="me-2" />Rechercher
+                  </BButton>
+                  <BButton @click="searchPlayset" variant="common" size="sm" class="ms-2" v-if="bearer && !deckbuilder">
                     <font-awesome-icon :icon="['fas', 'magnifying-glass-arrow-right']" class="me-2" />Playset
                   </BButton>
+                  
+                  <img v-b-toggle.aw-filtresavances src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
                 </div>
               </div> <!-- /.card-header -->
               <div class="card-body">
@@ -98,6 +101,7 @@
                     @click="selectHero"><font-awesome-icon :icon="['fas', 'mask']" class="fs-3" /><span>Héros</span></a>
                 </div>
 
+                <BCollapse id="aw-filtresavances">
                 <hr />
                 Mots-clés :
                 <Multiselect v-model="currentKeywords" mode="tags" class="mb-2"
@@ -130,6 +134,7 @@
                   <b-form-checkbox id="emptyplayset" v-model="emptyplayset" name="emptyplayset">Playsets non complet
                     uniquement</b-form-checkbox>
                 </div>
+              </BCollapse>
               </div>
             </div>
             <!-- /.card-body -->
@@ -292,8 +297,10 @@
                     <input type="checkbox" v-model="uiparams.modeliste" @change="storeModeListe">
                     <span class="slider round"></span>
                   </label>
-
-                  <BButton @click="saveDeck()" variant="unique" size="sm" class="me-2" v-if="user">
+                  <BButton @click="affModalImportUnique()" variant="unique" size="sm" class="me-2" title="Importer une carte Unique">
+                    <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Unique
+                  </BButton>
+                  <BButton @click="saveDeck()" variant="success" size="sm" class="me-2" v-if="user">
                       <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" />Enregistrer
                   </BButton>
                   <BButton @click="showModalDeleteDeck()" variant="danger" size="sm" class="me-2" v-if="user"><font-awesome-icon
@@ -391,6 +398,28 @@
     <CardDetail :card="currentCardDetail" :currentDeck="currentDeck" v-if="currentCardDetail && currentDeck"
       @addcard="addCard" @removecard="removeCard" />
   </BModal>
+  <BModal v-model="showModalImportUnique" size="md" hide-footer @cancel="closeModalImportUnique" @ok="importerUnique" title="Importer une Unique" cancel-title="Annnuler" ok-title="Importer" ok-variant="unique">
+    <BInputGroup>
+      <BFormInput v-model="codeImportUnique" placeholder="Code" />
+      
+      <BButton variant="primary" @click="importerUnique"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></BButton>
+    </BInputGroup>
+
+    <div  v-if="importedUnique" class="d-flex flex-column justify-content-center mt-2">
+      <div class="text-center fs-5 p-2">Carte trouvée et importée</div>
+      <img :src="importedUnique.imagePath" class="img-fluid"/>
+      <BButton variant="primary" @click="addUniqueToDeck" class="mt-2"><font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>Ajouter la carte au deck</BButton>
+    </div>
+  </BModal>
+
+  <BModal v-model="showModalConfirmChangeDeck" @ok="confirmChangeDeck" @cancel="dontChangeDeck" centered cancel-title="Annuler" ok-title="Continuer"
+    ok-variant="primary" title="Modifications en cours">
+    Attention ! Le deck contient des modifications qui n'ont pas été enregistrées.
+    <br />
+    Si vous continuez, les changements apportés seront perdus. 
+    <br />
+    Voulez-vous continuer ?
+  </BModal>
 </template>
 
 <style src="@vueform/multiselect/themes/default.css"></style>
@@ -477,6 +506,13 @@ export default {
       ],
       soustypes : this.g_getSubtypesOptions(),
       qtesuccessproba: null,
+      showModalImportUnique: false,
+      codeImportUnique: null,
+      importedUnique: null,
+      deckModified: false,
+      showModalImportUnique: false,
+      showModalConfirmChangeDeck: false,
+      actionOriConfirmChangeDeck: null,
       bearer: "", //"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJDMFo0V3JVWE1xT2JtMy1CTU8xRFV5YktidFA2bldLb2VvWmE1UGJuZHhZIn0.eyJleHAiOjE3MjQ4NjYxMzAsImlhdCI6MTcyNDg2MjUzMCwiYXV0aF90aW1lIjoxNzI0Njc0NTgzLCJqdGkiOiJiNmIyYWVmMC1kMjM5LTRjODAtODc3MC05ZDZjNGY3NThjYjYiLCJpc3MiOiJodHRwczovL2F1dGguYWx0ZXJlZC5nZy9yZWFsbXMvcGxheWVycyIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJjMDlkZTkxOS02ZjRlLTQ0MjAtYjIwZi1hNGIwM2ZiZGI2OWEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJ3ZWIiLCJzZXNzaW9uX3N0YXRlIjoiNGFlNjdkNzktZjgxYi00NGQzLTg4MWEtZjY3YjAzMDg3MzUyIiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL2F1dGguYWx0ZXJlZC5nZyIsImh0dHBzOi8vd3d3LmFsdGVyZWQuZ2ciXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtcGxheWVycyIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwic2lkIjoiNGFlNjdkNzktZjgxYi00NGQzLTg4MWEtZjY3YjAzMDg3MzUyIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInByZWZlcnJlZF91c2VybmFtZSI6ImF1d2Vsb3JkQGdtYWlsLmNvbSIsImVtYWlsIjoiYXV3ZWxvcmRAZ21haWwuY29tIn0.p3jvws1b8phCQUfVd5F5eDvrEjd-o_nrZMbyHi3xeKkFXIDblAqx3KEAaABctSwxZcREUreGhClOwXRCVIsnBeCsPAtoEhWNftr-oL2g68gpb6lOO6x_bb_ZyE-oOXwiTJcHM8vYxBGc2LCNURDFHtQfBgM4kuf87AVG1NltaqrDUV0UhmP94ud4UZTTJDO_UMCUWaGuhsiWilUssCckPfLng0-T9Nd6272168fyoefgIwOZG6HWUOyZHh-5O24tVdKGBTrVA0zyAF-POg2ADxAHj7fjIj7mYC5c9oVxHSAT1oFQ4UPlliGhlO3CeKqMDmNdgBXoWLEfh1hOoMnajQ"
     };
   },
@@ -543,6 +579,38 @@ export default {
     //window.addEventListener('scroll', this.handleScroll); // Ajouter l'écouteur d'événements pour le scroll
   },
   methods: {
+    dontChangeDeck()
+    {
+      if(this.actionOriConfirmChangeDeck == "CHANGE")
+      {
+        this.currentSelectedDeck = this.currentDeck.id; 
+      }
+      this.actionOriConfirmChangeDeck = null;
+    },
+    addUniqueToDeck()
+    {
+      this.addCard(this.importedUnique)
+      this.closeModalImportUnique()
+    },
+    importerUnique(){
+      //this.codeImportUnique = 'ALT_COREKS_B_MU_11_U_2926';
+      if(this.codeImportUnique)
+      {
+        this.g_updateCardFromApi(this.codeImportUnique, card => {
+          this.importedUnique = card[0];
+        });
+      }
+    },
+    closeModalImportUnique()
+    {
+      this.showModalImportUnique = false;
+    },
+    affModalImportUnique()
+    {
+      this.importedUnique = null;
+      this.codeImportUnique = '';
+      this.showModalImportUnique = true;
+    },
     deconnecterUser(){
       this.g_deconnecter(() => this.user = null);
     },
@@ -670,7 +738,10 @@ export default {
     },
     saveDeck() 
     {
-      this.g_saveDeck(this.currentDeck, deck => this.updateCurrentDeck(deck));  
+      this.g_saveDeck(this.currentDeck, deck => {
+        this.updateCurrentDeck(deck);
+        this.deckModified = false;
+      });  
 /*
 
       var storedDecks = JSON.parse(localStorage.getItem("decks"));
@@ -815,6 +886,7 @@ export default {
         if (existingCard.quantite < 3) {
           if (existingCard.rarity != "UNIQUE" || existingCard.quantite == 0) {
             existingCard.quantite++;
+            this.deckModified = true;
           }
         }
       }
@@ -840,6 +912,7 @@ export default {
         }
           */
         this.currentDeck.cards.push(addedCard);
+        this.deckModified = true;
       }
       this.refreshStatComponent();
       this.saveCurrentDeckToLocalStorage();
@@ -858,8 +931,17 @@ export default {
     },
     onSelectCurrentDeck() 
     {
+      if(this.deckModified && !this.showModalConfirmChangeDeck)
+      {
+        this.showModalConfirmChangeDeck = true;
+        this.actionOriConfirmChangeDeck = "CHANGE";
+        return;
+      }
+
+      this.deckModified = false;
       this.g_fetchDeck(this.currentSelectedDeck, true, deck => 
       {
+
         if(deck)
         {
           if(!deck.cards) deck.cards = [];
@@ -869,7 +951,6 @@ export default {
         
         this.currentDeck = JSON.parse(localStorage.getItem("currentDeck"));
 
-        console.log(this.currentDeck);
         if(this.currentDeck)
         {
           this.currentSelectedDeck = this.currentDeck.id;
@@ -925,7 +1006,28 @@ export default {
     cancelCreateDeck() {
       this.creatingDeck = false;
     },
+    confirmChangeDeck()
+    {
+      if(this.actionOriConfirmChangeDeck=="CREER")
+      {
+        this.createDeck();
+      }
+      else if(this.actionOriConfirmChangeDeck=="CHANGE")
+      {
+        this.onSelectCurrentDeck();
+      }
+      this.actionOriConfirmChangeDeck = null;
+      this.showModalConfirmChangeDeck = false;
+    },
     createDeck() {
+      
+      if(this.deckModified && !this.showModalConfirmChangeDeck)
+      {
+        this.actionOriConfirmChangeDeck = "CREER";
+        this.showModalConfirmChangeDeck = true;
+        return;
+      }
+
       this.creatingDeck = true;
 
       //$("#awid-fdeckname").trigger("focus");
@@ -1276,6 +1378,22 @@ export default {
 </script>
 
 <style>
+.aw-arrowcollapse
+{
+  width: 23px;
+  cursor: pointer;
+  transform: rotateZ(270deg);
+  transition: all .3s;
+}
+.aw-arrowcollapse.collapsed
+{
+  transform: rotateZ(90deg);
+}
+.aw-imgimportunique
+{
+  display: flex;
+    justify-content: center;
+}
 .aw-probapioche
 {
   position: absolute;

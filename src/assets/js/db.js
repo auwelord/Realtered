@@ -4,7 +4,7 @@ import axios from 'axios';
 export default {
     install: (app, options) => 
     {
-        async function updateCardFromApi(pid)
+        async function updateCardFromApi(pid, pcallback)
         {
             var params = {
                 itemsPerPage: 1,
@@ -18,11 +18,19 @@ export default {
                 {
                     headers: headers,
                     params: params
-                }).then(response => app.config.globalProperties.g_upsertCard(response.data, true));
+                }).then(response => 
+                {
+                    app.config.globalProperties.g_upsertCard(response.data, true, true, pcallback);
+                });
     
             } catch (error) {
                 console.error('Error fetching cards:', error);
             }
+        }
+
+        app.config.globalProperties.g_updateCardFromApi = function(preference, pcallback)
+        {
+            updateCardFromApi(preference, pcallback)
         }
 
         async function fetchAllCards()
@@ -63,7 +71,6 @@ export default {
 
             const { data: deck, erreurdeck } = await req
             
-            console.log(deck);
             var found = deck && deck.length > 0;
             if(found)
             {
@@ -79,14 +86,19 @@ export default {
 
                 if(pwithcards && deck[0].CardsDeck)
                 {
-                    for(let card of deck[0].CardsDeck)
+                    var refs = deck[0].CardsDeck.map(card => card.cardRef);
+                                        
+                    req = await supabase
+                        .from('Card')
+                        .select()
+                        .in('reference', refs);
+
+                    req.data.forEach(card => 
                     {
-                        req = await supabase.from('Card').select().eq('reference', card.cardRef);
-                        zedeck.cards.push($.extend(req.data[0], {quantite: card.quantity}));
-                    };
+                        var realcardeck = deck[0].CardsDeck.find(carddeck => carddeck.cardRef == card.reference)
+                        zedeck.cards.push($.extend(card, {quantite: realcardeck.quantity}));
+                    });
                 }
-                console.log(zedeck);
-                console.log('################')
                 pcallback(zedeck);                
             }
             else pcallback(null);
@@ -182,7 +194,25 @@ export default {
             fetchCard(preference, pcallback)
         }
 
-        async function upsertCard(pcard, pdetail, pforceupdate)
+        async function fetchFactionCards(pfaction, pcallback)
+        {
+            const { data: cards, erreur } = await supabase
+                .from('Card')
+                .select()
+                .eq('mainFaction', pfaction);
+
+            if(!erreur && cards.length > 0)
+            {
+                if(pcallback) pcallback(cards);
+            }
+        }
+
+        app.config.globalProperties.g_fetchFactionCards = function(pfaction, pcallback)
+        {
+            fetchFactionCards(pfaction, pcallback)
+        }
+
+        async function upsertCard(pcard, pdetail, pforceupdate, pcallback)
         {
             const { data: fetched, erreur } = await supabase
                 .from('Card')
@@ -254,16 +284,17 @@ export default {
             card.oceanPower = parseInt(card.oceanPower);
 
             const { data, error } = await supabase
-            .from('Card')
-            .upsert([card])
-            .select()
-            console.log("updated card: " + card.reference);
+                .from('Card')
+                .upsert([card])
+                .select()
+
+            if(pcallback) pcallback(data);
             return error;
         }
 
-        app.config.globalProperties.g_upsertCard = function(pcard, pdetail, pforceupdate)
+        app.config.globalProperties.g_upsertCard = function(pcard, pdetail, pforceupdate, pcallback)
         {
-            return upsertCard(pcard, pdetail, pforceupdate);
+            return upsertCard(pcard, pdetail, pforceupdate, pcallback);
         }
     }
 }
