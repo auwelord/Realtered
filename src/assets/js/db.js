@@ -1,0 +1,269 @@
+import { supabase } from '@/db/client'
+import axios from 'axios';
+
+export default {
+    install: (app, options) => 
+    {
+        async function updateCardFromApi(pid)
+        {
+            var params = {
+                itemsPerPage: 1,
+                page: 1
+            }
+            var headers = {
+                "Accept-Language": "fr-fr"
+            }
+            try {
+                await axios.get('https://api.altered.gg/cards/' + pid,
+                {
+                    headers: headers,
+                    params: params
+                }).then(response => app.config.globalProperties.g_upsertCard(response.data, true));
+    
+            } catch (error) {
+                console.error('Error fetching cards:', error);
+            }
+        }
+
+        async function fetchAllCards()
+        {
+            const { data: cards, erreur } = await supabase
+                .from('Card')
+                .select();
+
+            cards.forEach(card => updateCardFromApi(card.reference));
+        }
+        app.config.globalProperties.g_updateAllCards = function()
+        {
+            fetchAllCards();
+        }
+
+        async function fetchDecks(pcallback)
+        {
+            const { data: fetched, erreur } = await supabase
+                .from('Deck')
+                .select();
+
+            pcallback(fetched ? fetched : []);
+        }
+
+        app.config.globalProperties.g_fetchDecks = function(pcallback)
+        {
+            fetchDecks(pcallback)
+        }
+
+        async function fetchDeck(pid, pwithcards, pcallback)
+        {
+            var req = supabase.from('Deck');
+            if(pwithcards)
+            {
+                req = req.select('*, CardsDeck(*)')
+            }
+            req = req.eq('id', pid);
+
+            const { data: deck, erreurdeck } = await req
+            
+            console.log(deck);
+            var found = deck && deck.length > 0;
+            if(found)
+            {
+                var zedeck = 
+                {
+                    id: deck[0].id,
+                    name: deck[0].name,
+                    public: deck[0].public,
+                    main_faction: deck[0].main_faction,
+                    description: deck[0].description,
+                    cards: []
+                }
+
+                if(pwithcards && deck[0].CardsDeck)
+                {
+                    for(let card of deck[0].CardsDeck)
+                    {
+                        req = await supabase.from('Card').select().eq('reference', card.cardRef);
+                        zedeck.cards.push($.extend(req.data[0], {quantite: card.quantity}));
+                    };
+                }
+                console.log(zedeck);
+                console.log('################')
+                pcallback(zedeck);                
+            }
+            else pcallback(null);
+        }
+
+        app.config.globalProperties.g_fetchDeck = function(pid, pwithcards, pcallback)
+        {
+            fetchDeck(pid, pwithcards, pcallback)
+        }
+
+        async function saveDeck(pdeck, pcallback)
+        {
+            var deck = {
+                name: pdeck.name,
+                public: pdeck.public,
+                main_faction: pdeck.main_faction,
+                description: pdeck.description
+            }
+
+            if(pdeck.id != 0)
+            {
+                $.extend(deck, {id: pdeck.id})
+            }
+            var response = await supabase
+                .from('Deck')
+                .upsert(deck)
+                .select()
+            
+            var zedeck = response.error ? null : response.data[0];
+            if(zedeck)
+            {
+                //suppression des cartes du deck
+                response = await supabase
+                    .from('CardsDeck')
+                    .delete()
+                    .eq('deckId', zedeck.id)
+
+                if(!response.error)
+                {
+                    //enregistrements des cartes
+                    var req = supabase.from('CardsDeck');
+                    var cards = [];
+                    pdeck.cards.forEach(card => {
+                        cards.push({
+                            cardRef: card.reference,
+                            deckId:  zedeck.id,
+                            quantity: card.quantite
+                        });
+                    });
+                    req = req.insert(cards);
+                    response = await req.select();
+                }
+            }
+
+            pcallback(zedeck);
+        }
+
+        app.config.globalProperties.g_saveDeck = function(pdeck, pcallback)
+        {
+            saveDeck(pdeck, pcallback)
+        }
+
+        async function deleteDeck(pdeck, pcallback)
+        {
+            const response = await supabase
+                .from('Deck')
+                .delete()
+                .eq('id', pdeck.id);
+
+            pcallback(response);
+        }
+
+        app.config.globalProperties.g_deleteDeck = function(pdeck, pcallback)
+        {
+            deleteDeck(pdeck, pcallback)
+        }        
+
+        async function fetchCard(preference, pcallback)
+        {
+            const { data: fetched, erreur } = await supabase
+                .from('Card')
+                .select()
+                .eq('reference', preference);
+
+            if(!erreur && fetched.length > 0)
+            {
+                if(pcallback) pcallback(fetched[0]);
+            }
+        }
+
+        app.config.globalProperties.g_fetchCard = function(preference, pcallback)
+        {
+            fetchCard(preference, pcallback)
+        }
+
+        async function upsertCard(pcard, pdetail, pforceupdate)
+        {
+            const { data: fetched, erreur } = await supabase
+                .from('Card')
+                .select('detail')
+                .eq('reference', pcard.reference);
+
+            if(!pforceupdate)
+            {
+                if(fetched && fetched.length > 0 && fetched[0].detail)
+                {
+                    //si la carte est déjà en base et détaillée, pas besoin de maj
+                    return;
+                }
+                if(!pdetail && fetched && fetched.length > 0)
+                {
+                    //si on veut pas les détails et que l'enregistrement existe, pas besoin de maj
+                    return;
+                }
+            }
+            
+            var card = {
+                reference: pcard.reference,
+                name: pcard.name,
+                imagePath: pcard.imagePath,
+                cardSet: "COREKS",
+                mainFaction: pcard.mainFaction.reference,
+                cardType: pcard.cardType.reference,
+                cardSubtypes: null,
+                rarity: pcard.rarity.reference,
+                mainCost: pcard.elements.MAIN_COST,
+                recallCost: pcard.elements.RECALL_COST,
+                forestPower: pcard.elements.FOREST_POWER,
+                mountainPower: pcard.elements.MOUNTAIN_POWER,
+                oceanPower: pcard.elements.OCEAN_POWER,
+                main_effect: pcard.elements.MAIN_EFFECT,
+                echo_effect: pcard.elements.ECHO_EFFECT,
+                id: pcard.id,
+            };
+
+            if(pdetail) 
+            {
+                $.extend(card, 
+                {
+                    cardSet: pcard.cardSet.reference
+                });
+                if(pcard.cardSubTypes)
+                {
+                    card.cardSubtypes = [];
+                    pcard.cardSubTypes.forEach(subtype => card.cardSubtypes.push(subtype.reference));
+                }
+            }
+
+            if(card.mainCost && card.mainCost.startsWith('#')) card.mainCost = card.mainCost.replaceAll('#', '');
+            if(card.recallCost && card.recallCost.startsWith('#')) card.recallCost = card.recallCost.replaceAll('#', '');
+            if(card.forestPower && card.forestPower.startsWith('#')) card.forestPower = card.forestPower.replaceAll('#', '');
+            if(card.mountainPower && card.mountainPower.startsWith('#')) card.mountainPower = card.mountainPower.replaceAll('#', '');
+            if(card.oceanPower && card.oceanPower.startsWith('#')) card.oceanPower = card.oceanPower.replaceAll('#', '');
+
+            if(!card.forestPower) card.forestPower = 0;
+            if(!card.mountainPower) card.mountainPower = 0;
+            if(!card.oceanPower) card.oceanPower = 0;
+            if(!card.mainCost) card.mainCost = 0;
+            if(!card.recallCost) card.recallCost = 0;
+
+            card.mainCost = parseInt(card.mainCost);
+            card.recallCost = parseInt(card.recallCost);
+            card.forestPower = parseInt(card.forestPower);
+            card.mountainPower = parseInt(card.mountainPower);
+            card.oceanPower = parseInt(card.oceanPower);
+
+            const { data, error } = await supabase
+            .from('Card')
+            .upsert([card])
+            .select()
+            console.log("updated card: " + card.reference);
+            return error;
+        }
+
+        app.config.globalProperties.g_upsertCard = function(pcard, pdetail, pforceupdate)
+        {
+            return upsertCard(pcard, pdetail, pforceupdate);
+        }
+    }
+}

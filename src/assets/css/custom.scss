@@ -1,0 +1,8 @@
+// Override Bootstrap variables
+$primary: #4eff22;
+
+// Custom.scss
+@import '/node_modules/bootstrap/scss/bootstrap.scss';
+@import '/node_modules/bootstrap-vue-3/src/styles/styles.scss';
+
+
