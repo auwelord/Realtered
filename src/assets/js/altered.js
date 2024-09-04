@@ -15,7 +15,7 @@ export default {
         async function retrieveUser (pcallback)
         {
             let { data: { user } } = await supabase.auth.getUser()
-            pcallback(user);
+            if(pcallback) pcallback(user);
             return user;
         }
         async function deconnectUser (pcallback)
@@ -46,7 +46,7 @@ export default {
 
         app.config.globalProperties.g_retrieveuser = function(pcallback)
         {
-            return retrieveUser(pcallback);
+            retrieveUser(pcallback);
         }
         app.config.globalProperties.g_deconnecter = function(pcallback)
         {

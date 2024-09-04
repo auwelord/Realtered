@@ -112,7 +112,6 @@ export default {
         }
     },
     mounted() {
-        //this.g_retrieveuser((puser) => this.user = puser);
         /*=====================================
         Sticky
         ======================================= */

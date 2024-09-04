@@ -47,8 +47,6 @@
                   <BButton @click="searchPlayset" variant="common" size="sm" class="ms-2" v-if="bearer && !deckbuilder">
                     <font-awesome-icon :icon="['fas', 'magnifying-glass-arrow-right']" class="me-2" />Playset
                   </BButton>
-                  
-                  <img v-b-toggle.aw-filtresavances src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
                 </div>
               </div> <!-- /.card-header -->
               <div class="card-body">
@@ -70,81 +68,54 @@
                 <div class="input-group mt-4">
                   <input type="text" v-model="currentName" class="form-control" placeholder="Nom de carte" />
                 </div>
-                <hr />
-                <div class="card-title float-none mt-3">Rareté</div>
-                <div class="d-flex justify-content-evenly aw-raritysel mt-2">
-                  <a href="javascript:" id="COMMON" :class="['aw-common', isSelectedCommon ? 'aw-selected' : '']"
-                    @click="selectCommon"><img src="@/assets/img/altered/rarities/common.png" class="aw-rarity" /></a>
-                  <a href="javascript:" id="RARE" :class="['aw-rare', isSelectedRare ? 'aw-selected' : '']"
-                    @click="selectRare"><img src="@/assets/img/altered/rarities/rare.png" class="aw-rarity" /></a>
-                  <a href="javascript:" id="UNIQUE" :class="['aw-unique', isSelectedUnique ? 'aw-selected' : '']"
-                    @click="selectUnique"><img src="@/assets/img/altered/rarities/unique.png" class="aw-rarity" /></a>
-                </div>
 
-                <hr />
-                <div class="card-title float-none mt-3">Type</div>
-                <div class="card-group justify-content-evenly aw-type mt-2">
-                  <a href="javascript:" id="CHARACTER"
-                    :class="['aw-character d-flex flex-column align-items-center mb-3', isSelectedCharacter ? 'aw-selected' : '']"
-                    @click="selectCharacter"><font-awesome-icon :icon="['fas', 'person-walking']"
-                      class="fs-3" /><span>Personnages</span></a>
-                  <a href="javascript:" id="SPELL"
-                    :class="['aw-spell d-flex flex-column align-items-center mb-3', isSelectedSpell ? 'aw-selected' : '']"
-                    @click="selectSpell"><font-awesome-icon :icon="['fas', 'wand-magic-sparkles']"
-                      class="fs-3" /><span>Sorts</span></a>
-                  <a href="javascript:" id="PERMANENT"
-                    :class="['aw-permanent d-flex flex-column align-items-center mb-3', isSelectedPermanent ? 'aw-selected' : '']"
-                    @click="selectPermanent"><font-awesome-icon :icon="['fas', 'building-shield']"
-                      class="fs-3" /><span>Permanents</span></a>
-                  <a href="javascript:" id="HERO"
-                    :class="['aw-hero d-flex flex-column align-items-center mb-3', isSelectedHero ? 'aw-selected' : '']"
-                    @click="selectHero"><font-awesome-icon :icon="['fas', 'mask']" class="fs-3" /><span>Héros</span></a>
+                <hr>
+                <div class="d-flex justify-content-between mt-3">
+                  Rareté
+                  <img v-b-toggle.aw-filtresrarity src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
                 </div>
+                <BCollapse id="aw-filtresrarity" v-model="uiparams.filtreRarity" @hide="storeUiparams" @show="storeUiparams">
+                  <div class="d-flex justify-content-evenly aw-raritysel mt-2">
+                    <a href="javascript:" id="COMMON" :class="['aw-common', isSelectedCommon ? 'aw-selected' : '']"
+                      @click="selectCommon"><img src="@/assets/img/altered/rarities/common.png" class="aw-rarity" /></a>
+                    <a href="javascript:" id="RARE" :class="['aw-rare', isSelectedRare ? 'aw-selected' : '']"
+                      @click="selectRare"><img src="@/assets/img/altered/rarities/rare.png" class="aw-rarity" /></a>
+                    <a href="javascript:" id="UNIQUE" :class="['aw-unique', isSelectedUnique ? 'aw-selected' : '']"
+                      @click="selectUnique"><img src="@/assets/img/altered/rarities/unique.png" class="aw-rarity" /></a>
+                  </div>
+                </BCollapse>
 
-                <BCollapse id="aw-filtresavances">
-                <hr />
-                Mots-clés :
-                <Multiselect v-model="currentKeywords" mode="tags" class="mb-2"
-                  :close-on-select="true" 
-                  :create-option="true" 
-                  :searchable="true"
-                  :options="keywords" 
-                  @change="onChangeKeywords" />
+                <hr>
+                <div class="d-flex justify-content-between mt-3">
+                  Type
+                  <img v-b-toggle.aw-filtrestype src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                </div>
+                <BCollapse id="aw-filtrestype" v-model="uiparams.filtreType" @hide="storeUiparams" @show="storeUiparams">
+                  <div class="card-group justify-content-evenly aw-type mt-2">
+                    <a href="javascript:" id="CHARACTER"
+                      :class="['aw-character d-flex flex-column align-items-center mb-3', isSelectedCharacter ? 'aw-selected' : '']"
+                      @click="selectCharacter"><font-awesome-icon :icon="['fas', 'person-walking']"
+                        class="fs-3" /><span>Personnages</span></a>
+                    <a href="javascript:" id="SPELL"
+                      :class="['aw-spell d-flex flex-column align-items-center mb-3', isSelectedSpell ? 'aw-selected' : '']"
+                      @click="selectSpell"><font-awesome-icon :icon="['fas', 'wand-magic-sparkles']"
+                        class="fs-3" /><span>Sorts</span></a>
+                    <a href="javascript:" id="PERMANENT"
+                      :class="['aw-permanent d-flex flex-column align-items-center mb-3', isSelectedPermanent ? 'aw-selected' : '']"
+                      @click="selectPermanent"><font-awesome-icon :icon="['fas', 'building-shield']"
+                        class="fs-3" /><span>Permanents</span></a>
+                    <a href="javascript:" id="HERO"
+                      :class="['aw-hero d-flex flex-column align-items-center mb-3', isSelectedHero ? 'aw-selected' : '']"
+                      @click="selectHero"><font-awesome-icon :icon="['fas', 'mask']" class="fs-3" /><span>Héros</span></a>
+                  </div>
+                </BCollapse>
                 
-                Sous-types :
-                <Multiselect v-model="currentSoustypes" mode="tags" class="mb-2"
-                  :close-on-select="true" 
-                  :create-option="true" 
-                  :searchable="true"
-                  :options="soustypes" 
-                  @change="onChangeSoustypes" />
-                
-                Editions :
-                <Multiselect v-model="currentEditions" mode="tags" class="mb-2"
-                  :close-on-select="true" 
-                  :create-option="true" 
-                  :options="editions" 
-                  @change="onChangeEditions" />
-
-                Trier par :
-                <Multiselect v-model="currentSort" mode="tags" :close-on-select="true" :create-option="true"
-                  :options="sortingTypes" @change="onChangeSorting" />
-
-                <div class="mt-3" v-if="bearer && !deckbuilder">
-                  <b-form-checkbox id="emptyplayset" v-model="emptyplayset" name="emptyplayset">Playsets non complet
-                    uniquement</b-form-checkbox>
+                <hr>
+                <div class="d-flex justify-content-between mt-3">
+                  Coût de main
+                  <img v-b-toggle.aw-filtrescoutmain src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
                 </div>
-              </BCollapse>
-              </div>
-            </div>
-            <!-- /.card-body -->
-          </div> <!-- /.card -->
-          <div class="col-12">
-            <div class="card card-outline card-danger mt-1">
-              <div class="card-header">
-                <h3 class="card-title">Coût de main</h3>
-              </div> <!-- /.card-header -->
-              <div class="card-body">
+                <BCollapse id="aw-filtrescoutmain" v-model="uiparams.filtreMainCost" @hide="storeUiparams" @show="storeUiparams">
                 <div class="d-flex flex-column ">
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="fs-3">{{ handCost }}</div>
@@ -162,16 +133,15 @@
                       value="1" @change="onChangeCost" />
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-12">
-            <div class="card card-outline card-danger mt-1">
-              <div class="card-header">
-                <h3 class="card-title">Coût de réserve</h3>
-              </div> <!-- /.card-header -->
-              <div class="card-body">
-                <div class="d-flex flex-column ">
+                </BCollapse>
+
+                <hr>
+                <div class="d-flex justify-content-between mt-3 mb-2">
+                  Coût de réserve
+                  <img v-b-toggle.aw-filtrescoutreserve src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                </div>
+                <BCollapse id="aw-filtrescoutreserve" v-model="uiparams.filtreRecallCost" @hide="storeUiparams" @show="storeUiparams">
+                  <div class="d-flex flex-column ">
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="fs-3">{{ reserveCost }}</div>
                     <div>
@@ -188,65 +158,124 @@
                       step="1" value="1" @change="onChangeCost" />
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-12">
-            <div v-if="isSelectedCharacter" class="card card-outline card-danger mt-1">
-              <div class="card-header">
-                <h3 class="card-title">Patates</h3>
-              </div> <!-- /.card-header -->
-              <div class="card-body aw-stats">
-                <div class="d-flex flex-column ">
-                  <div class="card-group justify-content-between align-items-center">
-                    <div><i class="altered-forest fs-5 me-2"></i><span class="fs-3">{{ forest }}</span></div>
-                    <div>
-                      <BFormCheckbox v-model="forestOrMore" value="ouplus" @change="onChangeForestOrMore">ou plus
-                      </BFormCheckbox>
-                    </div>
-                    <div>
-                      <BFormCheckbox v-model="forestOrMore" value="oumoins" @change="onChangeForestOrMore">ou moins
-                      </BFormCheckbox>
-                    </div>
+                </BCollapse>
+
+                <div v-if="isSelectedCharacter">
+                  <hr>
+                  <div class="d-flex justify-content-between mt-3">
+                    Patates
+                    <img v-b-toggle.aw-filtrespower src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
                   </div>
-                  <div class="aw-slider">
-                    <input type="range" id="forest" v-model="forest" class="w-100" min="0" max="10" step="1" value="0"
-                      @change="onChangeStat" />
-                  </div>
-                  <div class="card-group justify-content-between align-items-center mt-2">
-                    <div><i class="altered-mountain fs-5 me-2"></i><span class="fs-3">{{ mountain }}</span></div>
-                    <div>
-                      <BFormCheckbox v-model="mountainOrMore" value="ouplus" @change="onChangeMountainOrMore">ou plus
-                      </BFormCheckbox>
+                  <BCollapse id="aw-filtrespower" v-model="uiparams.filtrePower" @hide="storeUiparams" @show="storeUiparams">
+                    <div class="d-flex flex-column aw-stats">
+                      <div class="card-group justify-content-between align-items-center">
+                        <div><i class="altered-forest fs-5 me-2"></i><span class="fs-3">{{ forest }}</span></div>
+                        <div>
+                          <BFormCheckbox v-model="forestOrMore" value="ouplus" @change="onChangeForestOrMore">ou plus
+                          </BFormCheckbox>
+                        </div>
+                        <div>
+                          <BFormCheckbox v-model="forestOrMore" value="oumoins" @change="onChangeForestOrMore">ou moins
+                          </BFormCheckbox>
+                        </div>
+                      </div>
+                      <div class="aw-slider">
+                        <input type="range" id="forest" v-model="forest" class="w-100" min="0" max="10" step="1" value="0"
+                          @change="onChangeStat" />
+                      </div>
+                      <div class="card-group justify-content-between align-items-center mt-2">
+                        <div><i class="altered-mountain fs-5 me-2"></i><span class="fs-3">{{ mountain }}</span></div>
+                        <div>
+                          <BFormCheckbox v-model="mountainOrMore" value="ouplus" @change="onChangeMountainOrMore">ou plus
+                          </BFormCheckbox>
+                        </div>
+                        <div>
+                          <BFormCheckbox v-model="mountainOrMore" value="oumoins" @change="onChangeMountainOrMore">ou moins
+                          </BFormCheckbox>
+                        </div>
+                      </div>
+                      <div class="aw-slider">
+                        <input type="range" id="mountain" v-model="mountain" class="w-100" min="0" max="10" step="1"
+                          value="0" @change="onChangeStat" />
+                      </div>
+                      <div class="card-group justify-content-between align-items-center mt-2">
+                        <div><i class="altered-water fs-5 me-2"></i><span class="fs-3">{{ water }}</span></div>
+                        <div>
+                          <BFormCheckbox v-model="waterOrMore" value="ouplus" @change="onChangeWaterOrMore">ou plus
+                          </BFormCheckbox>
+                        </div>
+                        <div>
+                          <BFormCheckbox v-model="waterOrMore" value="oumoins" @change="onChangeWaterOrMore">ou moins
+                          </BFormCheckbox>
+                        </div>
+                      </div>
+                      <div class="aw-slider">
+                        <input type="range" id="water" v-model="water" class="w-100" min="0" max="10" step="1" value="0"
+                          @change="onChangeStat" />
+                      </div>
                     </div>
-                    <div>
-                      <BFormCheckbox v-model="mountainOrMore" value="oumoins" @change="onChangeMountainOrMore">ou moins
-                      </BFormCheckbox>
-                    </div>
-                  </div>
-                  <div class="aw-slider">
-                    <input type="range" id="mountain" v-model="mountain" class="w-100" min="0" max="10" step="1"
-                      value="0" @change="onChangeStat" />
-                  </div>
-                  <div class="card-group justify-content-between align-items-center mt-2">
-                    <div><i class="altered-water fs-5 me-2"></i><span class="fs-3">{{ water }}</span></div>
-                    <div>
-                      <BFormCheckbox v-model="waterOrMore" value="ouplus" @change="onChangeWaterOrMore">ou plus
-                      </BFormCheckbox>
-                    </div>
-                    <div>
-                      <BFormCheckbox v-model="waterOrMore" value="oumoins" @change="onChangeWaterOrMore">ou moins
-                      </BFormCheckbox>
-                    </div>
-                  </div>
-                  <div class="aw-slider">
-                    <input type="range" id="water" v-model="water" class="w-100" min="0" max="10" step="1" value="0"
-                      @change="onChangeStat" />
-                  </div>
+                  </BCollapse>
+                </div>
+
+                <hr>
+                <div class="d-flex justify-content-between mt-3">
+                  Mots-clés
+                  <img v-b-toggle.aw-filtreskeyword src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                </div>
+                <BCollapse id="aw-filtreskeyword" v-model="uiparams.filtreKeyword" @hide="storeUiparams" @show="storeUiparams">
+                  <Multiselect v-model="currentKeywords" mode="tags" class="mb-2"
+                    :close-on-select="true" 
+                    :create-option="true" 
+                    :searchable="true"
+                    :options="keywords" 
+                    @change="onChangeKeywords" />
+                </BCollapse>
+
+                <hr>
+                <div class="d-flex justify-content-between mt-3">
+                  Sous-types
+                  <img v-b-toggle.aw-filtressubtype src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                </div>
+                <BCollapse id="aw-filtressubtype" v-model="uiparams.filtreSubtype" @hide="storeUiparams" @show="storeUiparams">
+                <Multiselect v-model="currentSoustypes" mode="tags" class="mb-2"
+                  :close-on-select="true" 
+                  :create-option="true" 
+                  :searchable="true"
+                  :options="soustypes" 
+                  @change="onChangeSoustypes" />
+                </BCollapse>
+
+                <hr>
+                <div class="d-flex justify-content-between mt-3">
+                  Editions
+                  <img v-b-toggle.aw-filtresedition src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                </div>
+                <BCollapse id="aw-filtresedition" v-model="uiparams.filtreEdition" @hide="storeUiparams" @show="storeUiparams"> 
+                <Multiselect v-model="currentEditions" mode="tags" class="mb-2"
+                  :close-on-select="true" 
+                  :create-option="true" 
+                  :options="editions" 
+                  @change="onChangeEditions" />
+                </BCollapse>
+
+                <hr>
+                <div class="d-flex justify-content-between mt-3">
+                  Trier par
+                  <img v-b-toggle.aw-filtrestri src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                </div>
+                <BCollapse id="aw-filtrestri" v-model="uiparams.filtreSort" @hide="storeUiparams" @show="storeUiparams">              
+                  <Multiselect v-model="currentSort" mode="tags" :close-on-select="true" :create-option="true"
+                    :options="sortingTypes" @change="onChangeSorting" class="mb-2"/>
+                </BCollapse>
+
+                <div class="mt-3" v-if="bearer && !deckbuilder">
+                  <b-form-checkbox id="emptyplayset" v-model="emptyplayset" name="emptyplayset">Playsets non complet
+                    uniquement</b-form-checkbox>
                 </div>
               </div>
             </div>
-          </div>
+            <!-- /.card-body -->
+          </div> <!-- /.card -->
         </div>
         <div :class="[deckbuilder && currentSelectedDeck != null ? 'col-md-3' : 'col-md-9']">
           <div class="container-fluid">
@@ -476,7 +505,16 @@ export default {
       modalDeleteDeck: false,
       uiparams: {
         modeliste: false,
-        afficherstats: false
+        afficherstats: false,
+        filtreRarity: true,
+        filtreRecallCost: true,
+        filtreMainCost: true,
+        filtreSort: true,
+        filtreKeyword: true,
+        filtreEdition: true,
+        filtreSubtype: true,
+        filtreType: true,
+        filtrePower: true
       },
       imagePathFullsize: null,
       afficherDetails: false,
@@ -524,7 +562,7 @@ export default {
     
     const storeduiparams = localStorage.getItem("uiparams");
     if(storeduiparams) this.uiparams = JSON.parse(storeduiparams);
-
+    
     var filters = JSON.parse(localStorage.getItem("filters"));
     if (!filters) {
       filters = {
@@ -658,8 +696,19 @@ export default {
     {
       var uiparams = JSON.parse(localStorage.getItem("uiparams"));
       if(!uiparams) uiparams = this.uiparams;
+
       uiparams.modeliste = this.uiparams.modeliste;
       uiparams.afficherstats = this.uiparams.afficherstats;
+      uiparams.filtreRarity = this.uiparams.filtreRarity;
+      uiparams.filtreRecallCost = this.uiparams.filtreRecallCost;
+      uiparams.filtreMainCost = this.uiparams.filtreMainCost;
+      uiparams.filtreSort = this.uiparams.filtreSort;
+      uiparams.filtreKeyword = this.uiparams.filtreKeyword;
+      uiparams.filtreEdition = this.uiparams.filtreEdition;
+      uiparams.filtreSubtype = this.uiparams.filtreSubtype;
+      uiparams.filtreType = this.uiparams.filtreType;
+      uiparams.filtrePower = this.uiparams.filtrePower;
+
       localStorage.setItem("uiparams", JSON.stringify(uiparams));
     },
     onChangeAfficherStats(){
@@ -696,7 +745,7 @@ export default {
     loadDecks() {
       //TODO : importer les autres decks depuis la bd
       //JSON.parse(localStorage.getItem("decks"));
-      this.g_fetchDecks((decks) => {
+      this.g_fetchDecks(true, (decks) => {
         
         //alim de la combo
         this.decks = decks.map(deck => { 

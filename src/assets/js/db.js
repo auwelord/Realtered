@@ -46,18 +46,40 @@ export default {
             fetchAllCards();
         }
 
-        async function fetchDecks(pcallback)
+        async function run(preq, pdftval, pcallback)
         {
-            const { data: fetched, erreur } = await supabase
+            const { data: zedata, erreur } = await preq;
+
+            if(erreur){
+                console.log(erreur);
+                return;
+            }
+            if(pcallback) pcallback(zedata ? zedata : pdftval);
+        }
+
+        async function fetchDecks(pmyonly, pcallback)
+        {
+            var req = supabase
                 .from('Deck')
                 .select();
 
-            pcallback(fetched ? fetched : []);
+            if(pmyonly)
+            {
+                app.config.globalProperties.g_retrieveuser(user => 
+                {
+                    req = req.eq('userId', user.id);
+                    run(req, [], pcallback);
+                });
+                return;
+            }
+
+            const { data: fetched, erreur } = await req;
+            pcallback(fetched ? fetched : []);            
         }
 
-        app.config.globalProperties.g_fetchDecks = function(pcallback)
+        app.config.globalProperties.g_fetchDecks = function(pmyonly, pcallback)
         {
-            fetchDecks(pcallback)
+            fetchDecks(pmyonly, pcallback)
         }
 
         async function fetchDeck(pid, pwithcards, pcallback)
@@ -115,7 +137,8 @@ export default {
                 name: pdeck.name,
                 public: pdeck.public,
                 main_faction: pdeck.main_faction,
-                description: pdeck.description
+                description: pdeck.description,
+                modifiedAt: new Date().toISOString()
             }
 
             if(pdeck.id != 0)
@@ -196,10 +219,13 @@ export default {
 
         async function fetchFactionCards(pfaction, pcallback)
         {
-            const { data: cards, erreur } = await supabase
+            var req = supabase
                 .from('Card')
-                .select()
-                .eq('mainFaction', pfaction);
+                .select();
+
+            if(pfaction) req = req.eq('mainFaction', pfaction);
+
+            const { data: cards, erreur } = await req;                
 
             if(!erreur && cards.length > 0)
             {
@@ -295,6 +321,27 @@ export default {
         app.config.globalProperties.g_upsertCard = function(pcard, pdetail, pforceupdate, pcallback)
         {
             return upsertCard(pcard, pdetail, pforceupdate, pcallback);
+        }
+        async function updateAllCards(pcards, pcallback)
+        {
+            const { error } = await supabase
+            .from('Card')
+            .upsert(pcards);
+
+            if(error) console.log(error)
+            else if(pcallback) pcallback();
+        }
+
+        app.config.globalProperties.g_updateAllCards = function(pcards, pcallback)
+        {
+            updateAllCards(pcards, pcallback)
+        }
+
+        app.config.globalProperties.g_getImageCardPublicUrl = function(pcard)
+        {
+            const {data: image} = supabase.storage.from('Altered').getPublicUrl(pcard.imageS3);
+            if(image.publicUrl.endsWith("null")) return pcard.imagePath;
+            return image.publicUrl;
         }
     }
 }

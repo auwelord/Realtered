@@ -1,5 +1,6 @@
 <template>
-     <BButton @click="downloadImages" variant="unique" size="sm" v-if="cards">Download</BButton>
+     <BButton @click="downloadImages" variant="unique" size="sm" v-if="cards">Download images</BButton>
+     <BButton @click="updateImagePath" variant="primary" size="sm">Mise à jour des chemins images</BButton>
 </template>
 
 <script>
@@ -10,6 +11,24 @@ export default {
         };
     },
     methods: {
+        updateImagePath(){
+            this.cards.forEach(card => {
+                var path = "cards/";
+                if(card.mainFaction == "AX") path+= "axiom/";
+                else if(card.mainFaction == "BR") path+= "bravos/";
+                else if(card.mainFaction == "LY") path+= "lyra/";
+                else if(card.mainFaction == "MU") path+= "muna/";
+                else if(card.mainFaction == "OR") path+= "ordis/";
+                else path+= "yzmir/";
+
+                path+= card.reference + '.webp';
+
+                console.log(path);
+                $.extend(card, {imageS3: path});
+            });
+
+            this.g_updateAllCards(this.cards, null);
+        },
         sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         },
@@ -41,7 +60,8 @@ export default {
         }
     },
     mounted() {
-        this.g_fetchFactionCards("YZ", pcards => this.cards = pcards);
+        //downloadimages this.g_fetchFactionCards("YZ", pcards => this.cards = pcards);
+        this.g_fetchFactionCards("", pcards => this.cards = pcards);
     }
 };
 </script>

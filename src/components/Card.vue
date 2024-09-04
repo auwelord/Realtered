@@ -11,7 +11,7 @@
   <div :class="getGridClass()" v-else>
     <div class="d-flex flex-column align-items-center aw-card">
       <div>
-        <img :src="card.imagePath" :title="card.name" class="img-fluid" />
+        <img :src="g_getImageCardPublicUrl(card)" :title="card.name" class="img-fluid" />
         <div class="aw-collection" v-if="collection">{{ card.inMyCollection }}</div>
         <div class="aw-deckbuilder d-flex flex-column align-items-stretch" v-if="deckbuilder">
           <BButton size="sm" variant="unique" class="text-nowrap flex-fill" :disabled="!g_canAddCardToDeck(card, currentDeck)" @click="addCardToDeck(card)">
