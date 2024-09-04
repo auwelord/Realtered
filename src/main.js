@@ -6,7 +6,9 @@ import piniaPluginPersistedState from "pinia-plugin-persistedstate"
 import FontAwesomeIcon from "@/utilities/fontawesome-icons";
 import App from './App.vue'
 import router from './routes/router'
+import Toast from "vue-toastification";
 
+import "vue-toastification/dist/index.css";
 import altered from './assets/js/altered';
 import db from './assets/js/db';
 import 'bootstrap/dist/css/bootstrap.css'
@@ -30,6 +32,7 @@ const app = createApp(App)
     .use(pinia)
     .use(altered)
     .use(db)
+    .use(Toast)
     .use(createBootstrap());
 
 app.mount('#app');

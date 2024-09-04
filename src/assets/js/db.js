@@ -4,6 +4,11 @@ import axios from 'axios';
 export default {
     install: (app, options) => 
     {
+        app.config.globalProperties.g_isAdmin = function(puser)
+        {
+            return puser.id = import.meta.env.VITE_SUPABASE_ADMINID;
+        }
+        
         async function updateCardFromApi(pid, pcallback)
         {
             var params = {
@@ -131,6 +136,65 @@ export default {
             fetchDeck(pid, pwithcards, pcallback)
         }
 
+        async function importDeck(pdeckname, pdecklist, pcallback)
+        {
+            var deck = {
+                name: pdeckname,
+                public: true,
+                main_faction: '',
+                description: '',
+                modifiedAt: new Date().toISOString()
+            }
+
+            const {data: saveddeck, erreur} = await supabase
+                .from('Deck')
+                .upsert(deck)
+                .select();
+
+            if(erreur)
+            {
+                pcallback(null)
+                return
+            }
+
+            var cards = pdecklist.map(card => {
+                return {
+                    cardRef: card.ref,
+                    deckId:  saveddeck[0].id,
+                    quantity: card.qte
+                }}
+            );
+            
+            //recup auto de la faction à partir de la liste des cartes pour update du deck
+            if(cards.length > 0)
+            {
+                const { data: card, errcard } = await supabase
+                    .from('Card')
+                    .select()
+                    .eq('reference', cards[0].cardRef);
+
+                if(!errcard && card.length > 0)
+                {
+                    saveddeck[0].main_faction = card[0].mainFaction;
+                    await supabase
+                        .from('Deck')
+                        .upsert(saveddeck[0])
+                        .select();
+                }
+            }
+
+            await supabase
+                .from('CardsDeck')
+                .insert(cards);
+
+            if(pcallback) pcallback(saveddeck[0]);
+        }
+
+        app.config.globalProperties.g_importDeck = function(pdeckname, pcardstab, pcallback)
+        {
+            importDeck(pdeckname, pcardstab, pcallback)
+        }
+
         async function saveDeck(pdeck, pcallback)
         {
             var deck = {
@@ -208,8 +272,12 @@ export default {
 
             if(!erreur && fetched.length > 0)
             {
-                if(pcallback) pcallback(fetched[0]);
+                if(pcallback){
+                    pcallback(fetched[0]);
+                    return;
+                }
             }
+            if(pcallback) pcallback(null);
         }
 
         app.config.globalProperties.g_fetchCard = function(preference, pcallback)
@@ -263,7 +331,7 @@ export default {
                 reference: pcard.reference,
                 name: pcard.name,
                 imagePath: pcard.imagePath,
-                cardSet: "COREKS",
+                //cardSet: "COREKS",
                 mainFaction: pcard.mainFaction.reference,
                 cardType: pcard.cardType.reference,
                 cardSubtypes: null,
@@ -314,7 +382,7 @@ export default {
                 .upsert([card])
                 .select()
 
-            if(pcallback) pcallback(data);
+            if(pcallback) pcallback(data[0]);
             return error;
         }
 
@@ -339,9 +407,30 @@ export default {
 
         app.config.globalProperties.g_getImageCardPublicUrl = function(pcard)
         {
+            if(!pcard.imageS3) return pcard.imagePath;
+
             const {data: image} = supabase.storage.from('Altered').getPublicUrl(pcard.imageS3);
             if(image.publicUrl.endsWith("null")) return pcard.imagePath;
             return image.publicUrl;
+        }
+
+        async function updateImageS3(pcard, ppath, pcallback)
+        {
+            const { data: card, erreur } = await supabase
+                .from('Card')
+                .upsert({
+                    reference: pcard.reference,
+                    imageS3: ppath
+                })
+                .select();
+
+            if(erreur) console.log(erreur)
+            else if(pcallback) pcallback(card[0]);
+        }
+
+        app.config.globalProperties.g_updateImageS3 = function(pcard, ppath, pcallback)
+        {
+            updateImageS3(pcard, ppath, pcallback);
         }
     }
 }

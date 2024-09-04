@@ -1,7 +1,7 @@
 <template>
   <div :class="getClassGrid()" v-if="!modeliste">
     <div class="aw-carddeck">
-      <img :src="card.imagePath" :title="card.name" class="img-fluid" />
+      <img :src="g_getImageCardPublicUrl(card)" :title="card.name" class="img-fluid" />
       <div v-if="!g_isHero(card)" class="aw-quantite">
         {{ card.quantite }}
       </div>

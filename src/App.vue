@@ -1,4 +1,6 @@
 <template>
+   <BToastOrchestrator />
+
   <!-- ========================= preloader start ========================= -->
   <div class="preloader">
     <div class="loader">

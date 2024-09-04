@@ -53,7 +53,7 @@ export default {
     },
     currentDeck: {
       type: Object,
-      required: true
+      required: false
     },
     arrayview: Boolean,
     emptyplayset: Boolean,

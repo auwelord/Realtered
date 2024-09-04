@@ -12,8 +12,11 @@
               <div class="card-header">
                 <h3 class="card-title">Mes decks</h3>
                 <div class="card-tools">
+                  <BButton @click="importDeck" variant="info" size="sm" v-if="!creatingDeck && user" class="me-2">
+                    <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />Importer
+                  </BButton>
                   <BButton @click="createDeck" variant="primary" size="sm" v-if="!creatingDeck">
-                    <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />Créer un deck
+                    <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />Créer
                   </BButton>
                 </div>
               </div> <!-- /.card-header -->
@@ -24,6 +27,9 @@
                   <div class="input-group">
                     <input required id="awid-fdeckname" v-model="newDeckName" type="text" class="form-control"
                       placeholder="Nom du deck">
+                  </div>
+                  <div class="input-group mt-2" v-if="isImporting()">
+                    <BFormTextarea v-model="newDecklist" placeholder="Collez ici la decklist..." rows="15" />
                   </div>
                   <div class="d-flex justify-content-end">
                     <BButton @click="cancelCreateDeck" variant="tertiary" size="sm" class="mt-2 me-2">
@@ -39,8 +45,25 @@
           </div>
           <div class="col-12">
             <div class="card card-outline card-warning">
-              <div class="card-header" v-if="currentFaction != ''">
+              <div class="card-header" v-if="admin && currentFaction != ''">
                 <div class="card-tools">
+                  <BButton @click="updateDetailFromApi" variant="secondary" size="sm" v-if="!database && admin && fetchedCards" class="me-2">
+                    <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Details <span v-if="updatingname">{{  updatingname }}</span>
+                  </BButton>
+                  <BButton @click="onClickDownloadImages" variant="secondary" size="sm" v-if="!database && admin && fetchedCards" class="me-2">
+                    <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Images <span v-if="updatingname">{{  updatingname }}</span>
+                  </BButton>
+                </div>
+              </div>
+              <div class="card-header" v-if="currentFaction != ''">
+                <div class="d-flex justify-content-between">
+                  <div v-if="admin && currentFaction != ''">
+                    BDD
+                    <label class="switch me-2">
+                      <input type="checkbox" v-model="database">
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
                   <BButton @click="searchCards(false, false, false)" variant="unique" size="sm"><font-awesome-icon
                       :icon="['fas', 'magnifying-glass']" class="me-2" />Rechercher
                   </BButton>
@@ -280,7 +303,7 @@
         <div :class="[deckbuilder && currentSelectedDeck != null ? 'col-md-3' : 'col-md-9']">
           <div class="container-fluid">
             <div class="row" v-if="!hasResult() && !loading && !imagePathFullsize && !uiparams.afficherstats">
-              <img src="/src/assets/img/altered_kojo.png" alt="" class="img-fluid" />
+              <img src="/src/assets/img/altered_kojo.png" alt="" class="img-fluid aw-imgmiddle" />
             </div>
             <div v-if="!uiparams.afficherstats" :class="['row mb-3 aw-imgapercu', imagePathFullsize ? 'aw-imageapon' : '']">
               <div class="col-12">
@@ -289,7 +312,7 @@
                 </div>
               </div>
             </div>
-            <div v-else-if="currentDeck && deckbuilder">
+            <div v-else-if="currentDeck && deckbuilder && currentSelectedDeck != null">
               <DeckStats :currentDeck="currentDeck" v-if="renderStatComponent"/>
             </div>
             <div v-if="!uiparams.afficherstats">
@@ -436,7 +459,7 @@
 
     <div  v-if="importedUnique" class="d-flex flex-column justify-content-center mt-2">
       <div class="text-center fs-5 p-2">Carte trouvée et importée</div>
-      <img :src="importedUnique.imagePath" class="img-fluid"/>
+      <img :src="g_getImageCardPublicUrl(importedUnique)" class="img-fluid"/>
       <BButton variant="primary" @click="addUniqueToDeck" class="mt-2"><font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>Ajouter la carte au deck</BButton>
     </div>
   </BModal>
@@ -453,6 +476,8 @@
 
 <style src="@vueform/multiselect/themes/default.css"></style>
 
+
+
 <script>
 import Menu from './Menu.vue';
 import axios from 'axios';
@@ -462,6 +487,7 @@ import CardDecklist from './CardDecklist.vue';
 import CardDetail from './CardDetail.vue';
 import DeckStats from './DeckStats.vue';
 import { supabase } from '@/db/client'
+import { useToast, TYPE } from "vue-toastification";
 
 export default {
   name: 'Collection',
@@ -470,6 +496,7 @@ export default {
   },
   data() {
     return {
+      admin: false,
       database: true,
       user: null,
       fullscreendecklist: false,
@@ -484,7 +511,7 @@ export default {
       isSelectedRare: false,
       isSelectedUnique: false,
       currentName: '',
-      currentSort: ["translations.name"],
+      currentSort: ["name"],
       fetchedCards: [],
       itemsPerPage: 12,
       arrayview: false,
@@ -533,6 +560,7 @@ export default {
       currentSelectedDeck: null,
       creatingDeck: false,
       newDeckName: null,
+      newDecklist: null,
       currentCardDetail: null,
       currentKeywords: null,
       currentEditions:  ["COREKS"],
@@ -551,11 +579,15 @@ export default {
       showModalImportUnique: false,
       showModalConfirmChangeDeck: false,
       actionOriConfirmChangeDeck: null,
+      updatingname: null,
       bearer: "", //"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJDMFo0V3JVWE1xT2JtMy1CTU8xRFV5YktidFA2bldLb2VvWmE1UGJuZHhZIn0.eyJleHAiOjE3MjQ4NjYxMzAsImlhdCI6MTcyNDg2MjUzMCwiYXV0aF90aW1lIjoxNzI0Njc0NTgzLCJqdGkiOiJiNmIyYWVmMC1kMjM5LTRjODAtODc3MC05ZDZjNGY3NThjYjYiLCJpc3MiOiJodHRwczovL2F1dGguYWx0ZXJlZC5nZy9yZWFsbXMvcGxheWVycyIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJjMDlkZTkxOS02ZjRlLTQ0MjAtYjIwZi1hNGIwM2ZiZGI2OWEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJ3ZWIiLCJzZXNzaW9uX3N0YXRlIjoiNGFlNjdkNzktZjgxYi00NGQzLTg4MWEtZjY3YjAzMDg3MzUyIiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL2F1dGguYWx0ZXJlZC5nZyIsImh0dHBzOi8vd3d3LmFsdGVyZWQuZ2ciXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtcGxheWVycyIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwic2lkIjoiNGFlNjdkNzktZjgxYi00NGQzLTg4MWEtZjY3YjAzMDg3MzUyIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInByZWZlcnJlZF91c2VybmFtZSI6ImF1d2Vsb3JkQGdtYWlsLmNvbSIsImVtYWlsIjoiYXV3ZWxvcmRAZ21haWwuY29tIn0.p3jvws1b8phCQUfVd5F5eDvrEjd-o_nrZMbyHi3xeKkFXIDblAqx3KEAaABctSwxZcREUreGhClOwXRCVIsnBeCsPAtoEhWNftr-oL2g68gpb6lOO6x_bb_ZyE-oOXwiTJcHM8vYxBGc2LCNURDFHtQfBgM4kuf87AVG1NltaqrDUV0UhmP94ud4UZTTJDO_UMCUWaGuhsiWilUssCckPfLng0-T9Nd6272168fyoefgIwOZG6HWUOyZHh-5O24tVdKGBTrVA0zyAF-POg2ADxAHj7fjIj7mYC5c9oVxHSAT1oFQ4UPlliGhlO3CeKqMDmNdgBXoWLEfh1hOoMnajQ"
     };
   },
   mounted() {
-    this.g_retrieveuser(puser => this.user = puser);
+    this.g_retrieveuser(puser => {
+      this.user = puser
+      this.admin = this.g_isAdmin(puser);
+    });
 
     //axios.get('https://api.altered.gg/cards/filter-data', {}).then(response => console.log(response));
     //axios.get('https://qr.altered.gg/ALT_COREKS_B_MU_15_C', {}).then(response => console.log(response));
@@ -617,12 +649,121 @@ export default {
     //window.addEventListener('scroll', this.handleScroll); // Ajouter l'écouteur d'événements pour le scroll
   },
   methods: {
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    },
+    async updateDetailFromApi(){
+      for(let card of this.fetchedCards)
+      {
+        this.updatingname = card.reference;
+        this.g_updateCardFromApi(card.reference);
+        await this.sleep(300)
+      }
+      this.updatingname = null;
+    },
+    async uploadFile(card, blob, pcallback) 
+    {
+      var path = "cards/";
+      var faction = card.mainFaction.reference;
+      if(!faction) faction = card.mainFaction;
+
+      if(faction == "AX") path+= "axiom/";
+      else if(faction == "BR") path+= "bravos/";
+      else if(faction == "LY") path+= "lyra/";
+      else if(faction == "MU") path+= "muna/";
+      else if(faction == "OR") path+= "ordis/";
+      else path+= "yzmir/";
+
+      path+= card.reference + '.webp';
+      
+      const { data, error } = await supabase.storage
+        .from('Altered')
+        .upload(path, blob,{
+          cacheControl: '3600',
+          upsert: true,
+          contentType: 'image/webp',
+        });
+
+      if (error) {
+        // Handle error
+        console.log(error);
+      } else {
+        
+        //update Card.imageS3
+        this.g_updateImageS3(card, path, pcallback);
+      }
+    },
+    convertJpgToWebp(jpgBlob) {
+      return new Promise((resolve, reject) =>
+      {
+        const img = new Image();
+        img.src = URL.createObjectURL(jpgBlob);
+
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+
+          canvas.toBlob(
+            (webpBlob) => {
+              if (webpBlob) {
+                resolve(webpBlob);
+              } else {
+                reject(new Error('Conversion to WebP failed.'));
+              }
+            },
+            'image/webp',
+            0.8 // Quality from 0 to 1 (optional)
+          );
+        };
+
+        img.onerror = () => {
+          reject(new Error('Failed to load JPG image.'));
+        };
+      });
+    },
+    downloadBlob(card, pcallback) {
+        fetch(`http://localhost:3000/proxy?url=${encodeURIComponent(card.imagePath)}`)
+            .then(response => response.blob())
+            .then(jpgBlob => 
+            {
+              this.convertJpgToWebp(jpgBlob)
+                .then((webpBlob) => {
+                  this.uploadFile(card, webpBlob, pcallback) 
+                })
+                .catch((error) => {
+                  console.error('Conversion error:', error);
+                });
+            })
+            .catch(error => console.error('Error downloading image:', error));
+    },
+    onClickDownloadImages()
+    {
+      this.downloadImages();
+    },
+    async downloadImages(pcard, pcallback)
+    {
+      console.log(pcard.reference);
+      if(pcard && pcard.reference)
+      {
+        this.downloadBlob(pcard, pcallback);
+        return;
+      }
+
+      for(let card of this.fetchedCards)
+      {
+        this.updatingname = card.reference;
+        this.downloadBlob(card);
+        await this.sleep(300)
+      }
+      this.updatingname = null;
+    },
     dontChangeDeck()
     {
-      if(this.actionOriConfirmChangeDeck == "CHANGE")
-      {
-        this.currentSelectedDeck = this.currentDeck.id; 
-      }
+      this.currentSelectedDeck = this.currentDeck.id; 
       this.actionOriConfirmChangeDeck = null;
     },
     addUniqueToDeck()
@@ -632,12 +773,33 @@ export default {
     },
     importerUnique(){
       //this.codeImportUnique = 'ALT_COREKS_B_MU_11_U_2926';
-      if(this.codeImportUnique)
+      if(!this.codeImportUnique)
       {
-        this.g_updateCardFromApi(this.codeImportUnique, card => {
-          this.importedUnique = card[0];
-        });
+        return;
       }
+      this.g_fetchCard(this.codeImportUnique, card1 => 
+      {
+        //si la carte a ete trouvé => message d'erreur
+        if(card1)
+        {
+          const toast = useToast();
+          toast("Cette carte existe déjà", { type: TYPE.ERROR });
+        }
+        else 
+        {
+          this.g_updateCardFromApi(this.codeImportUnique, card => 
+          {
+            if(this.g_isUnique(card))
+            {
+              this.downloadImages(card, pcard => this.importedUnique = pcard);
+            }
+            else{
+              const toast = useToast();
+              toast("Cette carte n'est pas une unique", { type: TYPE.ERROR });
+            }
+          });
+        }
+      });
     },
     closeModalImportUnique()
     {
@@ -742,11 +904,12 @@ export default {
       //remettre à null permet de remounted à chaque affichage du detail car component v-if sur l'objet carddetail
       this.currentCardDetail = null;
     },
-    loadDecks() {
-      //TODO : importer les autres decks depuis la bd
-      //JSON.parse(localStorage.getItem("decks"));
-      this.g_fetchDecks(true, (decks) => {
-        
+    loadDecks(pidDft) 
+    {
+      this.deckModified = false;
+      
+      this.g_fetchDecks(true, (decks) => 
+      {
         //alim de la combo
         this.decks = decks.map(deck => { 
           return {
@@ -754,26 +917,50 @@ export default {
             label: deck.name 
           };
         });
-        
-        var storedDeck = JSON.parse(localStorage.getItem("currentDeck"));
 
-        if (storedDeck) 
-        {          
-          if (!decks.some(zedeck => zedeck.id == storedDeck.id)) 
-          {
-            this.decks.push({ value: storedDeck.id, label: storedDeck.name });
-          }
-          this.currentSelectedDeck = storedDeck.id;
-          this.currentDeck = storedDeck;
-
-          if (this.currentDeck.main_faction) {
-            this.currentFaction = this.currentDeck.main_faction;
-            this.setCurrentFaction($("#" + this.currentFaction));
-          }
-          // si un héro est présent dans le deck, on récupère sa faction pour préselectionner le filtre faction
-        }
-        else {
+        if(pidDft)
+        {
           this.currentSelectedDeck = null;
+          this.currentDeck = null;
+          localStorage.removeItem("currentDeck");
+
+          var storedDeck = this.decks.find(deck => deck.id = pidDft);
+          if(storedDeck)
+          {
+            this.g_fetchDeck(storedDeck.id, true, deck => 
+            {
+              this.currentSelectedDeck = deck.id;
+              this.currentDeck = deck;
+              this.saveCurrentDeckToLocalStorage();
+              if (this.currentDeck.main_faction) 
+              {
+                this.setCurrentFaction($("#" + this.currentDeck.main_faction));
+              }
+            });
+          }
+        }
+        else
+        {        
+          //on pre-charge avec le deck courant
+          var storedDeck = JSON.parse(localStorage.getItem("currentDeck"));
+
+          if (storedDeck) 
+          {          
+            if (!decks.some(zedeck => zedeck.id == storedDeck.id)) 
+            {
+              this.decks.push({ value: storedDeck.id, label: storedDeck.name });
+            }
+            this.currentSelectedDeck = storedDeck.id;
+            this.currentDeck = storedDeck;
+
+            if (this.currentDeck.main_faction) {
+              this.setCurrentFaction($("#" + this.currentDeck.main_faction));
+            }
+            // si un héro est présent dans le deck, on récupère sa faction pour préselectionner le filtre faction
+          }
+          else {
+            this.currentSelectedDeck = null;
+          }
         }
       });
     },
@@ -790,8 +977,13 @@ export default {
       this.g_saveDeck(this.currentDeck, deck => {
         this.updateCurrentDeck(deck);
         this.deckModified = false;
+
+        const toast = useToast();
+        if(deck) toast("Deck enregistré");
+        else toast("Deck enregistré", { type: TYPE.ERROR });
       });  
-/*
+
+      /*
 
       var storedDecks = JSON.parse(localStorage.getItem("decks"));
       var inStore = false;
@@ -817,13 +1009,11 @@ export default {
       {
         this.g_deleteDeck(this.currentDeck, (presponse) => 
         {
-          console.log(presponse);
           localStorage.removeItem("currentDeck"); //le deck supprimé est forcément le current
           this.loadDecks();
         }); 
       }
       else{
-        console.log("only local");
         localStorage.removeItem("currentDeck"); //le deck supprimé est forcément le current
         this.loadDecks();
       }
@@ -881,13 +1071,18 @@ export default {
       this.currentCardDetail = card;
       this.afficherDetails = true;
     },
-    removeCard(card) {
+    removeCard(card) 
+    {
       var indice = 0;
-      for (var pcard of this.currentDeck.cards) {
-        if (pcard.reference == card.reference) {
+      for (var pcard of this.currentDeck.cards) 
+      {
+        if (pcard.reference == card.reference) 
+        {
+          this.deckModified = true;
           pcard.quantite--;
 
-          if (pcard.quantite == 0) {
+          if (pcard.quantite == 0) 
+          {
             this.currentDeck.cards.splice(indice, 1);
           }
           this.saveCurrentDeckToLocalStorage();
@@ -895,8 +1090,7 @@ export default {
           return;
         }
         indice++;
-      }
-      
+      }      
     },
     getXXXsCurrentDeck(ptype) {
       if (!this.currentDeck) return [];
@@ -983,14 +1177,22 @@ export default {
       if(this.deckModified && !this.showModalConfirmChangeDeck)
       {
         this.showModalConfirmChangeDeck = true;
-        this.actionOriConfirmChangeDeck = "CHANGE";
+        this.actionOriConfirmChangeDeck = "CHANGER";
+        return;
+      }
+
+      if(this.currentSelectedDeck == 0)
+      {
+        //si on sélectionne un deck en cours de création c'est que les données ont déjà été perdues....
+        //on reinit le current Deck
+        var option = this.decks.find(daik => daik.value == 0);
+        this.initEmptyNewDeck(option.label);
         return;
       }
 
       this.deckModified = false;
       this.g_fetchDeck(this.currentSelectedDeck, true, deck => 
       {
-
         if(deck)
         {
           if(!deck.cards) deck.cards = [];
@@ -1028,55 +1230,143 @@ export default {
         this.refreshStatComponent();
       });
     },
-    onClearCurrentDeck() {
-      this.currentDeck = null;
-    },
-    checkCreateDeck() {
-      if (!this.newDeckName) {
+    onClearCurrentDeck() 
+    {
+      if(this.deckModified && !this.showModalConfirmChangeDeck)
+      {      
+        this.actionOriConfirmChangeDeck = "CLEARSELECTEDDECK";  
+        this.showModalConfirmChangeDeck = true;
         return;
       }
-      this.decks.push({ value: 0, label: this.newDeckName });
-      this.currentSelectedDeck = 0;
       
+      this.deckModified = false;
+      this.currentSelectedDeck = null;
+      this.currentDeck = null;
+      localStorage.removeItem("currentDeck");
+    },
+    isChangingDeck()
+    {
+      return this.actionOriConfirmChangeDeck == "CHANGER";
+    },
+    isCreatingDeck()
+    {
+      return this.actionOriConfirmChangeDeck == "CREER";
+    },
+    isImporting()
+    {
+      return this.actionOriConfirmChangeDeck == "IMPORTER";
+    },
+    isClearingSelectedDeck()
+    {
+      return this.actionOriConfirmChangeDeck == "CLEARSELECTEDDECK";
+    },
+    checkCreateDeck() {
+      const toast = useToast();
+
+      if (!this.newDeckName || (this.isImporting() && !this.newDecklist)) {
+        
+        toast(this.isImporting() ? "Tous les champs sont obligatoires" : "Le nom du deck est obligatoire", { type: TYPE.ERROR });
+        return;
+      }
+
+      if(this.isImporting())
+      {
+        //vérification du format
+        try {
+          var decklist = this.newDecklist.trim().split('\n').map(ligne => 
+          {
+            var tab = ligne.split(' ');
+            return {
+                qte:parseInt(tab[0].trim()),
+                ref:tab[1].trim(),
+            }
+          });
+
+          //on enregistre directement en base et on reload tout
+          this.g_importDeck(this.newDeckName, decklist, deck => 
+          {
+            if(!deck) toast('Une erreur s\'est produite', { type: TYPE.ERROR });
+            else {
+              //reload des decks en se positionnant sur celui importé
+              this.loadDecks(deck.id);
+              this.creatingDeck = false;
+            }
+          })
+        }
+        catch (error) 
+        {
+          console.log(error);
+          toast('Une erreur s\'est produite', { type: TYPE.ERROR });
+        }
+        return;
+      }
+
+
+      this.decks.push({ value: 0, label: this.newDeckName });
+
+      this.initEmptyNewDeck(this.newDeckName);
+    },
+    initEmptyNewDeck(pname)
+    {
       this.currentDeck = {
         id: 0,
-        name: this.newDeckName,
+        name: pname,
         description: '',
         public: true,
         main_faction: '',
         cards: []
       };
 
+      this.currentSelectedDeck = 0;
       this.saveCurrentDeckToLocalStorage();
-
-      //this.newDeckName = null;
       this.creatingDeck = false;
+      this.deckModified = true;
     },
     cancelCreateDeck() {
       this.creatingDeck = false;
     },
     confirmChangeDeck()
     {
-      if(this.actionOriConfirmChangeDeck=="CREER")
+      if(this.isCreatingDeck() || this.isImporting())
       {
         this.createDeck();
       }
-      else if(this.actionOriConfirmChangeDeck=="CHANGE")
+      else if(this.isChangingDeck())
       {
         this.onSelectCurrentDeck();
+      }
+      else if(this.isClearingSelectedDeck())
+      {
+        this.onClearCurrentDeck();
       }
       this.actionOriConfirmChangeDeck = null;
       this.showModalConfirmChangeDeck = false;
     },
-    createDeck() {
-      
+    importDeck()
+    {
+      this.actionOriConfirmChangeDeck = "IMPORTER";
+
       if(this.deckModified && !this.showModalConfirmChangeDeck)
-      {
-        this.actionOriConfirmChangeDeck = "CREER";
+      {        
         this.showModalConfirmChangeDeck = true;
         return;
       }
 
+      this.newDeckName = '';
+      this.newDecklist = '';
+      this.creatingDeck = true;
+    },
+    createDeck() 
+    {
+      this.actionOriConfirmChangeDeck = "CREER";
+
+      if(this.deckModified && !this.showModalConfirmChangeDeck)
+      {
+        this.showModalConfirmChangeDeck = true;
+        return;
+      }
+      this.newDeckName = '';
+      this.newDecklist = '';
       this.creatingDeck = true;
 
       //$("#awid-fdeckname").trigger("focus");
@@ -1298,7 +1588,7 @@ export default {
       if (calculatedtype.length > 0) req = req.in("cardType", calculatedtype);
 
       if (this.currentEditions.length > 0) req = req.in("cardSet", this.currentEditions);
-
+      console.log(this.currentEditions)
       var streq = [];
       if (this.currentSoustypes.length > 0)
       {
@@ -1315,7 +1605,7 @@ export default {
       
       this.currentSort.forEach(sortref => {
         var tab = sortref.split(',');
-        req = req.order(tab[0], { ascending: tab.length == 1 })
+        req = req.order(tab[0] == 'translations.name' ? 'name' : tab[0], { ascending: tab.length == 1 })
       });      
       req = req.range((this.currentPage - 1) * 12, (this.currentPage * 12) );
       const { data: cards, error } = await req;
@@ -1345,7 +1635,7 @@ export default {
 
       try {
         this.loading = true;
-        if (!this.currentSort || this.currentSort.length == 0) this.currentSort = ["translations.name"];
+        if (!this.currentSort || this.currentSort.length == 0) this.currentSort = [database ? 'name' : 'translations.name'];
 
         if(this.database)
         {
@@ -1354,13 +1644,13 @@ export default {
         }       
 
         var params = {
-          itemsPerPage: this.itemsPerPage,
+          itemsPerPage: 10000,
           page: this.currentPage,
           factions: this.currentFaction
         };
         this.currentSort.forEach((sortingType) => {
           var tabs = sortingType.split(',');
-          params["order[" + tabs[0] + "]"] = (tabs.length == 1 ? "ASC" : "DESC");
+          params["order[" + (tabs[0] == 'name' ? 'translations.name' : tabs[0]) + "]"] = (tabs.length == 1 ? "ASC" : "DESC");
         });
 
         if (this.bearer != '') $.extend(params, { collection: true });
@@ -1402,15 +1692,7 @@ export default {
             response.data["hydra:member"].forEach(element => 
             {
               this.g_upsertCard(element, false, true);
-
-              if (!this.emptyplayset || (this.emptyplayset && element.inMyCollection < 3)) {
-                var zecard = this.deckbuilder ? this.g_getCardInDeck(element.reference, this.currentDeck) : element;
-                if (zecard) this.fetchedCards.push(zecard);
-                else {
-                  element.quantite = 0;
-                  this.fetchedCards.push(element);
-                }
-              }
+              this.fetchedCards.push(element);
             });
             this.loading = false;
             this.currentPage++;
@@ -1427,6 +1709,10 @@ export default {
 </script>
 
 <style>
+.aw-imgmiddle
+{
+  max-width: 500px !important;
+}
 .aw-arrowcollapse
 {
   width: 23px;
