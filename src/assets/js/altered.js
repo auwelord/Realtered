@@ -1,4 +1,5 @@
 import subtypes from '../rsc/subtypes.json'
+import factions from '../rsc/factions.json'
 import keywords from '../rsc/keywords.json'
 import { supabase } from '@/db/client'
 
@@ -12,6 +13,12 @@ const altered = {
 export default {
     install: (app, options) => 
     {
+        app.config.globalProperties.g_getImageBanner = function(phero)
+        {
+            var heroname = phero.name.split('&')[0].trim().toLowerCase();
+            return "/src/assets/img/altered/banner-" + heroname + '.png';
+        }
+        
         async function retrieveUser (pcallback)
         {
             let { data: { user } } = await supabase.auth.getUser()
@@ -21,7 +28,7 @@ export default {
         async function deconnectUser (pcallback)
         {
             await supabase.auth.signOut()
-            pcallback();
+            if(pcallback) pcallback();
         }
 
         function combinaison(a, b) {
@@ -130,11 +137,13 @@ export default {
             return altered.options.subtypes;
         };
 
-        app.config.globalProperties.g_getCardsOfType = function (ptype, pdeck) {
+        app.config.globalProperties.g_getCardsOfType = function (ptype, pdeck, pisdecklist) {
             if (!pdeck) return [];
 
             const cards = [];
-            pdeck.cards.forEach(card => {
+            var liste = pisdecklist ? pdeck : pdeck.cards;
+
+            liste.forEach(card => {
                 if (card.cardType == ptype) {
                     cards.push(card);
                 }
@@ -144,6 +153,9 @@ export default {
 
         app.config.globalProperties.g_getCardsOfTypeHero = function (pdeck) {
             return this.g_getCardsOfType("HERO", pdeck);
+        }
+        app.config.globalProperties.g_getCardsOfTypeHeroDecklist = function (pdeck) {
+            return this.g_getCardsOfType("HERO", pdeck, true);
         }
 
         app.config.globalProperties.g_isOOF = function (pcard, pdeck)
@@ -204,7 +216,15 @@ export default {
             if(!pdeck) return false;
             if(pcard.quantite == 3) return false;
             if(this.g_isOOF(pcard, pdeck)) return false;
-            if(pcard.quantite == 1 && (this.g_isHero(pcard) || this.g_isUnique(pcard))) return false;
+            var ishero = this.g_isHero(pcard);
+            if(pcard.quantite == 1 && (ishero || this.g_isUnique(pcard))) return false;
+
+            if(ishero)
+            {
+                var hero = this.g_getCardsOfTypeHero(pdeck);
+                if(hero && hero.length > 0) return false;
+            }
+
             return true;
         }
 
@@ -232,6 +252,11 @@ export default {
                     return "#FFF";
             }
         }; 
+        app.config.globalProperties.g_getFactionName = function (pfaction, plc)
+        {
+            var name = factions[pfaction].fr;
+            return plc ? name.toLowerCase() : name;
+        }
         app.config.globalProperties.g_getFactionColorFromDeck = function (pdeck)
         {
             return this.g_getFactionColor(this.g_getFactionFromDeck(pdeck));

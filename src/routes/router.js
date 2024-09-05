@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Accueil from '../components/Accueil.vue';
 import DeckBuilder from '../components/DeckBuilder.vue';
 import Collection from '../components/Collection.vue';
+import Decklists from '../components/Decklists.vue';
 import Test from '../components/Test.vue';
 
 const routes = [
@@ -14,25 +15,36 @@ const routes = [
         path: '/accueil',
         name: 'Accueil',
         component: Accueil,
-        history: true
+        history: true,
+        props: true
     },
     {
         path: '/deckbuilder',
         name: 'DeckBuilder',
         component: DeckBuilder,
-        history: true
+        history: true,
+        props: true
     },
     {
         path: '/collection',
         name: 'Collection',
         component: Collection,
-        history: true
+        history: true,
+        props: true
+    },
+    {
+        path: '/decklists',
+        name: 'Decks',
+        component: Decklists,
+        history: true,
+        props: true
     },
     {
         path: '/test',
         name: 'Test',
         component: Test,
-        history: false
+        history: false,
+        props: true
     }
 ];
 

@@ -1,6 +1,4 @@
 <template>
-  <Menu :user="user" @deconnect="deconnecterUser" />
-
   <div class="aw-wrapper">
     <img src="@/assets/img/collectionfond.png" class="aw-fond" />
 
@@ -476,29 +474,37 @@
 
 <style src="@vueform/multiselect/themes/default.css"></style>
 
+<script setup>
+import { watch } from 'vue'
+import { getCurrentInstance } from 'vue';
 
+const props = defineProps({
+  user: { type: Object},
+  admin: { type: Boolean},
+  deckbuilder: false,
+});
+
+const instance = getCurrentInstance();
+
+watch(() => props.user, async (newUser, oldUser) => 
+{
+  if(!newUser)
+  {
+    instance.proxy.loadDecks(0, true);
+  }
+})
+</script>
 
 <script>
-import Menu from './Menu.vue';
 import axios from 'axios';
-import Card from './Card.vue';
-import Loader from './icons/Loader.vue';
-import CardDecklist from './CardDecklist.vue';
-import CardDetail from './CardDetail.vue';
-import DeckStats from './DeckStats.vue';
 import { supabase } from '@/db/client'
 import { useToast, TYPE } from "vue-toastification";
 
 export default {
   name: 'Collection',
-  props: {
-    deckbuilder: false,
-  },
   data() {
     return {
-      admin: false,
       database: true,
-      user: null,
       fullscreendecklist: false,
       renderStatComponent: true,
       isSelected: true,
@@ -583,15 +589,8 @@ export default {
       bearer: "", //"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJDMFo0V3JVWE1xT2JtMy1CTU8xRFV5YktidFA2bldLb2VvWmE1UGJuZHhZIn0.eyJleHAiOjE3MjQ4NjYxMzAsImlhdCI6MTcyNDg2MjUzMCwiYXV0aF90aW1lIjoxNzI0Njc0NTgzLCJqdGkiOiJiNmIyYWVmMC1kMjM5LTRjODAtODc3MC05ZDZjNGY3NThjYjYiLCJpc3MiOiJodHRwczovL2F1dGguYWx0ZXJlZC5nZy9yZWFsbXMvcGxheWVycyIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJjMDlkZTkxOS02ZjRlLTQ0MjAtYjIwZi1hNGIwM2ZiZGI2OWEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJ3ZWIiLCJzZXNzaW9uX3N0YXRlIjoiNGFlNjdkNzktZjgxYi00NGQzLTg4MWEtZjY3YjAzMDg3MzUyIiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL2F1dGguYWx0ZXJlZC5nZyIsImh0dHBzOi8vd3d3LmFsdGVyZWQuZ2ciXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtcGxheWVycyIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwic2lkIjoiNGFlNjdkNzktZjgxYi00NGQzLTg4MWEtZjY3YjAzMDg3MzUyIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInByZWZlcnJlZF91c2VybmFtZSI6ImF1d2Vsb3JkQGdtYWlsLmNvbSIsImVtYWlsIjoiYXV3ZWxvcmRAZ21haWwuY29tIn0.p3jvws1b8phCQUfVd5F5eDvrEjd-o_nrZMbyHi3xeKkFXIDblAqx3KEAaABctSwxZcREUreGhClOwXRCVIsnBeCsPAtoEhWNftr-oL2g68gpb6lOO6x_bb_ZyE-oOXwiTJcHM8vYxBGc2LCNURDFHtQfBgM4kuf87AVG1NltaqrDUV0UhmP94ud4UZTTJDO_UMCUWaGuhsiWilUssCckPfLng0-T9Nd6272168fyoefgIwOZG6HWUOyZHh-5O24tVdKGBTrVA0zyAF-POg2ADxAHj7fjIj7mYC5c9oVxHSAT1oFQ4UPlliGhlO3CeKqMDmNdgBXoWLEfh1hOoMnajQ"
     };
   },
-  mounted() {
-    this.g_retrieveuser(puser => {
-      this.user = puser
-      this.admin = this.g_isAdmin(puser);
-    });
-
-    //axios.get('https://api.altered.gg/cards/filter-data', {}).then(response => console.log(response));
-    //axios.get('https://qr.altered.gg/ALT_COREKS_B_MU_15_C', {}).then(response => console.log(response));
-    
+  mounted() 
+  { 
     const storeduiparams = localStorage.getItem("uiparams");
     if(storeduiparams) this.uiparams = JSON.parse(storeduiparams);
     
@@ -811,9 +810,6 @@ export default {
       this.codeImportUnique = '';
       this.showModalImportUnique = true;
     },
-    deconnecterUser(){
-      this.g_deconnecter(() => this.user = null);
-    },
     onFullscreenDecklist(){
       this.fullscreendecklist = !this.fullscreendecklist;
     },
@@ -904,64 +900,79 @@ export default {
       //remettre à null permet de remounted à chaque affichage du detail car component v-if sur l'objet carddetail
       this.currentCardDetail = null;
     },
-    loadDecks(pidDft) 
+    onFetchedDecks(pdecks, pidDft)
     {
-      this.deckModified = false;
-      
-      this.g_fetchDecks(true, (decks) => 
+      //alim de la combo
+      this.decks = pdecks.map(deck => { 
+        return {
+          value: deck.id, 
+          label: deck.name 
+        };
+      });
+
+      if(pidDft)
       {
-        //alim de la combo
-        this.decks = decks.map(deck => { 
-          return {
-            value: deck.id, 
-            label: deck.name 
-          };
-        });
+        this.currentSelectedDeck = null;
+        this.currentDeck = null;
+        localStorage.removeItem("currentDeck");
 
-        if(pidDft)
+        var storedDeck = this.decks.find(deck => deck.id = pidDft);
+        if(storedDeck)
         {
-          this.currentSelectedDeck = null;
-          this.currentDeck = null;
-          localStorage.removeItem("currentDeck");
-
-          var storedDeck = this.decks.find(deck => deck.id = pidDft);
-          if(storedDeck)
+          this.g_fetchDeck(storedDeck.id, true, deck => 
           {
-            this.g_fetchDeck(storedDeck.id, true, deck => 
+            this.currentSelectedDeck = deck.id;
+            this.currentDeck = deck;
+            this.saveCurrentDeckToLocalStorage();
+            if (this.currentDeck.main_faction) 
             {
-              this.currentSelectedDeck = deck.id;
-              this.currentDeck = deck;
-              this.saveCurrentDeckToLocalStorage();
-              if (this.currentDeck.main_faction) 
-              {
-                this.setCurrentFaction($("#" + this.currentDeck.main_faction));
-              }
-            });
-          }
-        }
-        else
-        {        
-          //on pre-charge avec le deck courant
-          var storedDeck = JSON.parse(localStorage.getItem("currentDeck"));
-
-          if (storedDeck) 
-          {          
-            if (!decks.some(zedeck => zedeck.id == storedDeck.id)) 
-            {
-              this.decks.push({ value: storedDeck.id, label: storedDeck.name });
-            }
-            this.currentSelectedDeck = storedDeck.id;
-            this.currentDeck = storedDeck;
-
-            if (this.currentDeck.main_faction) {
               this.setCurrentFaction($("#" + this.currentDeck.main_faction));
             }
-            // si un héro est présent dans le deck, on récupère sa faction pour préselectionner le filtre faction
-          }
-          else {
-            this.currentSelectedDeck = null;
-          }
+          });
         }
+      }
+      else
+      {        
+        //on pre-charge avec le deck courant
+        var storedDeck = JSON.parse(localStorage.getItem("currentDeck"));
+
+        if (storedDeck) 
+        {          
+          if (!pdecks.some(zedeck => zedeck.id == storedDeck.id)) 
+          {
+            this.decks.push({ value: storedDeck.id, label: storedDeck.name });
+          }
+          this.currentSelectedDeck = storedDeck.id;
+          this.currentDeck = storedDeck;
+
+          if (this.currentDeck.main_faction) {
+            this.setCurrentFaction($("#" + this.currentDeck.main_faction));
+          }
+          // si un héro est présent dans le deck, on récupère sa faction pour préselectionner le filtre faction
+        }
+        else {
+          this.currentSelectedDeck = null;
+        }
+      }
+    },
+    loadDecks(pidDft, ondeconnect) 
+    {
+      this.deckModified = false;
+
+      //sur un rechargement après deconnexion, si le currentdeck etait > 0, on le supprime
+      if(ondeconnect)
+      {
+        if(this.currentSelectedDeck > 0)
+        {
+          this.currentSelectedDeck = null
+          this.currentDeck = null
+          localStorage.removeItem("currentDeck")
+        }
+      }
+
+      this.g_fetchDecks({
+        myonly: true,
+        callback : pdecks => this.onFetchedDecks(pdecks, pidDft)
       });
     },
     updateCurrentDeck(pdeck)
@@ -1081,6 +1092,11 @@ export default {
           this.deckModified = true;
           pcard.quantite--;
 
+          if(this.g_isHero(card))
+          {
+            this.currentDeck.hero_id = null
+          }
+
           if (pcard.quantite == 0) 
           {
             this.currentDeck.cards.splice(indice, 1);
@@ -1137,6 +1153,7 @@ export default {
       {
         if(this.g_isHero(card))
         {
+          this.currentDeck.hero_id = card.reference 
           this.currentDeck.main_faction = card.mainFaction;
         }
         const addedCard = $.extend(card, { quantite: 1 });
@@ -1314,6 +1331,7 @@ export default {
         description: '',
         public: true,
         main_faction: '',
+        hero_id: null,
         cards: []
       };
 

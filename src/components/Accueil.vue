@@ -1,12 +1,12 @@
 <template>
-  <Menu />
   <section id="home" class="hero-section">
     <div class="container">
       <div class="row align-items-center">
         <div class="col-lg-6">
           <div class="hero-content">
             <h1 class="wow fadeInUp" data-wow-delay=".2s">
-              Explorer l'inattendu
+              <span v-if="user">{{user.user_metadata.custom_claims.global_name}}, explore l'inattendu !</span>
+              <span v-else>Explorer l'inattendu</span>
             </h1>
             <p class="wow fadeInUp" data-wow-delay=".4s">
               Incarne un héros, choisis ta faction et mène tes expéditions vers l'inconnu dans ce jeu de cartes à
@@ -110,14 +110,20 @@
   </footer>
 </template>
 
+<script setup>
+defineProps({
+  user: { type: Object},
+  admin: { type: Boolean},
+});
+</script>
+
 <script>
-import Menu from '@/components/Menu.vue'
 import LogoAltered from '@/components/icons/Logo.vue'
 
 export default {
   name: 'Accueil',
   components: {
-    LogoAltered, Menu
+    LogoAltered
   },
 };
 </script>

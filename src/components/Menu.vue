@@ -25,6 +25,9 @@
                                         <router-link to="/collection" class="page-scroll" href="#">Collection</router-link>
                                     </li>
                                     <li class="nav-item">
+                                        <router-link to="/decklists" class="page-scroll" href="#">Decks</router-link>
+                                    </li>
+                                    <li class="nav-item">
                                         <router-link to="/deckbuilder" class="page-scroll" href="#">Deckbuilder</router-link>
                                     </li>
                                     <li class="nav-item">
@@ -46,8 +49,6 @@
         </div>
         <!-- navbar area -->
     </header>
-
-    <router-view />
 
     <!-- The modal -->
     <BModal v-model="modalDisconnect" @ok="discordDeconnection" centered cancel-title="Annuler" ok-title="Se déconnecter" ok-variant="danger" title="Se déconnecter">

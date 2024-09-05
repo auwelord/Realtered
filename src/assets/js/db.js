@@ -6,7 +6,7 @@ export default {
     {
         app.config.globalProperties.g_isAdmin = function(puser)
         {
-            return puser.id == import.meta.env.VITE_SUPABASE_ADMINID;
+            return puser && puser.id == import.meta.env.VITE_SUPABASE_ADMINID;
         }
         
         async function updateCardFromApi(pid, pcallback)
@@ -51,40 +51,97 @@ export default {
             fetchAllCards();
         }
 
-        async function run(preq, pdftval, pcallback)
+        async function runFetchDecks(preq, pdftval, params)
         {
-            const { data: zedata, erreur } = await preq;
-
+            const { data: decks, erreur } = await preq;
+            
             if(erreur){
                 console.log(erreur);
                 return;
             }
-            if(pcallback) pcallback(zedata ? zedata : pdftval);
+            if(params.withcards)
+            {
+                for(let deck of decks)
+                {
+                    $.extend(deck, {cards: []});
+
+                    if(deck.CardsDeck)
+                    {
+                        var refs = deck.CardsDeck.map(card => card.cardRef);
+                                            
+                        var req = await supabase
+                            .from('Card')
+                            .select()
+                            .in('reference', refs)
+                            .order('cardType')
+                            .order('mainCost')
+                            .order('recallCost')
+                            .order('name');
+
+                        req.data.forEach(card => 
+                        {
+                            var realcardeck = deck.CardsDeck.find(carddeck => carddeck.cardRef == card.reference)
+                            deck.cards.push($.extend(card, {quantite: realcardeck.quantity}));
+                        });
+                        delete deck.CardsDeck
+                    }
+                }
+            }
+
+            if(params.callback) params.callback(decks ? decks : pdftval);
         }
 
-        async function fetchDecks(pmyonly, pcallback)
+        async function fetchDecks(params)
         {
-            var req = supabase
-                .from('Deck')
-                .select();
+            var req = supabase.from('Deck');
 
-            if(pmyonly)
+            if(params.withcards) req = req
+                .select('*, CardsDeck(*), hero:Card(*)')
+
+            else req = req.select()
+
+            req = req.order('modifiedAt', {ascending : false});
+
+            if(params.faction)
             {
-                app.config.globalProperties.g_retrieveuser(user => 
+                req = req.eq('main_faction', params.faction);
+            }           
+
+            if(params.myonly)
+            {
+                app.config.globalProperties.g_retrieveuser(puser => 
                 {
-                    req = req.eq('userId', user.id);
-                    run(req, [], pcallback);
+                    if(!puser)
+                    {
+                        pcallback([])
+                        return
+                    }
+                    req = req.eq('userId', puser.id);
+                    runFetchDecks(req, [], params);
                 });
                 return;
             }
-
-            const { data: fetched, erreur } = await req;
-            pcallback(fetched ? fetched : []);            
+            
+            //on veut tous les decks
+            app.config.globalProperties.g_retrieveuser(puser => 
+            {
+                //utilisateur non connecté : on recupere que les decks publics
+                if(!puser)
+                {
+                    req = req.eq('public', true);
+                }
+                else
+                {
+                    //utilisateur connecté : on recupere tous les decks publics + mes decks
+                    req = req.or('public.eq.TRUE,userId.eq.' + puser.id);
+                }
+                runFetchDecks(req, [], params);
+            });          
         }
 
-        app.config.globalProperties.g_fetchDecks = function(pmyonly, pcallback)
+        app.config.globalProperties.g_fetchDecks = function(params)
         {
-            fetchDecks(pmyonly, pcallback)
+            fetchDecks(params)
         }
 
         async function fetchDeck(pid, pwithcards, pcallback)
@@ -92,24 +149,15 @@ export default {
             var req = supabase.from('Deck');
             if(pwithcards)
             {
-                req = req.select('*, CardsDeck(*)')
+                req = req.select('*, CardsDeck(*), hero:Card(*)')
             }
-            req = req.eq('id', pid);
 
-            const { data: deck, erreurdeck } = await req
+            const { data: deck, erreurdeck } = await req.eq('id', pid);
             
             var found = deck && deck.length > 0;
             if(found)
             {
-                var zedeck = 
-                {
-                    id: deck[0].id,
-                    name: deck[0].name,
-                    public: deck[0].public,
-                    main_faction: deck[0].main_faction,
-                    description: deck[0].description,
-                    cards: []
-                }
+                var zedeck = $.extend(deck[0], {cards: []});
 
                 if(pwithcards && deck[0].CardsDeck)
                 {
@@ -126,6 +174,9 @@ export default {
                         zedeck.cards.push($.extend(card, {quantite: realcardeck.quantity}));
                     });
                 }
+                
+                if(pwithcards) delete zedeck.CardsDeck
+
                 pcallback(zedeck);                
             }
             else pcallback(null);
@@ -164,25 +215,33 @@ export default {
                     quantity: card.qte
                 }}
             );
-            
+
+            var refs = pdecklist.map(card => card.ref);
+                        
             //recup auto de la faction à partir de la liste des cartes pour update du deck
             if(cards.length > 0)
             {
-                const { data: card, errcard } = await supabase
+                const { data: cardlist, errcard } = await supabase
                     .from('Card')
                     .select()
-                    .eq('reference', cards[0].cardRef);
+                    .in('reference', refs);
 
-                if(!errcard && card.length > 0)
+                if(!errcard && cardlist.length > 0)
                 {
-                    saveddeck[0].main_faction = card[0].mainFaction;
-                    await supabase
-                        .from('Deck')
-                        .upsert(saveddeck[0])
-                        .select();
+                    var hero = app.config.globalProperties.g_getCardsOfTypeHeroDecklist(cardlist);
+                    if(hero && hero.length > 0)
+                    {
+                        saveddeck[0].main_faction = hero[0].mainFaction;
+                        saveddeck[0].hero_id = hero[0].reference;
+                        await supabase
+                            .from('Deck')
+                            .upsert(saveddeck[0])
+                            .select();
+                    }
                 }
             }
 
+            
             await supabase
                 .from('CardsDeck')
                 .insert(cards);
@@ -197,18 +256,11 @@ export default {
 
         async function saveDeck(pdeck, pcallback)
         {
-            var deck = {
-                name: pdeck.name,
-                public: pdeck.public,
-                main_faction: pdeck.main_faction,
-                description: pdeck.description,
-                modifiedAt: new Date().toISOString()
-            }
+            var deck = $.extend({}, pdeck);
+            delete deck.cards
+            delete deck.hero
+            deck.modifiedAt = new Date().toISOString()
 
-            if(pdeck.id != 0)
-            {
-                $.extend(deck, {id: pdeck.id})
-            }
             var response = await supabase
                 .from('Deck')
                 .upsert(deck)
