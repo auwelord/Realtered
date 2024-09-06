@@ -33,7 +33,7 @@ const routes = [
         props: true
     },
     {
-        path: '/decklists',
+        path: '/decklists/:pathMatch(.*)*',
         name: 'Decks',
         component: Decklists,
         history: true,

@@ -122,3 +122,19 @@
   border-color: grey;
   opacity: 0.7;
 }
+
+.btn-uniqued2
+{
+  background-color: var(--c-uniqued2);
+  color: #fff;
+}
+.btn-uniqued2:hover
+{
+  background-color: var(--c-unique);
+  color: #fff;
+}
+
+img.aw-alteredcard
+{
+  border-radius: 5px;
+}

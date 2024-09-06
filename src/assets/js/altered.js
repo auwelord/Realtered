@@ -18,6 +18,12 @@ export default {
             var heroname = phero.name.split('&')[0].trim().toLowerCase();
             return "/src/assets/img/altered/banner-" + heroname + '.png';
         }
+
+        app.config.globalProperties.g_getImageHeroNotext = function(phero)
+        {
+            var heroname = phero.name.split('&')[0].trim().toLowerCase();
+            return "/src/assets/img/altered/heronotext-" + heroname + '.png';
+        }
         
         async function retrieveUser (pcallback)
         {
@@ -276,6 +282,75 @@ export default {
                 return card[0].mainFaction;
             }
             return null;
+        }
+
+        function getTotalTypesInDeck(params) 
+        {
+            if(!params || !params.deck) return 0
+
+            var total = 0;
+            for (var pcard of params.deck.cards) 
+            {
+                if (pcard.cardType == params.type)
+                total += pcard.quantite;
+            }
+            return total
+        }
+
+        app.config.globalProperties.g_getTotalPersosInDeck = function (params) 
+        {
+            return getTotalTypesInDeck($.extend(params, {type: "CHARACTER"}))
+        }
+
+        app.config.globalProperties.g_getTotalSortsInDeck = function (params) 
+        {
+            return getTotalTypesInDeck($.extend(params, {type: "SPELL"}))
+        }
+
+        app.config.globalProperties.g_getTotalPermasInDeck = function (params)
+        {
+            return getTotalTypesInDeck($.extend(params, {type: "PERMANENT"}))
+        }
+
+        function getTotalRarityInDeck(params) 
+        {
+            var total = 0;
+            for (var pcard of params.deck.cards) 
+            {
+              if (!params.rarity || (pcard.rarity == params.rarity && pcard.cardType != "HERO"))
+                total += pcard.quantite;
+            }
+            return total;
+        }
+
+        app.config.globalProperties.g_getTotalCardsInDeck = function (params)
+        {
+            return getTotalRarityInDeck(params);
+        }
+
+        app.config.globalProperties.g_getTotalCommunesInDeck = function (params)
+        {
+            return getTotalRarityInDeck($.extend(params, {rarity: "COMMON"}));
+        }
+
+        app.config.globalProperties.g_getTotalRaresInDeck = function (params)
+        {
+            return getTotalRarityInDeck($.extend(params, {rarity: "RARE"}));
+        }
+
+        app.config.globalProperties.g_getTotalUniquesInDeck = function (params)
+        {
+            return getTotalRarityInDeck($.extend(params, {rarity: "UNIQUE"}));
+        }
+
+        /**
+         * preference : reference de la carte à tester
+         * @return true si la référence est associée à une unique, false sinon
+         */
+        
+        app.config.globalProperties.g_isUniqueFromReference = function (preference)
+        {
+            return preference && preference.split('_').length == 7            
         }
     }
 };

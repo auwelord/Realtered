@@ -5,7 +5,7 @@ import { library }
 import { 
     faPhone, faUser, faFlag, faMagnifyingGlass, faMask, faWandMagicSparkles, faHouse, faBuildingShield, 
     faPersonWalking, faMagnifyingGlassArrowRight, faCirclePlus, faCircleMinus, faCheck, faChartColumn, 
-    faExpand, faFileImport, faLock } 
+    faExpand, faFileImport, faLock, faLeftLong, faRightLong } 
     from "@fortawesome/free-solid-svg-icons";
 import { faJs, faVuejs, faDiscord } 
     from "@fortawesome/free-brands-svg-icons";
@@ -14,7 +14,7 @@ import { faCircleDown, faEye, faFloppyDisk, faTrashCan}
 
 library.add(faPhone, faUser, faFlag, faJs, faVuejs, faDiscord, faMagnifyingGlass, faCircleDown, faMask, faWandMagicSparkles, faHouse, faBuildingShield, faPersonWalking,
     faMagnifyingGlassArrowRight, faCirclePlus, faCircleMinus, faCheck, faEye, faFloppyDisk, 
-    faTrashCan, faChartColumn, faExpand, faFileImport, faLock
+    faTrashCan, faChartColumn, faExpand, faFileImport, faLock, faLeftLong, faRightLong
 );
 
 export default FontAwesomeIcon;

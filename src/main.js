@@ -35,4 +35,18 @@ const app = createApp(App)
     .use(Toast)
     .use(createBootstrap());
 
+app.directive('focus', {
+    mounted(el) {
+        el.focus(); // Automatically focus the element when it's mounted
+    }
+});
+app.directive('visible', {
+    mounted(el, binding) {
+        el.style.visibility = !!binding.value ? 'visible' : 'hidden';
+    },
+    updated(el, binding) {
+        el.style.visibility = !!binding.value ? 'visible' : 'hidden';
+    },
+});
+
 app.mount('#app');

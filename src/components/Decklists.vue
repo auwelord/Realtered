@@ -1,11 +1,16 @@
 <template>
     <div class="aw-wrapper">
-        <img src="@/assets/img/collectionfond.png" class="aw-fond" v-if="!afficherstats"/>
 
-        <div class="container-fluid pt-2"> <!--begin::Row-->
+        <div v-if="erreurdeckid" class="d-flex justify-content-center">
+            <img src="@/assets/img/empty.png" v-if="!decks || decks.length == 0"/>
+        </div>
+
+        <img src="@/assets/img/collectionfond.png" class="aw-fond" v-if="!afficherstats && !imagePathFullsize"/>
+
+        <div class="container-fluid pt-2" v-if="!erreurdeckid"> <!--begin::Row-->
             <div class="row">
-                <div :class="['col-xl-4 col-12', afficherstats ? 'aw-deckliststat' : '']">
-                    <div class="card card-outline card-info mb-1" v-if="!afficherstats">
+                <div :class="['col-xl-4 col-12 aw-colleft', afficherstats ? 'aw-deckliststat' : '']">
+                    <div class="card card-outline card-info mb-1" v-if="!afficherstats && !imagePathFullsize">
                         <div class="card-header">
                             <h3 class="card-title">Factions</h3>
                             <div class="card-tools">
@@ -40,7 +45,14 @@
                                     @click="changeFaction"><img src="@/assets/img/altered/factions/yzmir.webp"
                                         class="aw-faction" /></a>
                             </div>
-                            <div class="mt-2 aw-decks">
+                            Héro / Héroïne
+                            <Multiselect v-model="currenthero"
+                                :options="heroes"
+                                :close-on-select="true" 
+                                :searchable="true"
+                                />
+                            <div :class="['mt-2 aw-decks', decks && decks.length > 0 ? '' : 'd-flex justify-content-center']">
+                                <img src="@/assets/img/empty.png" v-if="!decks || decks.length == 0"/>
                                 <BListGroup>
                                     <BListGroupItem @click="onShowDeck(deck)" v-for="deck in decks"
                                         :class="['aw-deck', getDeckCssClass(deck)]" :id="'deck' + deck.id">
@@ -60,10 +72,23 @@
                                     </BListGroupItem>
                                 </BListGroup>
                             </div>
+                            <div class="mt-2 d-flex">
+                                <BButton @click="onPreviousDecks" variant="uniqued2" size="sm" class="flex-fill me-2 fs-4" title="Decks précédents" v-visible="currentpage > 1">
+                                    <font-awesome-icon :icon="['fas', 'left-long']" />
+                                </BButton>
+                                <BButton @click="onNextDecks" variant="uniqued2" size="sm" class="flex-fill ms-2 fs-4" title="Decks suivants" v-visible="hasnextdeck">
+                                    <font-awesome-icon :icon="['fas', 'right-long']" />
+                                </BButton>
+                            </div>
                         </div>
                     </div>
 
-                    <DeckStats v-if="currentdeck && afficherstats" :currentDeck="currentdeck" />
+                    <div v-if="imagePathFullsize" class="aw-imgapercu">
+                        <div class="sticky">
+                            <img :src="imagePathFullsize" alt="" class="img-fluid aw-alteredcard" />
+                        </div>
+                    </div>
+                    <DeckStats v-if="currentdeck && afficherstats && !imagePathFullsize" :currentDeck="currentdeck" />
                 </div>
                 <div class="col-xl-8 col-12" v-if="currentdeck">
 
@@ -74,17 +99,23 @@
                                     <div>
                                         <div class="aw-titledeck fs-3">{{currentdeck.name}} </div>
                                         <br>
-                                        <div class="fs-6">Personnages : 25 </div>
-                                        <div class="fs-6">Sorts : 5 </div>
-                                        <div class="fs-6">Permanents : 3 </div>
+                                        <div class="aw-titlehero fs-7">{{currentdeck.hero.name}} </div>
+                                        <br>
+                                        <div class="fs-6">Personnages : {{ g_getTotalPersosInDeck({deck: currentdeck}) }} </div>
+                                        <div class="fs-6">Sorts : {{ g_getTotalSortsInDeck({deck: currentdeck}) }} </div>
+                                        <div class="fs-6">Permanents : {{ g_getTotalPermasInDeck({deck: currentdeck}) }} </div>
                                     </div>
 
-                                    <div>
+                                    <div v-if="!deckid">
                                         <label class="switch me-2">
                                             <input type="checkbox" v-model="afficherstats">
                                             <span class="slider round"></span>
                                         </label> Voir les statistiques
                                     </div>
+                                    
+                                    <BButton @click="onImporterDeck" variant="unique" size="sm" title="importer le deck">
+                                        <font-awesome-icon :icon="['fas', 'right-long']" class="me-2"/>Importer
+                                    </BButton>
                                 </div>
                                 <img :src="g_getImageBanner(currentdeck.hero)" />
                             </div>
@@ -92,9 +123,9 @@
                         <div class="card-body">                        
                             <div class="row">
                                 <template v-for="card in currentdeck.cards">
-                                    <div class="col-12 col-lg-4 col-xl-3 col-xxl-2 aw-card" v-if="!g_isHero(card)">
+                                    <div class="col-12 col-lg-4 col-xl-3 col-xxl-2 aw-decklistcard" v-if="!g_isHero(card)" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
                                         <img v-for="index in card.quantite" :src="g_getImageCardPublicUrl(card)"
-                                            :title="card.name" class="img-fluid" />
+                                            :title="card.name" class="img-fluid aw-alteredcard" />
                                     </div>
                                 </template>
                             </div>
@@ -125,17 +156,26 @@ watch(() => props.user, async (newUser, oldUser) => {
 </script>
 
 <script>
-import { supabase } from '@/db/client'
+import { useToast, TYPE } from "vue-toastification";
 
 export default
     {
         data() {
             return {
+                deckid: null,
                 currentFaction: null,
                 decks: null,
                 mesdecksonly: false,
                 currentdeck: null,
-                afficherstats: false
+                afficherstats: false,
+                ipp: 5,
+                currentpage: 1,
+                hasnextdeck: false,
+                heroes: null,
+                currenthero: null,
+                erreurdeckid: false,
+                imagePathFullsize: null,
+                mousetimeout: null,
             }
         },
         mounted() {
@@ -147,10 +187,94 @@ export default
                 this.admin = this.g_isAdmin(puser);
             })
                 */
-            this.loadDecks()
+               //@select="onSelectCurrentDeck" 
+               //@clear="onClearCurrentDeck" 
+            
+            try {
+                var segments = (new URL(window.location.href)).pathname.split('/')
+                if(segments.length > 1)
+                {
+                    this.deckid = parseInt(segments[segments.length - 1])
+                }
+            } catch (error) {
+                console.error(error)
+                this.erreurdeckid = true
+                return
+            }
+
+            if(!this.deckid)
+            {
+                this.alimListeHeroes()
+            }
+            else
+            {
+                this.onShowDeck(null)
+                this.afficherstats = true
+            }
+        },
+        watch:{
+            // Watcher for 'message'
+            mesdecksonly(newValue, oldValue) {
+                this.resetDecks();
+            },
+            currenthero(newValue, oldValue) {
+                this.resetDecks();
+            },
+            imagePathFullsize(newValue, oldValue) {
+                if(newValue)
+                {
+                    setTimeout(() => $('.aw-colleft').addClass('aw-imageapon'), 10)
+                }
+                else
+                {
+                    setTimeout(() => $('.aw-colleft').removeClass('aw-imageapon'), 10)
+                }
+            },
         },
         methods:
         {
+            mouseEnterCard(pcard)
+            {
+                clearTimeout(this.mousetimeout)
+                this.imagePathFullsize = this.g_getImageCardPublicUrl(pcard)
+            },
+            mouseLeaveCard(pcard)
+            {
+                this.mousetimeout = setTimeout(() => {
+                    if(this.mousetimeout)this.imagePathFullsize = null
+                }, 200)
+            },
+            onImporterDeck()
+            {
+                this.g_importDeck({deck: this.currentdeck}, 
+                    //onImportedDeck: 
+                    pdeck => 
+                    {
+                        const toast = useToast();
+                        if(pdeck) toast("Deck importé !", { type: TYPE.SUCCESS })
+                        else toast("Une erreur s'est produite", { type: TYPE.ERROR })
+                    }
+                )
+            },
+            alimListeHeroes()
+            {
+                this.currenthero = null
+                this.g_fetchHeroes({
+                    faction: this.currentFaction,
+                    callback: pheroes => 
+                    {
+                        this.heroes = pheroes.map(hero => { 
+                            return {
+                                value: hero.reference, 
+                                label: hero.name
+                            };
+                        });
+                        this.heroes.sort((a,b) => a.label.localeCompare(b.label));
+                    }
+                });
+        
+                this.resetDecks()
+            },
             getDateDeckFormatee(pdeck){
                 const date = new Date(pdeck.modifiedAt);
                 const formatter = new Intl.DateTimeFormat('fr-FR', {
@@ -163,47 +287,95 @@ export default
                 });
                 return formatter.format(date);
             },
-            onShowDeck(pdeck) {
+            onShowDeck(pdeck) 
+            {
+                var zedeckid = pdeck ? pdeck.id : this.deckid
+
                 $(".aw-deck").removeClass('active');
-                $("#deck" + pdeck.id).addClass('active');
+                $("#deck" + zedeckid).addClass('active');
+
+                this.g_fetchDeck(zedeckid, true, pdeck => 
+                {
+                    if(this.deckid && !pdeck) this.erreurdeckid = true
+                    else if(!this.deckid || !pdeck || pdeck.public) this.setCurrentDeck(pdeck)
+                    else this.g_isOwerDeck({
+                        deck: pdeck,
+                        callback: isowner => 
+                        {
+                            //le deck n'est pas public, il faut vérifier si l'user est connecté et possesseur du deck
+                            //this.setCurrentDeck(isowner ? pdeck : null)
+                            this.erreurdeckid = !isowner
+                            if(isowner) this.setCurrentDeck(pdeck)
+                        }
+                    })
+                })
+            },
+            setCurrentDeck(pdeck)
+            {
                 this.currentdeck = pdeck
+                if(this.currentdeck)
+                {
+                    this.currentdeck.cards.sort((a, b) => {
+                        if(this.g_isUnique(a) && !this.g_isUnique(b)) return -1;
+                        if(!this.g_isUnique(a) && this.g_isUnique(b)) return 1;
+
+                        //deja trié via la requete, si meme type, on garde le tri d'origine
+                        if (a.cardType == b.cardType)
+                        {
+                            if(a.mainCost != b.mainCost) return a.mainCost < b.mainCost ? -1 : 1
+                            if(a.recallCost != b.recallCost) return a.recallCost < b.recallCost ? -1 : 1
+                            return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+                        }
+
+                        if (this.g_isPersonnage(a)) return -1;
+                        if (this.g_isPermanent(a)) return 1;
+                        if (this.g_isPersonnage(b)) return 1;
+                        if (this.g_isPermanent(b)) return -1;
+                    });
+                }
             },
             getDeckFactionImage(pdeck) {
                 return '/src/assets/img/altered/factions/icons/' + this.g_getFactionName(pdeck.main_faction, true) + '.png'
             },
             getCurrentDeckCssClass()
             {
-                var css = "aw-currentdeck" + this.currentdeck.main_faction
-                console.log(css)
-                return css
+                return "aw-currentdeck" + this.currentdeck.main_faction
             },
             getDeckCssClass(pdeck) {
                 var css = "aw-" + pdeck.main_faction
                 if (!pdeck.public) css += " aw-private"
                 return css
             },
+            resetDecks()
+            {
+                this.currentpage = 1
+                this.loadDecks()
+            },
+            onPreviousDecks()
+            {
+                this.currentpage--;
+                this.loadDecks()
+            },
+            onNextDecks()
+            {
+                this.currentpage++;
+                this.loadDecks()
+            },
             loadDecks() {
                 $(".aw-deck").removeClass('active');
-                this.currentdeck = null
+                //this.currentdeck = null
                 var params = {
                     myonly: this.mesdecksonly,
                     faction: this.currentFaction,
-                    withcards: true,
+                    hero: this.currenthero,
+                    withhero: true,
+                    page: this.currentpage,
+                    ipp: this.ipp,
                     callback: pdecks => {
-                        //tri: personnages / sorts / permanents
-                        pdecks.forEach(deck => {
-                            deck.cards.sort((a, b) => {
-                                //deja trié via la requete, si meme type, on garde le tri d'origine
-                                if (a.cardType == b.cardType) return 0;
+                        this.decks = pdecks
+                        this.hasnextdeck = params.hasnext
 
-                                if (this.g_isPersonnage(a)) return -1;
-                                if (this.g_isPermanent(a)) return 1;
-                                if (this.g_isPersonnage(b)) return 1;
-                                if (this.g_isPermanent(b)) return -1;
-
-                            });
-                        });
-                        this.decks = pdecks;
+                        if(this.currentdeck) setTimeout(() => $("#deck" + this.currentdeck.id).addClass('active'), 10);
                     }
                 }
                 this.g_fetchDecks(params)
@@ -224,10 +396,8 @@ export default
                 else this.currentFaction = null;
 
                 //reload des decks directement
-                this.loadDecks()
-            },
-            setCurrentFaction(link) {
 
+                this.alimListeHeroes()
             },
             isCurrentAxiom() {
                 return this.currentFaction == "AX";
@@ -252,6 +422,7 @@ export default
 </script>
 
 <style scope>
+
 .aw-deckliststat
 {
     padding-left: 6% !important;
@@ -261,6 +432,10 @@ export default
 {
     padding-bottom: 4px;
     border-bottom: 1px solid white;
+}
+.aw-titlehero
+{
+    margin-top: -15px;
 }
 .aw-carddeck .card-header
 {
@@ -324,35 +499,66 @@ export default
     border-color: var(--c-uniqued2) !important;
 }
 
-.aw-card {
+.aw-decklistcard {
     position: relative;
     margin-bottom: 70px;
+    margin-top: 0.5vw !important;
 }
 
-.aw-card img {
+.aw-decklistcard img {
     position: relative;
 }
-
-.aw-card img:nth-child(2) {
+.aw-decklistcard img:nth-child(2),
+.aw-decklistcard img:nth-child(3){
     position: absolute;
     z-index: 1;
-    top: 34px;
     left: 0;
     padding-right: calc(var(--bs-gutter-x)* 0.5);
     padding-left: calc(var(--bs-gutter-x)* 0.5);
 }
-
-.aw-card img:nth-child(3) {
-    position: absolute;
-    z-index: 1;
-    top: 68px;
-    left: 0;
-    padding-right: calc(var(--bs-gutter-x)* 0.5);
-    padding-left: calc(var(--bs-gutter-x)* 0.5);
+.aw-decklistcard img:nth-child(2) {
+    top: 1.6vw;
 }
+.aw-decklistcard img:nth-child(3) {
+    top: 3.2vw;
+}
+@media (max-width: 1399px) {
+    .aw-decklistcard img:nth-child(2) {
+        top: 2.4vw;
+    }
+    .aw-decklistcard img:nth-child(3) {
+        top: 4.8vw;
+    }   
+}
+@media (max-width: 1199px) {
+    .aw-decklistcard img:nth-child(2) {
+        top: 5vw;
+    }
+    .aw-decklistcard img:nth-child(3) {
+        top: 10vw;
+    } 
+    .aw-decklistcard:first-child {
+        margin-top: 0 !important;
+    }
+    .aw-decklistcard {
+        margin-top: 4.5vw !important;
+    } 
 
-
-
+}
+@media (max-width: 991px) {
+    .aw-decklistcard img:nth-child(2) {
+        top: 14.5vw;
+    }
+    .aw-decklistcard img:nth-child(3) {
+        top: 29vw;
+    }
+    .aw-decklistcard:first-child {
+        margin-top: 0 !important;
+    }
+    .aw-decklistcard {
+        margin-top: 22.5vw !important;
+    }
+}
 .aw-decks .aw-deck {
     cursor: pointer;
 }
@@ -363,5 +569,22 @@ export default
 
 .aw-deck.aw-private .aw-privateico {
     display: block !important;
+}
+
+.aw-colleft.aw-imageapon
+{
+    transition: all .3s ease-in;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+}
+.aw-colleft.aw-imageapon .aw-imgapercu img {
+    margin-top: 0;
+    width: calc(0.32 * 100vw);
+}
+
+@media (max-width: 1199px) {
+    .aw-colleft.aw-imageapon .aw-imgapercu img {
+        display: none;
+    }
 }
 </style>

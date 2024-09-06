@@ -1,7 +1,7 @@
 <template>
   <div :class="getClassGrid()" v-if="!modeliste">
     <div class="aw-carddeck">
-      <img :src="g_getImageCardPublicUrl(card)" :title="card.name" class="img-fluid" />
+      <img :src="getImageCardPublicUrl(card)" :title="card.name" class="img-fluid aw-alteredcard" />
       <div v-if="!g_isHero(card)" class="aw-quantite">
         {{ card.quantite }}
       </div>
@@ -26,7 +26,7 @@
   </div>
   <div v-else-if="g_isHero(card)" class="aw-HERO">
     <div>
-      <img :src="card.imagePath" :title="card.name" class="img-fluid" />
+      <img :src="getImageCardPublicUrl(card)" :title="card.name" class="img-fluid" />
     </div>
   </div>
   <div v-else class="col-12 col-xxl-6 aw-carddecklist" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
@@ -98,6 +98,10 @@ export default {
   },
   methods:
   {
+    getImageCardPublicUrl(pcard)
+    {
+      return this.g_isHero(pcard) ? this.g_getImageHeroNotext(pcard) : this.g_getImageCardPublicUrl(pcard)
+    },
     getImageRarete(){
       return "/src/assets/img/altered/rarities/" + this.card.rarity.toLowerCase() + ".png";
     },
@@ -111,7 +115,7 @@ export default {
     getClassGrid() {
       var classe = "aw-qte" + this.card.quantite + " mt-2 aw-" + this.card.cardType;
 
-      if(this.g_isHero(this.card)) classe += " d-flex col-12";
+      if(this.g_isHero(this.card)) classe += " d-flex col-12 justify-content-md-center";
       else{
         if(!this.fullscreendecklist) classe += " col-12 col-sm-6 col-lg-4 col-xxl-2";
         else classe += " col-3";
@@ -156,9 +160,13 @@ export default {
 }
 
 .aw-HERO>div {
-  max-width: 150px;
+  max-width: 16vw;
   margin-left: auto;
   margin-right: auto;
+}
+.aw-HERO img{
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  border-radius: 20px;
 }
 
 /*.aw-carddeck .aw-quantite */

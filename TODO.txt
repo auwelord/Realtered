@@ -1,10 +1,5 @@
-- import de deck : si contient des uniques, les importers automatiquement avec concersion images, etc....
 - gérer la saisie et l'affichage de la description d'un deck (markdown si possible)
 - pouvoir modifier le nom d'un deck
-- ne pas afficher l'image entière de la carte hero dans le deckbuilder
 - gérer l'affichage par groupe des deck dans le deckbuilder
 - decklist:
-    * pagination = bouton gauche droite uniquement
-    * recherche = pouvoir filtrer par heros
-    * pouvoir filtrer par nom de deck
-    * hover des images: afficher l'image en grand
+    * pouvoir filtrer par utilisateur

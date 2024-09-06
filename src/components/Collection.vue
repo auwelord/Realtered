@@ -4,7 +4,7 @@
 
     <div class="container-fluid pt-2"> <!--begin::Row-->
       <div class="row">
-        <div class="col-md-3">
+        <div class="col-12 col-xl-3">
           <div class="col-12" v-if="deckbuilder">
             <div class="card card-outline card-info mb-1">
               <div class="card-header">
@@ -19,8 +19,12 @@
                 </div>
               </div> <!-- /.card-header -->
               <div class="card-body">
-                <Multiselect v-if="!creatingDeck" v-model="currentSelectedDeck" :close-on-select="true" :options="decks"
-                  @select="onSelectCurrentDeck" @clear="onClearCurrentDeck" />
+                <Multiselect v-if="!creatingDeck" v-model="currentSelectedDeck" 
+                  :close-on-select="true" 
+                  :options="decks"
+                  :searchable="true"
+                  @select="onSelectCurrentDeck" 
+                  @clear="onClearCurrentDeck" />
                 <div v-else>
                   <div class="input-group">
                     <input required id="awid-fdeckname" v-model="newDeckName" type="text" class="form-control"
@@ -298,7 +302,7 @@
             <!-- /.card-body -->
           </div> <!-- /.card -->
         </div>
-        <div :class="[deckbuilder && currentSelectedDeck != null ? 'col-md-3' : 'col-md-9']">
+        <div :class="['col-12', deckbuilder && currentSelectedDeck != null ? 'col-xl-3' : 'col-xl-9']">
           <div class="container-fluid">
             <div class="row" v-if="!hasResult() && !loading && !imagePathFullsize && !uiparams.afficherstats">
               <img src="/src/assets/img/altered_kojo.png" alt="" class="img-fluid aw-imgmiddle" />
@@ -306,7 +310,7 @@
             <div v-if="!uiparams.afficherstats" :class="['row mb-3 aw-imgapercu', imagePathFullsize ? 'aw-imageapon' : '']">
               <div class="col-12">
                 <div class="sticky">
-                  <img :src="imagePathFullsize" alt="" class="img-fluid " />
+                  <img :src="imagePathFullsize" alt="" class="img-fluid aw-alteredcard" />
                 </div>
               </div>
             </div>
@@ -336,7 +340,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-6" v-if="deckbuilder && currentDeck">
+        <div class="col-12 col-xl-6" v-if="deckbuilder && currentDeck">
           <div :class="['card card-outline card-primary mb-1 aw-decklist', fullscreendecklist ? 'aw-fullscreen' : '']">
             <div class="card-header">
               <h3 class="card-title" v-if="currentDeck">{{ currentDeck.name }}</h3>
@@ -373,30 +377,30 @@
                 </span>
 
                 <div class="mt-2">
-                  Cartes : {{ getTotalCardsCurrentDeck() }}
+                  Cartes : {{ g_getTotalCardsInDeck({deck: currentDeck}) }}
                 </div>
                 <div class="mt-2">
-                  Communes : {{ getTotalCommunesCurrentDeck() }}
+                  Communes : {{ g_getTotalCommunesInDeck({deck: currentDeck}) }}
                 </div>
                 <div>
-                  Rares : {{ getTotalRaresCurrentDeck() }}
+                  Rares : {{ g_getTotalRaresInDeck({deck: currentDeck}) }}
                 </div>
                 <div>
-                  Uniques : {{ getTotalUniquesCurrentDeck() }}
+                  Uniques : {{ g_getTotalUniquesInDeck({deck: currentDeck}) }}
                 </div>
                 <div class="mt-2">
-                  Personnages : {{ getTotalPersosCurrentDeck() }}
+                  Personnages : {{ g_getTotalPersosInDeck({deck: currentDeck}) }}
                 </div>
                 <div>
-                  Sorts : {{ getTotalSortsCurrentDeck() }}
+                  Sorts : {{ g_getTotalSortsInDeck({deck: currentDeck}) }}
                 </div>
                 <div>
-                  Permanents : {{ getTotalPermasCurrentDeck() }}
+                  Permanents : {{ g_getTotalPermasInDeck({deck: currentDeck}) }}
                 </div>
               </div>
               <div class="d-flex flex-column">
                 <div class="row">
-                  <div class="aw-herodeck">
+                  <div class="aw-herodeck d-flex flex-column justify-content-end">
                     <CardDecklist v-for="card in getHeroCurrentDeck()" :card="card" @addcard="addCard"
                       @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard" @onshowcarddetail="onshowcarddetail"
                       :modeliste="uiparams.modeliste" :fullscreendecklist="fullscreendecklist" :currentDeck="currentDeck"/>
@@ -648,117 +652,25 @@ export default {
     //window.addEventListener('scroll', this.handleScroll); // Ajouter l'écouteur d'événements pour le scroll
   },
   methods: {
-    sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    },
-    async updateDetailFromApi(){
-      for(let card of this.fetchedCards)
-      {
-        this.updatingname = card.reference;
-        this.g_updateCardFromApi(card.reference);
-        await this.sleep(300)
-      }
-      this.updatingname = null;
-    },
-    async uploadFile(card, blob, pcallback) 
+    updateDetailFromApi()
     {
-      var path = "cards/";
-      var faction = card.mainFaction.reference;
-      if(!faction) faction = card.mainFaction;
-
-      if(faction == "AX") path+= "axiom/";
-      else if(faction == "BR") path+= "bravos/";
-      else if(faction == "LY") path+= "lyra/";
-      else if(faction == "MU") path+= "muna/";
-      else if(faction == "OR") path+= "ordis/";
-      else path+= "yzmir/";
-
-      path+= card.reference + '.webp';
-      
-      const { data, error } = await supabase.storage
-        .from('Altered')
-        .upload(path, blob,{
-          cacheControl: '3600',
-          upsert: true,
-          contentType: 'image/webp',
-        });
-
-      if (error) {
-        // Handle error
-        console.log(error);
-      } else {
-        
-        //update Card.imageS3
-        this.g_updateImageS3(card, path, pcallback);
-      }
-    },
-    convertJpgToWebp(jpgBlob) {
-      return new Promise((resolve, reject) =>
-      {
-        const img = new Image();
-        img.src = URL.createObjectURL(jpgBlob);
-
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0);
-
-          canvas.toBlob(
-            (webpBlob) => {
-              if (webpBlob) {
-                resolve(webpBlob);
-              } else {
-                reject(new Error('Conversion to WebP failed.'));
-              }
-            },
-            'image/webp',
-            0.8 // Quality from 0 to 1 (optional)
-          );
-        };
-
-        img.onerror = () => {
-          reject(new Error('Failed to load JPG image.'));
-        };
-      });
-    },
-    downloadBlob(card, pcallback) {
-        fetch(`http://localhost:3000/proxy?url=${encodeURIComponent(card.imagePath)}`)
-            .then(response => response.blob())
-            .then(jpgBlob => 
-            {
-              this.convertJpgToWebp(jpgBlob)
-                .then((webpBlob) => {
-                  this.uploadFile(card, webpBlob, pcallback) 
-                })
-                .catch((error) => {
-                  console.error('Conversion error:', error);
-                });
-            })
-            .catch(error => console.error('Error downloading image:', error));
+      this.g_updateCardsFromApi(this.fetchedCards,
+        //onUpdatingCard: 
+        pcard => this.updatingname = pcard.reference,
+        //onUpdatedCards: 
+        () => this.updatingname = null
+      )
     },
     onClickDownloadImages()
     {
-      this.downloadImages();
-    },
-    async downloadImages(pcard, pcallback)
-    {
-      console.log(pcard.reference);
-      if(pcard && pcard.reference)
-      {
-        this.downloadBlob(pcard, pcallback);
-        return;
-      }
-
-      for(let card of this.fetchedCards)
-      {
-        this.updatingname = card.reference;
-        this.downloadBlob(card);
-        await this.sleep(300)
-      }
-      this.updatingname = null;
+      this.g_downloadImages(this.fetchedCards,
+        //onDownloadingImage
+        pcard => this.updatingname = pcard.reference,
+        //onDownloadedImages
+        () => this.updatingname = null,
+        //onUpdatedImageS3
+        null
+      );
     },
     dontChangeDeck()
     {
@@ -776,29 +688,41 @@ export default {
       {
         return;
       }
-      this.g_fetchCard(this.codeImportUnique, card1 => 
+
+      const onFetchedCard = pcard => 
       {
         //si la carte a ete trouvé => message d'erreur
-        if(card1)
+        if(pcard)
         {
           const toast = useToast();
           toast("Cette carte existe déjà", { type: TYPE.ERROR });
         }
         else 
         {
-          this.g_updateCardFromApi(this.codeImportUnique, card => 
-          {
-            if(this.g_isUnique(card))
+          this.g_updateCardFromApi(this.codeImportUnique, 
+            //onUpdatedCard: 
+            ppcard => 
             {
-              this.downloadImages(card, pcard => this.importedUnique = pcard);
-            }
-            else{
-              const toast = useToast();
-              toast("Cette carte n'est pas une unique", { type: TYPE.ERROR });
-            }
-          });
+              if(this.g_isUnique(ppcard))
+              {
+                this.g_downloadImages([ppcard], 
+                  //onDownloadingImage
+                  pppcard => console.log("Téléchargement de l'image " + pppcard.imagePath),
+                  //onDownloadedImages
+                  pcards => this.importedUnique = pcards[0],
+                  //onUpdatedImageS3
+                  pppcard => console.log("maj base Card.imageS3 : " + pppcard.imageS3)                  
+                )
+              }
+              else{
+                const toast = useToast();
+                toast("Cette carte n'est pas une unique", { type: TYPE.ERROR });
+              }
+            })
+          }
         }
-      });
+
+      this.g_fetchCard(this.codeImportUnique, onFetchedCard);
     },
     closeModalImportUnique()
     {
@@ -993,26 +917,6 @@ export default {
         if(deck) toast("Deck enregistré");
         else toast("Deck enregistré", { type: TYPE.ERROR });
       });  
-
-      /*
-
-      var storedDecks = JSON.parse(localStorage.getItem("decks"));
-      var inStore = false;
-      if (storedDecks) {
-        var inStore = false;
-        for (var deck of storedDecks) {
-          if (deck.name == this.currentSelectedDeck) {
-            inStore = true;
-            deck.cards = this.currentDeck.cards;
-          }
-        }
-      }
-      if (!inStore) {
-        storedDecks.push(this.currentDeck)
-      }
-
-      localStorage.setItem("decks", JSON.stringify(storedDecks));
-      */
     },
     deleteDeck() 
     {
@@ -1029,50 +933,13 @@ export default {
         this.loadDecks();
       }
     },
-    getTotalRarityCurrentDeck(ptype) {
-      var total = 0;
-      for (var pcard of this.currentDeck.cards) {
-        if (!ptype || (pcard.rarity == ptype && pcard.cardType != "HERO"))
-          total += pcard.quantite;
-      }
-      return total;
-    },
-    getTotalCardsCurrentDeck() {
-      return this.getTotalRarityCurrentDeck();
-    },
-    getTotalCommunesCurrentDeck() {
-      return this.getTotalRarityCurrentDeck("COMMON");
-    },
-    getTotalRaresCurrentDeck() {
-      return this.getTotalRarityCurrentDeck("RARE");
-    },
-    getTotalUniquesCurrentDeck() {
-      return this.getTotalRarityCurrentDeck("UNIQUE");
-    },
-    getTotalTypesCurrentDeck(ptype) {
-      var total = 0;
-      for (var pcard of this.currentDeck.cards) {
-        if (pcard.cardType == ptype)
-          total += pcard.quantite;
-      }
-      return total;
-    },
-    getTotalPersosCurrentDeck() {
-      return this.getTotalTypesCurrentDeck("CHARACTER");
-    },
-    getTotalSortsCurrentDeck() {
-      return this.getTotalTypesCurrentDeck("SPELL");
-    },
-    getTotalPermasCurrentDeck() {
-      return this.getTotalTypesCurrentDeck("PERMANENT");
-    },
     saveCurrentDeckToLocalStorage() {
       localStorage.setItem("currentDeck", JSON.stringify(this.currentDeck));
     },
     mouseenterCard(card) {
       this.oldAfficherStats = this.uiparams.afficherstats;
       this.uiparams.afficherstats = false;
-      this.imagePathFullsize = card.imagePath;  //"/src/assets/img/altered_kojo.png",
+      this.imagePathFullsize = this.g_getImageCardPublicUrl(card);  //"/src/assets/img/altered_kojo.png",
     },
     mouseleaveCard(card) {
       this.uiparams.afficherstats = this.oldAfficherStats;
@@ -1300,15 +1167,17 @@ export default {
           });
 
           //on enregistre directement en base et on reload tout
-          this.g_importDeck(this.newDeckName, decklist, deck => 
-          {
-            if(!deck) toast('Une erreur s\'est produite', { type: TYPE.ERROR });
-            else {
-              //reload des decks en se positionnant sur celui importé
-              this.loadDecks(deck.id);
-              this.creatingDeck = false;
-            }
-          })
+          this.g_importDeck({name: this.newDeckName, cards: decklist},
+            //onImportedDeck: 
+            pdeck => 
+            {
+              if(!pdeck) toast('Une erreur s\'est produite', { type: TYPE.ERROR });
+              else {
+                //reload des decks en se positionnant sur celui importé
+                this.loadDecks(pdeck.id);
+                this.creatingDeck = false;
+              }
+            })
         }
         catch (error) 
         {
@@ -1709,7 +1578,16 @@ export default {
             var cpt = 0;
             response.data["hydra:member"].forEach(element => 
             {
-              this.g_upsertCard(element, false, true);
+              this.g_upsertCard(
+                {
+                  apicard: element,
+                  detail: false,
+                  forceupdate: true
+                },
+                //onUpdatedCard: 
+                pcard => console.log("Carte mise à jour : " + pcard.reference)
+              )
+
               this.fetchedCards.push(element);
             });
             this.loading = false;
