@@ -93,16 +93,14 @@ export default {
         showModal() {
             this.modalDisconnect = !this.modalDisconnect;
         },
-        async discordConnection() {
-            //const user = userStore();
-
+        async discordConnection() 
+        {
             if(!this.user)
             {
-                //const { puser, perror } = await supabase.auth.signIn( 'discord' );
                 const { pdata, perror } = await supabase.auth.signInWithOAuth({
                     provider: 'discord',
                     options:{
-                        redirectTo: 'http://localhost:5173' + this.$route.path
+                        redirectTo: import.meta.env.VITE_APP_BASE_URL + this.$route.path
                     }
                 })
             }

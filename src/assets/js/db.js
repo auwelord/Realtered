@@ -6,7 +6,7 @@ export default {
     {
         app.config.globalProperties.g_isAdmin = function(puser)
         {
-            return puser && puser.id == import.meta.env.VITE_SUPABASE_ADMINID;
+            return puser && puser.id == import.meta.env.SUPABASE_ADMINID;
         }
         
         /**

@@ -27,7 +27,6 @@
                   :close-on-select="true" 
                   :options="decks"
                   :searchable="true"
-                  :groups="true"
                   @select="onSelectCurrentDeck" 
                   @clear="onClearCurrentDeck" />
                 <div v-else>
@@ -67,7 +66,7 @@
                 </div>
               </div>
               <div class="card-header" v-if="currentFaction != ''">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-end">
                   <div v-if="admin && currentFaction != ''">
                     BDD
                     <label class="switch me-2">
@@ -871,8 +870,15 @@ export default {
     onFetchedDecks(pdecks, pidDft)
     {
       //alim de la combo:
-      //regroupement par hero
-      
+      this.decks = pdecks.map(deck => {
+        return { 
+          value: deck.id, 
+          label: deck.name 
+      }});
+      /*
+      code pour le regroupement par héro
+      :groups="true"
+
       var tmpoptions = {}
       pdecks.forEach(pdeck => 
       {
@@ -887,26 +893,8 @@ export default {
         this.decks.push({ options: tmpoptions[key], label: key});
       }
       this.decks.sort((a,b) => a.label.localeCompare(b.label))
-      /*
-      this.decks = pdecks.map(deck => { 
-        return {
-          value: deck.id, 
-          label: deck.name 
-        };
-      });
       */
-/*
-      :options="[
-    {
-      label: 'DC',
-      options: ['Batman', 'Robin', 'Joker'],
-    },
-    {
-      label: 'Marvel',
-      options: ['Spiderman', 'Iron Man', 'Captain America'],
-    },
-  ]"
-*/
+
       if(pidDft)
       {
         this.currentSelectedDeck = null;
