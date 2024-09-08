@@ -151,7 +151,7 @@ export default {
                 {
                     if(!puser)
                     {
-                        pcallback([])
+                        if(params.callback) params.callback([])
                         return
                     }
                     req = req.eq('userId', puser.id);
