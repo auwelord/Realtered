@@ -21,6 +21,7 @@
     "bootstrap-vue-next": "^0.24.9",
     "chart.js": "^4.4.4",
     "jquery": "^3.7.1",
+    "markdown-it": "^14.1.0",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
     "vue": "^3.4.29",

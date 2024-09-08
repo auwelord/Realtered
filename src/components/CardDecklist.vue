@@ -5,7 +5,7 @@
       <div v-if="!g_isHero(card)" class="aw-quantite">
         {{ card.quantite }}
       </div>
-      <div class="aw-deckbuilder d-flex flex-column align-items-stretch" v-if="!fullscreendecklist">
+      <div class="aw-deckbuilder d-flex flex-column align-items-stretch">
         <BButton size="sm" variant="unique" class="text-nowrap flex-fill" :disabled="!canAddCard(card)" @click="addCardToDeck(card)">
           <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-3" />
         </BButton>
@@ -32,13 +32,13 @@
   <div v-else class="col-12 col-xxl-6 aw-carddecklist" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
     <div :class="['d-flex justify-content-between', getClassCardDeckList()]">
         <div>
-          <BButton size="sm" variant="danger" class="me-1" v-if="!fullscreendecklist" @click="removeCardFromDeck(card)">
+          <BButton size="sm" variant="danger" class="me-1" @click="removeCardFromDeck(card)">
             <font-awesome-icon :icon="['fa', 'circle-minus']" />
           </BButton>
-          <BButton size="sm" variant="unique" class="me-1" v-if="!fullscreendecklist" @click="addCardToDeck(card)" :disabled="!canAddCard(card)">
+          <BButton size="sm" variant="unique" class="me-1" @click="addCardToDeck(card)" :disabled="!canAddCard(card)">
             <font-awesome-icon :icon="['fa', 'circle-plus']" />
           </BButton>
-          <BButton size="sm" variant="rare" class="me-1" v-if="!fullscreendecklist" @click="onShowCardDetail(card)">
+          <BButton size="sm" variant="rare" class="me-1" @click="onShowCardDetail(card)">
             <font-awesome-icon :icon="['far', 'eye']" />
           </BButton>
           {{ card.quantite }} - {{ card.name }} 
@@ -81,7 +81,6 @@ export default {
       required: true
     },
     modeliste: Boolean,
-    fullscreendecklist: Boolean,
     qtesuccessproba: 0,
     proba: {
       type: Object,
@@ -116,10 +115,7 @@ export default {
       var classe = "aw-qte" + this.card.quantite + " mt-2 aw-" + this.card.cardType;
 
       if(this.g_isHero(this.card)) classe += " d-flex col-12 justify-content-md-center";
-      else{
-        if(!this.fullscreendecklist) classe += " col-12 col-sm-6 col-lg-4 col-xxl-2";
-        else classe += " col-3";
-      } 
+      else classe += " col-12 col-sm-6 col-lg-4 col-xxl-2";
       return classe;
     }
   }
@@ -159,11 +155,6 @@ export default {
   position: relative;
 }
 
-.aw-HERO>div {
-  max-width: 16vw;
-  margin-left: auto;
-  margin-right: auto;
-}
 .aw-HERO img{
   box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
   border-radius: 20px;

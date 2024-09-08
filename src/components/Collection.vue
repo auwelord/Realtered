@@ -10,19 +10,24 @@
               <div class="card-header">
                 <h3 class="card-title">Mes decks</h3>
                 <div class="card-tools">
-                  <BButton @click="importDeck" variant="info" size="sm" v-if="!creatingDeck && user" class="me-2">
+                  
+                  <BButton @click="onShowProprietesDeck" variant="info" size="sm" v-if="!creatingDeck && user && currentSelectedDeck && !proprietingdeck" class="me-2">
+                    <font-awesome-icon :icon="['fas', 'gear']" class="me-2" />Propriétés
+                  </BButton>
+                  <BButton @click="importDeck" variant="infod2" size="sm" v-if="!creatingDeck && user && !proprietingdeck" class="me-2">
                     <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />Importer
                   </BButton>
-                  <BButton @click="createDeck" variant="primary" size="sm" v-if="!creatingDeck">
+                  <BButton @click="createDeck" variant="primary" size="sm" v-if="!creatingDeck && !proprietingdeck">
                     <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />Créer
                   </BButton>
                 </div>
               </div> <!-- /.card-header -->
               <div class="card-body">
-                <Multiselect v-if="!creatingDeck" v-model="currentSelectedDeck" 
+                <Multiselect v-if="!creatingDeck && !proprietingdeck" v-model="currentSelectedDeck" 
                   :close-on-select="true" 
                   :options="decks"
                   :searchable="true"
+                  :groups="true"
                   @select="onSelectCurrentDeck" 
                   @clear="onClearCurrentDeck" />
                 <div v-else>
@@ -30,8 +35,12 @@
                     <input required id="awid-fdeckname" v-model="newDeckName" type="text" class="form-control"
                       placeholder="Nom du deck">
                   </div>
-                  <div class="input-group mt-2" v-if="isImporting()">
+                  <div class="input-group mt-2" v-if="isImporting() && !proprietingdeck">
                     <BFormTextarea v-model="newDecklist" placeholder="Collez ici la decklist..." rows="15" />
+                  </div>
+                  <div class="mt-2" v-if="proprietingdeck && !isImporting()">
+                    <div><i class="fs-8">Vous pouvez utiliser le markdown pour la description du deck</i></div>
+                    <BFormTextarea v-model="taDescDeck" placeholder="Description du deck..." rows="15" />
                   </div>
                   <div class="d-flex justify-content-end">
                     <BButton @click="cancelCreateDeck" variant="tertiary" size="sm" class="mt-2 me-2">
@@ -341,11 +350,10 @@
           </div>
         </div>
         <div class="col-12 col-xl-6" v-if="deckbuilder && currentDeck">
-          <div :class="['card card-outline card-primary mb-1 aw-decklist', fullscreendecklist ? 'aw-fullscreen' : '']">
+          <div class="card card-outline card-primary mb-1 aw-decklist">
             <div class="card-header">
               <h3 class="card-title" v-if="currentDeck">{{ currentDeck.name }}</h3>
               <div class="card-tools">
-                <span v-if="!fullscreendecklist">
                   Mode liste
                   <label class="switch me-2">
                     <input type="checkbox" v-model="uiparams.modeliste" @change="storeModeListe">
@@ -355,86 +363,89 @@
                     <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Unique
                   </BButton>
                   <BButton @click="saveDeck()" variant="success" size="sm" class="me-2" v-if="user">
-                      <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" />Enregistrer
+                    <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" />Enregistrer
                   </BButton>
-                  <BButton @click="showModalDeleteDeck()" variant="danger" size="sm" class="me-2" v-if="user"><font-awesome-icon
-                      :icon="['far', 'trash-can']" /></BButton>
-                    </span>
-                  <BButton @click="onFullscreenDecklist()" variant="secondary" size="sm"><font-awesome-icon :icon="['fas', 'expand']" /></BButton>
+                  <BButton @click="showModalDeleteDeck()" variant="danger" size="sm" class="me-2" v-if="user">
+                    <font-awesome-icon :icon="['far', 'trash-can']" /></BButton>
+                  <BButton @click="redirectToDecklist()" variant="light" size="sm" class="me-2" v-if="user && currentDeck" title="Afficher dans la vue 'DeckList'">
+                    <font-awesome-icon :icon="['far', 'eye']" />
+                  </BButton>
+                  <BButton @click="exporterCurrentDeck()" variant="light" size="sm" class="me-2" v-if="user && currentDeck" title="Exporter le deck">
+                    <font-awesome-icon :icon="['fas', 'file-export']" />
+                  </BButton>                
               </div>
             </div> <!-- /.card-header -->
             <div class="card-body">
-              <div class="aw-probapioche" v-if="!fullscreendecklist">
-                  Proba en main de départ
-                  <Multiselect v-model="qtesuccessproba" :close-on-select="true" :options="[1,2,3]" />
-              </div>
-              <div class="aw-deckstat float-start">
-                <span v-if="!fullscreendecklist">
+              <div class="row">
+                <div class="col-4">
                   <label class="switch me-2">
                     <input type="checkbox" v-model="uiparams.afficherstats" @change="onChangeAfficherStats"/>
                     <span class="slider round"></span>
-                  </label><font-awesome-icon :icon="['fas', 'chart-column']" class="me-2" />Afficher les stats
-                </span>
-
-                <div class="mt-2">
-                  Cartes : {{ g_getTotalCardsInDeck({deck: currentDeck}) }}
+                  </label><font-awesome-icon :icon="['fas', 'chart-column']" class="me-2" />Stats
+                  
+                  <div class="mt-2">
+                    Cartes : {{ g_getTotalCardsInDeck({deck: currentDeck}) }}
+                  </div>
+                  <div class="mt-2">
+                    Communes : {{ g_getTotalCommunesInDeck({deck: currentDeck}) }}
+                  </div>
+                  <div>
+                    Rares : {{ g_getTotalRaresInDeck({deck: currentDeck}) }}
+                  </div>
+                  <div>
+                    Uniques : {{ g_getTotalUniquesInDeck({deck: currentDeck}) }}
+                  </div>
+                  <div class="mt-2">
+                    Personnages : {{ g_getTotalPersosInDeck({deck: currentDeck}) }}
+                  </div>
+                  <div>
+                    Sorts : {{ g_getTotalSortsInDeck({deck: currentDeck}) }}
+                  </div>
+                  <div>
+                    Permanents : {{ g_getTotalPermasInDeck({deck: currentDeck}) }}
+                  </div>
                 </div>
-                <div class="mt-2">
-                  Communes : {{ g_getTotalCommunesInDeck({deck: currentDeck}) }}
-                </div>
-                <div>
-                  Rares : {{ g_getTotalRaresInDeck({deck: currentDeck}) }}
-                </div>
-                <div>
-                  Uniques : {{ g_getTotalUniquesInDeck({deck: currentDeck}) }}
-                </div>
-                <div class="mt-2">
-                  Personnages : {{ g_getTotalPersosInDeck({deck: currentDeck}) }}
-                </div>
-                <div>
-                  Sorts : {{ g_getTotalSortsInDeck({deck: currentDeck}) }}
-                </div>
-                <div>
-                  Permanents : {{ g_getTotalPermasInDeck({deck: currentDeck}) }}
-                </div>
-              </div>
-              <div class="d-flex flex-column">
-                <div class="row">
+                <div class="col-4">
                   <div class="aw-herodeck d-flex flex-column justify-content-end">
                     <CardDecklist v-for="card in getHeroCurrentDeck()" :card="card" @addcard="addCard"
                       @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard" @onshowcarddetail="onshowcarddetail"
-                      :modeliste="uiparams.modeliste" :fullscreendecklist="fullscreendecklist" :currentDeck="currentDeck"/>
+                      :modeliste="uiparams.modeliste" :currentDeck="currentDeck"/>
                   </div>
                 </div>
-                <div :class="[fullscreendecklist ? 'row' : '']">
-                  <div :class="[fullscreendecklist ? 'col-4' : '']">
-                      <div class="row mt-2 pb-2 aw-decklistpersos">
-                        <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Personnages</div>
-                        <CardDecklist v-for="card in getPersosCurrentDeck()" :card="card" @addcard="addCard"
-                          @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
-                          @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste" :fullscreendecklist="fullscreendecklist"
-                          :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
-                      </div>
+                <div class="col-4 d-flex flex-column justify-content-between">
+                  <div>
+                    Proba en main de départ
+                    <Multiselect v-model="qtesuccessproba" :close-on-select="true" :options="[1,2,3]" />
                   </div>
-                  <div :class="[fullscreendecklist ? 'col-4' : '']">
-                    <div class="row mt-2 pb-2 aw-decklistsorts">
-                      <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Sorts</div>
-                      <CardDecklist v-for="card in getSortsCurrentDeck()" :card="card" @addcard="addCard"
-                        @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
-                        @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste" :fullscreendecklist="fullscreendecklist"
-                        :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
-                    </div>
-                  </div>
-                  <div :class="[fullscreendecklist ? 'col-4' : '']">
-                    <div class="row mt-2 pb-2 aw-decklistpermas">
-                      <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Permanents</div>
-                      <CardDecklist v-for="card in getPermanentsCurrentDeck()" :card="card" @addcard="addCard"
-                        @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
-                        @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste" :fullscreendecklist="fullscreendecklist"
-                        :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
-                    </div>
+                  <div class="d-flex justify-content-end">
+                    Description <img v-b-toggle.awid-descdeck src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
                   </div>
                 </div>
+              </div>
+              <BCollapse id="awid-descdeck" class="row">
+                <div class="col-12 mt-4" v-html="getFormattedDescriptionCurrentDeck()">
+                </div>
+              </BCollapse>
+              <div class="row mt-2 pb-2 aw-decklistpersos">
+                <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Personnages</div>
+                <CardDecklist v-for="card in getPersosCurrentDeck()" :card="card" @addcard="addCard"
+                  @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
+                  @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
+                  :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
+              </div>
+              <div class="row mt-2 pb-2 aw-decklistsorts">
+                <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Sorts</div>
+                <CardDecklist v-for="card in getSortsCurrentDeck()" :card="card" @addcard="addCard"
+                  @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
+                  @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
+                  :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
+              </div>
+              <div class="row mt-2 pb-2 aw-decklistpermas">
+                <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Permanents</div>
+                <CardDecklist v-for="card in getPermanentsCurrentDeck()" :card="card" @addcard="addCard"
+                  @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
+                  @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
+                  :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
               </div>
             </div>
           </div>
@@ -503,13 +514,13 @@ watch(() => props.user, async (newUser, oldUser) =>
 import axios from 'axios';
 import { supabase } from '@/db/client'
 import { useToast, TYPE } from "vue-toastification";
+import MarkdownIt from "markdown-it";
 
 export default {
   name: 'Collection',
   data() {
     return {
       database: true,
-      fullscreendecklist: false,
       renderStatComponent: true,
       isSelected: true,
       currentFaction: '',
@@ -590,6 +601,8 @@ export default {
       showModalConfirmChangeDeck: false,
       actionOriConfirmChangeDeck: null,
       updatingname: null,
+      proprietingdeck: false,
+      taDescDeck: null,
       bearer: "", //"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJDMFo0V3JVWE1xT2JtMy1CTU8xRFV5YktidFA2bldLb2VvWmE1UGJuZHhZIn0.eyJleHAiOjE3MjQ4NjYxMzAsImlhdCI6MTcyNDg2MjUzMCwiYXV0aF90aW1lIjoxNzI0Njc0NTgzLCJqdGkiOiJiNmIyYWVmMC1kMjM5LTRjODAtODc3MC05ZDZjNGY3NThjYjYiLCJpc3MiOiJodHRwczovL2F1dGguYWx0ZXJlZC5nZy9yZWFsbXMvcGxheWVycyIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJjMDlkZTkxOS02ZjRlLTQ0MjAtYjIwZi1hNGIwM2ZiZGI2OWEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJ3ZWIiLCJzZXNzaW9uX3N0YXRlIjoiNGFlNjdkNzktZjgxYi00NGQzLTg4MWEtZjY3YjAzMDg3MzUyIiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL2F1dGguYWx0ZXJlZC5nZyIsImh0dHBzOi8vd3d3LmFsdGVyZWQuZ2ciXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtcGxheWVycyIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwic2lkIjoiNGFlNjdkNzktZjgxYi00NGQzLTg4MWEtZjY3YjAzMDg3MzUyIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInByZWZlcnJlZF91c2VybmFtZSI6ImF1d2Vsb3JkQGdtYWlsLmNvbSIsImVtYWlsIjoiYXV3ZWxvcmRAZ21haWwuY29tIn0.p3jvws1b8phCQUfVd5F5eDvrEjd-o_nrZMbyHi3xeKkFXIDblAqx3KEAaABctSwxZcREUreGhClOwXRCVIsnBeCsPAtoEhWNftr-oL2g68gpb6lOO6x_bb_ZyE-oOXwiTJcHM8vYxBGc2LCNURDFHtQfBgM4kuf87AVG1NltaqrDUV0UhmP94ud4UZTTJDO_UMCUWaGuhsiWilUssCckPfLng0-T9Nd6272168fyoefgIwOZG6HWUOyZHh-5O24tVdKGBTrVA0zyAF-POg2ADxAHj7fjIj7mYC5c9oVxHSAT1oFQ4UPlliGhlO3CeKqMDmNdgBXoWLEfh1hOoMnajQ"
     };
   },
@@ -651,7 +664,41 @@ export default {
     //this.loadMore(); // Charger les premiers éléments
     //window.addEventListener('scroll', this.handleScroll); // Ajouter l'écouteur d'événements pour le scroll
   },
+  watch:{
+    proprietingdeck(newValue, oldValue) {
+        if(newValue)
+        {
+          this.newDeckName = this.currentDeck.name
+          this.taDescDeck = this.currentDeck.description
+
+          setTimeout(() => $('#awid-fdeckname').trigger('select')) //.trigger('focus'), 50)
+        }
+    },
+  },
   methods: {
+    exporterCurrentDeck()
+    {
+      const toast = useToast();
+      var copy = ''
+      this.currentDeck.cards.forEach(card => copy += (copy == '' ? '' : '\n') + card.quantite + ' ' + card.reference)
+      navigator.clipboard.writeText(copy)
+        .then(() => {
+          toast("La decklist a été copiée dans le presse-papier", { type: TYPE.SUCCESS });
+        })
+        .catch(err => {
+          toast("Une erreur s'est produite", { type: TYPE.ERROR });
+          console.error('Failed to copy: ', err);
+        });
+    },
+    redirectToDecklist()
+    {
+      const route = this.$router.resolve('/decklists/' + this.currentDeck.id);
+      
+      // Open the route in a new tab
+      window.open(route.href, '_blank');
+
+      //this.$router.push('/decklists/' + this.currentDeck.id)
+    },
     updateDetailFromApi()
     {
       this.g_updateCardsFromApi(this.fetchedCards,
@@ -733,9 +780,6 @@ export default {
       this.importedUnique = null;
       this.codeImportUnique = '';
       this.showModalImportUnique = true;
-    },
-    onFullscreenDecklist(){
-      this.fullscreendecklist = !this.fullscreendecklist;
     },
     onChangeFilter() {
       var filters = JSON.parse(localStorage.getItem("filters"));
@@ -826,14 +870,43 @@ export default {
     },
     onFetchedDecks(pdecks, pidDft)
     {
-      //alim de la combo
+      //alim de la combo:
+      //regroupement par hero
+      
+      var tmpoptions = {}
+      pdecks.forEach(pdeck => 
+      {
+        var liste = tmpoptions[pdeck.hero.name]
+        if(!liste) tmpoptions[pdeck.hero.name] = []
+        tmpoptions[pdeck.hero.name].push({value: pdeck.id, label: pdeck.name })
+      });
+      
+      this.decks = []
+      for (let key in tmpoptions) 
+      {
+        this.decks.push({ options: tmpoptions[key], label: key});
+      }
+      this.decks.sort((a,b) => a.label.localeCompare(b.label))
+      /*
       this.decks = pdecks.map(deck => { 
         return {
           value: deck.id, 
           label: deck.name 
         };
       });
-
+      */
+/*
+      :options="[
+    {
+      label: 'DC',
+      options: ['Batman', 'Robin', 'Joker'],
+    },
+    {
+      label: 'Marvel',
+      options: ['Spiderman', 'Iron Man', 'Captain America'],
+    },
+  ]"
+*/
       if(pidDft)
       {
         this.currentSelectedDeck = null;
@@ -896,6 +969,7 @@ export default {
 
       this.g_fetchDecks({
         myonly: true,
+        withhero: true,
         callback : pdecks => this.onFetchedDecks(pdecks, pidDft)
       });
     },
@@ -984,6 +1058,17 @@ export default {
           persos.push(card);
         }
       });
+
+      //tri
+      persos.sort((a, b) => {
+          if(this.g_isUnique(a) && !this.g_isUnique(b)) return -1;
+          if(!this.g_isUnique(a) && this.g_isUnique(b)) return 1;
+
+          if(a.mainCost != b.mainCost) return a.mainCost < b.mainCost ? -1 : 1
+          if(a.recallCost != b.recallCost) return a.recallCost < b.recallCost ? -1 : 1
+          return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+      });
+
       return persos;
     },
     getHeroCurrentDeck() {
@@ -1114,6 +1199,11 @@ export default {
         this.refreshStatComponent();
       });
     },
+    getFormattedDescriptionCurrentDeck()
+    {
+      const markdown = new MarkdownIt();
+      return markdown.render(this.currentDeck.description)
+    },
     onClearCurrentDeck() 
     {
       if(this.deckModified && !this.showModalConfirmChangeDeck)
@@ -1144,6 +1234,26 @@ export default {
     {
       return this.actionOriConfirmChangeDeck == "CLEARSELECTEDDECK";
     },
+    saveProprietesCurrentDeck()
+    {
+      this.currentDeck.name = this.newDeckName
+      this.currentDeck.description = this.taDescDeck
+      this.g_saveProprietesDeck(this.currentDeck, pdeck => 
+      {
+        if(!pdeck)
+        {
+          const toast = useToast();
+          toast("Une erreur s'est produite lors de la sauvegarde des données", { type: TYPE.ERROR });
+          return;
+        }
+        this.decks.forEach(pdeck => 
+        {
+          if(pdeck.value == this.currentDeck.id) pdeck.label = this.currentDeck.name
+        })
+        this.saveCurrentDeckToLocalStorage();
+        this.proprietingdeck = false
+      })
+    },
     checkCreateDeck() {
       const toast = useToast();
 
@@ -1151,6 +1261,12 @@ export default {
         
         toast(this.isImporting() ? "Tous les champs sont obligatoires" : "Le nom du deck est obligatoire", { type: TYPE.ERROR });
         return;
+      }
+
+      if(this.proprietingdeck)
+      {
+        this.saveProprietesCurrentDeck()
+        return
       }
 
       if(this.isImporting())
@@ -1210,7 +1326,9 @@ export default {
       this.deckModified = true;
     },
     cancelCreateDeck() {
-      this.creatingDeck = false;
+      this.proprietingdeck = false
+      this.creatingDeck = false
+      this.actionOriConfirmChangeDeck = null
     },
     confirmChangeDeck()
     {
@@ -1228,6 +1346,10 @@ export default {
       }
       this.actionOriConfirmChangeDeck = null;
       this.showModalConfirmChangeDeck = false;
+    },
+    onShowProprietesDeck()
+    {
+      this.proprietingdeck = true
     },
     importDeck()
     {
@@ -1625,11 +1747,6 @@ export default {
   display: flex;
     justify-content: center;
 }
-.aw-probapioche
-{
-  position: absolute;
-  right: 15px;
-}
 .aw-decklistpersos
 {
   background-color: #b4bf4d36;
@@ -1681,25 +1798,10 @@ export default {
   opacity: 0.1;
 }
 
-.aw-deckstat {
-  position: absolute;
-}
-
 .aw-decklist .card-body {
   min-height: 130px;
   background-image: url(/src/assets/img/bgarch.png);
   background-repeat: repeat;
-}
-
-.aw-decklist.aw-fullscreen
-{
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 999;
-  overflow: scroll;
-  bottom: 0;
-  right: 0;
 }
 
 .aw-noresult {

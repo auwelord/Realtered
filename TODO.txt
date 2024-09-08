@@ -1,5 +1,2 @@
-- gérer la saisie et l'affichage de la description d'un deck (markdown si possible)
-- pouvoir modifier le nom d'un deck
-- gérer l'affichage par groupe des deck dans le deckbuilder
 - decklist:
     * pouvoir filtrer par utilisateur

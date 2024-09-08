@@ -256,12 +256,12 @@ export default {
                 delete deck.modifiedAt
             }
 
-            const {data: saveddeck, erreur} = await supabase
+            const {data: saveddeck, error} = await supabase
                 .from('Deck')
                 .upsert(deck)
                 .select();
 
-            if(erreur)
+            if(error)
             {
                 params.onImportedDeck(null)
                 return
@@ -298,12 +298,12 @@ export default {
             {
                 var refs = cards.map(pcard => pcard.cardRef);
 
-                const { data: cardlist, errcard } = await supabase
+                const { data: cardlist, error } = await supabase
                     .from('Card')
                     .select()
                     .in('reference', refs);
 
-                if(!errcard && cardlist.length > 0)
+                if(!error && cardlist.length > 0)
                 {
                     var hero = app.config.globalProperties.g_getCardsOfTypeHeroDecklist(cardlist);
                     if(hero && hero.length > 0)
@@ -630,7 +630,7 @@ export default {
          */
         async function fetchCard(preference, onFetchedCard)
         {
-            const { data: fetched, erreur } = await supabase
+            const { data: fetched, error: erreur } = await supabase
                 .from('Card')
                 .select()
                 .eq('reference', preference);
@@ -680,7 +680,7 @@ export default {
 
             if(pfaction) req = req.eq('mainFaction', pfaction);
 
-            const { data: cards, erreur } = await req;                
+            const { data: cards, error: erreur } = await req;                
 
             if(!erreur && cards.length > 0)
             {
@@ -706,7 +706,7 @@ export default {
         async function upsertCard(params, onUpdatedCard)
         {
             //pcard, pdetail, pforceupdate, pcallback
-            const { data: fetched, erreur } = await supabase
+            const { data: fetched, error: erreur } = await supabase
                 .from('Card')
                 .select('detail')
                 .eq('reference', params.apicard.reference);
@@ -815,7 +815,7 @@ export default {
          */
         async function updateImageS3(params, onUpdatedImageS3)
         {
-            const { data: card, erreur } = await supabase
+            const { data: card, error: erreur } = await supabase
                 .from('Card')
                 .upsert({
                     reference: params.card.reference,
@@ -846,5 +846,36 @@ export default {
             isOwerDeck(params)
         }
         
+        /**
+         * Enregistrement des propriétés d'un deck en base de données
+         * 
+         * @param {*} pdeck Deck à enregistrer
+         * @param {*} onSavedDeck callback de fin de traitement
+         */
+        async function saveProprietesDeck(pdeck, onSavedDeck)
+        {
+            //on garde que les données utiles
+            const deck = {
+                name: pdeck.name,
+                description: pdeck.description
+            }
+
+            const {data: saveddeck, error: erreur} = await supabase
+            .from('Deck')
+            .update(deck)
+            .select()
+            .eq('id', pdeck.id);
+
+            if(erreur) console.error(erreur)
+            onSavedDeck(erreur ? null : saveddeck[0])
+        }
+
+        /**
+         * @see #saveProprietesDeck
+         */
+        app.config.globalProperties.g_saveProprietesDeck = function(pdeck, onSavedDeck)
+        {
+            saveProprietesDeck(pdeck, onSavedDeck)
+        }
     }
 }
