@@ -112,8 +112,7 @@
 
 <script setup>
 defineProps({
-  user: { type: Object},
-  admin: { type: Boolean},
+  user: { type: Object}
 });
 </script>
 

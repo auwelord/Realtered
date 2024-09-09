@@ -3,7 +3,7 @@
 
   <Menu :user="user" @deconnect="onDeconnexion" />
   
-  <RouterView :admin="admin" :user="user"/>
+  <RouterView :user="user"/>
 </template>
 
 <script>
@@ -12,26 +12,18 @@ export default
   name: 'App',
   data() {
     return {
-      user: null,
-      admin: false,
+      user: null
     }
   },
   mounted() 
   {
-    this.g_retrieveuser(puser =>
-    {
-      this.user = puser
-      this.admin = this.g_isAdmin(puser);
-    });
+    this.g_retrieveuser(puser => this.user = puser);
   },
   methods: 
   {
     onDeconnexion()
     {
-      this.g_deconnecter(() => {
-        this.user = null
-        this.admin = false        
-      });
+      this.g_deconnectUser(() => this.user = null);
     }
   }
 };

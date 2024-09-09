@@ -55,29 +55,29 @@
           </div>
           <div class="col-12">
             <div class="card card-outline card-warning">
-              <div class="card-header" v-if="admin && currentFaction != ''">
+              <div class="card-header" v-if="g_isAdmin(user) && currentFaction != ''">
                 <div class="card-tools">
-                  <BButton @click="updateDetailFromApi" variant="secondary" size="sm" v-if="!database && admin && fetchedCards" class="me-2">
+                  <BButton @click="updateDetailFromApi" variant="secondary" size="sm" v-if="!database && fetchedCards" class="me-2">
                     <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Details <span v-if="updatingname">{{  updatingname }}</span>
                   </BButton>
-                  <BButton @click="onClickDownloadImages" variant="secondary" size="sm" v-if="!database && admin && fetchedCards" class="me-2">
+                  <BButton @click="onClickDownloadImages" variant="secondary" size="sm" v-if="!database && fetchedCards" class="me-2">
                     <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Images <span v-if="updatingname">{{  updatingname }}</span>
                   </BButton>
                 </div>
               </div>
               <div class="card-header" v-if="currentFaction != ''">
                 <div class="d-flex justify-content-end">
-                  <div v-if="admin && currentFaction != ''">
+                  <div v-if="g_isAdmin(user) && currentFaction != ''">
                     BDD
                     <label class="switch me-2">
                       <input type="checkbox" v-model="database">
                       <span class="slider round"></span>
                     </label>
                   </div>
-                  <BButton @click="searchCards(false, false, false)" variant="unique" size="sm"><font-awesome-icon
-                      :icon="['fas', 'magnifying-glass']" class="me-2" />Rechercher
+                  <BButton @click="searchCards(false, false, false)" variant="unique" size="sm">
+                    <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="me-2" />Rechercher
                   </BButton>
-                  <BButton @click="searchPlayset" variant="common" size="sm" class="ms-2" v-if="bearer && !deckbuilder">
+                  <BButton @click="searchPlayset" variant="common" size="sm" class="ms-2" v-if="gaa_isBearer() && !deckbuilder">
                     <font-awesome-icon :icon="['fas', 'magnifying-glass-arrow-right']" class="me-2" />Playset
                   </BButton>
                 </div>
@@ -301,7 +301,7 @@
                     :options="sortingTypes" @change="onChangeSorting" class="mb-2"/>
                 </BCollapse>
 
-                <div class="mt-3" v-if="bearer && !deckbuilder">
+                <div class="mt-3" v-if="gaa_isBearer() && !deckbuilder">
                   <b-form-checkbox id="emptyplayset" v-model="emptyplayset" name="emptyplayset">Playsets non complet
                     uniquement</b-form-checkbox>
                 </div>
@@ -329,7 +329,7 @@
               <div :class="['row aw-resultsearch', imagePathFullsize ? 'aw-imageapon' : '']">
                 <Card v-for="card in fetchedCards" :key="card.id" :card="card" :arrayview="arrayview"
                   :emptyplayset="emptyplayset" :deckbuilder="deckbuilder && currentSelectedDeck != null"
-                  :collection="bearer != ''" :currentDeck="currentDeck" @addcard="addCard" @removecard="removeCard"
+                  :collection="gaa_isBearer()" :currentDeck="currentDeck" @addcard="addCard" @removecard="removeCard"
                   @onshowcarddetail="onshowcarddetail" />
               </div>
               <div class="row d-flex p-2">
@@ -494,7 +494,6 @@ import { getCurrentInstance } from 'vue';
 
 const props = defineProps({
   user: { type: Object},
-  admin: { type: Boolean},
   deckbuilder: false,
 });
 
@@ -510,8 +509,6 @@ watch(() => props.user, async (newUser, oldUser) =>
 </script>
 
 <script>
-import axios from 'axios';
-import { supabase } from '@/db/client'
 import { useToast, TYPE } from "vue-toastification";
 import MarkdownIt from "markdown-it";
 
@@ -602,7 +599,6 @@ export default {
       updatingname: null,
       proprietingdeck: false,
       taDescDeck: null,
-      bearer: "", //"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJDMFo0V3JVWE1xT2JtMy1CTU8xRFV5YktidFA2bldLb2VvWmE1UGJuZHhZIn0.eyJleHAiOjE3MjQ4NjYxMzAsImlhdCI6MTcyNDg2MjUzMCwiYXV0aF90aW1lIjoxNzI0Njc0NTgzLCJqdGkiOiJiNmIyYWVmMC1kMjM5LTRjODAtODc3MC05ZDZjNGY3NThjYjYiLCJpc3MiOiJodHRwczovL2F1dGguYWx0ZXJlZC5nZy9yZWFsbXMvcGxheWVycyIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJjMDlkZTkxOS02ZjRlLTQ0MjAtYjIwZi1hNGIwM2ZiZGI2OWEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJ3ZWIiLCJzZXNzaW9uX3N0YXRlIjoiNGFlNjdkNzktZjgxYi00NGQzLTg4MWEtZjY3YjAzMDg3MzUyIiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL2F1dGguYWx0ZXJlZC5nZyIsImh0dHBzOi8vd3d3LmFsdGVyZWQuZ2ciXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtcGxheWVycyIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwic2lkIjoiNGFlNjdkNzktZjgxYi00NGQzLTg4MWEtZjY3YjAzMDg3MzUyIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInByZWZlcnJlZF91c2VybmFtZSI6ImF1d2Vsb3JkQGdtYWlsLmNvbSIsImVtYWlsIjoiYXV3ZWxvcmRAZ21haWwuY29tIn0.p3jvws1b8phCQUfVd5F5eDvrEjd-o_nrZMbyHi3xeKkFXIDblAqx3KEAaABctSwxZcREUreGhClOwXRCVIsnBeCsPAtoEhWNftr-oL2g68gpb6lOO6x_bb_ZyE-oOXwiTJcHM8vYxBGc2LCNURDFHtQfBgM4kuf87AVG1NltaqrDUV0UhmP94ud4UZTTJDO_UMCUWaGuhsiWilUssCckPfLng0-T9Nd6272168fyoefgIwOZG6HWUOyZHh-5O24tVdKGBTrVA0zyAF-POg2ADxAHj7fjIj7mYC5c9oVxHSAT1oFQ4UPlliGhlO3CeKqMDmNdgBXoWLEfh1hOoMnajQ"
     };
   },
   mounted() 
@@ -1097,20 +1093,6 @@ export default {
           this.currentDeck.main_faction = card.mainFaction;
         }
         const addedCard = $.extend(card, { quantite: 1 });
-        //récup des détails de la carte
-        /*
-        try {
-            axios.get('https://api.altered.gg/cards/' + card.reference,
-            {
-              headers: {"Accept-Language": "en-en"}
-            }).then(response => {
-              $.extend(addedCard, { keywords: this.g_extractKeywordsFromCardDetail(response.data) });
-            });
-
-        } catch (error) {
-          console.error('Error fetching cards:', error);
-        }
-          */
         this.currentDeck.cards.push(addedCard);
         this.deckModified = true;
       }
@@ -1179,11 +1161,6 @@ export default {
           }
         }
 
-        /*
-        if (!storedDeck || storedDeck.name != this.currentSelectedDeck) {
-          this.decks.push({ value: this.newDeckName, label: this.newDeckName });
-        }
-        */
         this.refreshStatComponent();
       });
     },
@@ -1585,7 +1562,7 @@ export default {
       if (calculatedtype.length > 0) req = req.in("cardType", calculatedtype);
 
       if (this.currentEditions.length > 0) req = req.in("cardSet", this.currentEditions);
-      console.log(this.currentEditions)
+
       var streq = [];
       if (this.currentSoustypes.length > 0)
       {
@@ -1627,91 +1604,84 @@ export default {
       });
       this.loading = false;
     },
-    fetchCards() {
+    fetchCards() 
+    {
       if (this.currentPage > 1 && !this.hasMore) return;
+      
+      this.loading = true;
+      if (!this.currentSort || this.currentSort.length == 0) this.currentSort = [database ? 'name' : 'translations.name'];
 
-      try {
-        this.loading = true;
-        if (!this.currentSort || this.currentSort.length == 0) this.currentSort = [database ? 'name' : 'translations.name'];
-
-        if(this.database)
-        {
-          this.fetchCardsFromDatabase();
-          return;
-        }       
-
-        var params = {
-          itemsPerPage: 10000,
-          page: this.currentPage,
-          factions: this.currentFaction
-        };
-        this.currentSort.forEach((sortingType) => {
-          var tabs = sortingType.split(',');
-          params["order[" + (tabs[0] == 'name' ? 'translations.name' : tabs[0]) + "]"] = (tabs.length == 1 ? "ASC" : "DESC");
-        });
-
-        if (this.bearer != '') $.extend(params, { collection: true });
-        if (this.currentName != '') $.extend(params, { "translations.name": this.currentName });
-
-        var calculatedforest = this.calcForest();
-        if (calculatedforest.length > 0) $.extend(params, { forestPower: calculatedforest });
-        var calculatedmountain = this.calcMountain();
-        if (calculatedmountain.length > 0) $.extend(params, { mountainPower: calculatedmountain });
-        var calculatedwater = this.calcWater();
-        if (calculatedwater.length > 0) $.extend(params, { oceanPower: calculatedwater });
-        var calculatedmaincost = this.calcMainCost();
-        if (calculatedmaincost.length > 0) $.extend(params, { mainCost: calculatedmaincost });
-        var calculatedrecallcost = this.calcReserveCost();
-        if (calculatedrecallcost.length > 0) $.extend(params, { recallCost: calculatedrecallcost });
-        var calculatedtype = this.calcType();
-        if (calculatedtype.length > 0) $.extend(params, { cardType: calculatedtype });
-        var calculatedrarity = this.calcRarities();
-        if (calculatedrarity.length > 0) $.extend(params, { rarity: calculatedrarity });
-        
-        if (this.currentKeywords.length > 0) $.extend(params, { keyword: this.currentKeywords });
-        if (this.currentEditions.length > 0) $.extend(params, { cardSet: this.currentEditions });
-        if (this.currentSoustypes.length > 0) $.extend(params, { cardSubTypes: this.currentSoustypes });
-
-        var headers = {
-          "Accept-Language": "fr-fr"
-        };
-        if (this.bearer) {
-          $.extend(headers, { Authorization: "Bearer " + this.bearer });
-        }
-
-        //console.log(params);
-        axios.get('https://api.altered.gg/cards',
-          {
-            headers: headers,
-            params: params
-          }).then((response) => {
-            var cpt = 0;
-            response.data["hydra:member"].forEach(element => 
-            {
-              this.g_upsertCard(
-                {
-                  apicard: element,
-                  detail: false,
-                  forceupdate: true
-                },
-                //onUpdatedCard: 
-                pcard => console.log("Carte mise à jour : " + pcard.reference)
-              )
-
-              this.fetchedCards.push(element);
-            });
-            this.loading = false;
-            this.currentPage++;
-            this.hasMore = response.data["hydra:view"]["hydra:next"] != undefined;
-          });
-
-      } catch (error) {
-        console.error('Error fetching cards:', error);
-        this.loading = false;
+      var calcparams = {
+        currentFaction: this.currentFaction,
+        currentName: this.currentName,
+        calculatedrarity: this.calcRarities(),
+        calculatedmaincost: this.calcMainCost(),
+        calculatedrecallcost: this.calcReserveCost(),
+        calculatedforest: this.calcForest(),
+        calculatedmountain: this.calcMountain(),
+        calculatedwater: this.calcWater(),
+        calculatedtype: this.calcType(),
+        currentEditions: this.currentEditions,
+        currentSoustypes: this.currentSoustypes,
+        currentKeywords: this.currentKeywords,
+        currentSort: this.currentSort,
+        currentPage: this.currentPage,
       }
+
+      if(this.database) this.fetchCardsFromDatabase(calcparams)
+      else this.fetchCardsFromApi(calcparams)      
+    },
+    fetchCardsFromDatabase(calcparams)
+    {
+      this.g_fetchCardsFromDatabase(calcparams, pcards => 
+        {
+          this.currentPage++;
+          this.hasMore = pcards.length > 12;
+          if(this.hasMore) pcards.pop(); //on vire le dernier élément qui ne sert qy'à savoir si il y a d'autres cartes à fetch
+          
+          pcards.forEach(card => 
+          {
+              if (!this.emptyplayset || (this.emptyplayset && card.inMyCollection < 3)) 
+              {
+              var zecard = this.deckbuilder ? this.g_getCardInDeck(card.reference, this.currentDeck) : card;
+              if (zecard) this.fetchedCards.push(zecard);
+              else 
+              {
+                  card.quantite = 0;
+                  this.fetchedCards.push(card);
+              }
+              }
+          });
+          this.loading = false;
+        })
+    },
+    fetchCardsFromApi(calcparams)
+    {
+      this.gaa_fetchCards(calcparams, (pcards, phasMore) => 
+      {
+        pcards.forEach(pcard => 
+        {
+          this.g_upsertCard(
+            {
+              apicard: pcard,
+              detail: false,
+              forceupdate: true
+            },
+            //onUpdatedCard:
+            ppcard => console.log("Carte mise à jour : " + ppcard.reference)
+          )
+
+          this.fetchedCards.push(pcard);
+        });
+        this.loading = false;
+        this.hasMore = phasMore;
+
+        if(pcards.length > 0) this.currentPage++;
+        else this.currentPage = 1
+      })
     }
   }
-};
+}
 </script>
 
 <style>

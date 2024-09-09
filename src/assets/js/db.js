@@ -1,14 +1,201 @@
-import { supabase } from '@/db/client'
+
+import { createClient } from '@supabase/supabase-js'
 import axios from 'axios';
+
+const anonSupabase = createClient(import.meta.env.VITE_SUPABASE_CLIENT_URL, import.meta.env.VITE_SUPABASE_CLIENT_ANONKEY)
+const BASEURL = import.meta.env.VITE_API_BASE_URL
 
 export default {
     install: (app, options) => 
     {
-        app.config.globalProperties.g_isAdmin = function(puser)
+        async function handleApiError (error)
         {
-            return puser && puser.id == import.meta.env.SUPABASE_ADMINID;
+            if (error.response) {
+                // Server error (status code is not in the range 2xx)
+                //console.log('Error Status:', error.response.status);
+                //console.log('Error Headers:', error.response.headers);
+                //console.log('Error Data:', error.response.data);
+          
+                if (error.response.status === 404) {
+                  console.error('Resource not found.');
+                } else if (error.response.status === 500) {
+                  console.error('Server error.');
+                }
+              } else if (error.request) {
+                // No response received
+                console.error('Error: No response received from server:', error.request);
+              } else {
+                // Request setup error
+                console.error('Error Message:', error.message);
+              }
+        }
+
+        async function connectUser (predirectTo)
+        {
+            try {
+                const { data, error } = await anonSupabase.auth.signInWithOAuth({
+                    provider: 'discord',
+                    options:
+                    {
+                        redirectTo: import.meta.env.VITE_APP_BASE_URL + predirectTo
+                    }
+                })
+            } 
+            catch (error) {
+                console.log(error)
+            } 
+        }
+
+        app.config.globalProperties.g_connectUser = function(predirectTo)
+        {
+            connectUser(predirectTo)
+        }
+
+        async function assignRoles(puser)
+        {
+            if(!puser) return
+
+            puser.admin = false
+
+            try {
+                const { data, error: erreur } = await axios.get(BASEURL + 'user/admin/' + puser.id)
+                puser.admin = data && data.isadmin
+            } 
+            catch (error) 
+            {
+                console.error('Error requesting api:', error);
+            }
+        }
+
+        async function retrieveUser (pcallback)
+        {
+            try {
+                const { data } = await anonSupabase.auth.getUser()
+
+                if(data.user)
+                {
+                    assignRoles(data.user)
+                }
+                pcallback(data.user)
+            } catch (error) {
+                handleApiError(error)
+                pcallback(null)
+            }                  
+        }
+        app.config.globalProperties.g_retrieveuser = function(pcallback)
+        {
+            retrieveUser(pcallback);
         }
         
+        async function deconnectUser (pcallback)
+        {
+            await anonSupabase.auth.signOut()
+            if(pcallback) pcallback();
+        }
+
+        app.config.globalProperties.g_deconnectUser = function(pcallback)
+        {
+            deconnectUser(pcallback)
+        }
+
+        
+        app.config.globalProperties.g_isAdmin = function(puser)
+        {
+            return puser && puser.admin
+        }
+        
+        async function fetchCardsFromDatabase(params, pcallback)
+        {
+            var req = anonSupabase
+                .from('Card')
+                .select()
+                .eq('mainFaction', params.currentFaction);
+
+            if (params.currentName != '') req = req.ilike('name', '%' + params.currentName + '%');
+            if (params.calculatedrarity.length > 0) req = req.in("rarity", params.calculatedrarity);
+            if (params.calculatedmaincost.length > 0) req = req.in("mainCost", params.calculatedmaincost);
+            if (params.calculatedrecallcost.length > 0) req = req.in("recallCost", params.calculatedrecallcost);
+            if (params.calculatedforest.length > 0) req = req.in("forestPower", params.calculatedforest);
+            if (params.calculatedmountain.length > 0) req = req.in("mountainPower", params.calculatedmountain);
+            if (params.calculatedwater.length > 0) req = req.in("oceanPower", params.calculatedwater);
+            if (params.calculatedtype.length > 0) req = req.in("cardType", params.calculatedtype);
+            if (params.currentEditions.length > 0) req = req.in("cardSet", params.currentEditions);
+
+            var streq = [];
+            if (params.currentSoustypes.length > 0)
+            {
+                params.currentSoustypes.forEach(st => streq.push('cardSubtypes.cs.\{' + st + '\}'));
+            }
+            if(streq.length > 0) req = req.or(streq.join(','));
+
+            var keywords = [];
+            params.currentKeywords.forEach(kw => {
+                var label = this.g_getKeywordLabel(kw);
+                keywords.push('main_effect.ilike.%' + label + '%,echo_effect.ilike.%' + label + '%');
+            });
+            if(keywords.length > 0) req = req.or(keywords.join(','));
+            
+            params.currentSort.forEach(sortref => {
+                var tab = sortref.split(',');
+                req = req.order(tab[0] == 'translations.name' ? 'name' : tab[0], { ascending: tab.length == 1 })
+            });      
+            
+            req = req.range((params.currentPage - 1) * 12, (params.currentPage * 12) );
+
+            try {
+                const { data: cards, error } = await req;
+
+                pcallback(cards)
+            }
+            catch(error)
+            {
+                pcallback([])
+            }
+        }
+
+        app.config.globalProperties.g_fetchCardsFromDatabase = function(params, pcallback)
+        {
+            fetchCardsFromDatabase(params, pcallback)
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         /**
          * preference : référence de la card à mettre à jour
          * 
@@ -87,7 +274,7 @@ export default {
                 if(params.page === undefined) params.page = 1;
                 preq = preq.range((params.page - 1) * params.ipp, (params.page * params.ipp) );
             }
-            const { data: decks, erreur } = await preq;
+            const { data: decks, error: erreur } = await preq;
 
             if(params.ipp)
             {
@@ -109,7 +296,7 @@ export default {
                     {
                         var refs = deck.CardsDeck.map(card => card.cardRef);
                                             
-                        var req = await supabase
+                        var req = await anonSupabase
                             .from('Card')
                             .select()
                             .in('reference', refs)
@@ -137,7 +324,7 @@ export default {
             if(params.withcards) select += ', CardsDeck(*), hero:Card(*)';
             else if(params.withhero) select += ', hero:Card(*)';
             
-            var req = supabase
+            var req = anonSupabase
                 .from('Deck')
                 .select(select)
                 .order('modifiedAt', {ascending : false});
@@ -147,7 +334,7 @@ export default {
 
             if(params.myonly)
             {
-                app.config.globalProperties.g_retrieveuser(puser => 
+                retrieveUser(puser => 
                 {
                     if(!puser)
                     {
@@ -161,7 +348,7 @@ export default {
             }
             
             //on veut tous les decks
-            app.config.globalProperties.g_retrieveuser(puser => 
+            retrieveUser(puser => 
             {
                 //utilisateur non connecté : on recupere que les decks publics
                 if(!puser)
@@ -184,7 +371,7 @@ export default {
 
         async function fetchDeck(pid, pwithcards, pcallback)
         {
-            var req = supabase.from('Deck');
+            var req = anonSupabase.from('Deck');
             if(pwithcards)
             {
                 req = req.select('*, CardsDeck(*), hero:Card(*)')
@@ -201,7 +388,7 @@ export default {
                 {
                     var refs = deck[0].CardsDeck.map(card => card.cardRef);
                                         
-                    req = await supabase
+                    req = await anonSupabase
                         .from('Card')
                         .select()
                         .in('reference', refs);
@@ -256,7 +443,7 @@ export default {
                 delete deck.modifiedAt
             }
 
-            const {data: saveddeck, error} = await supabase
+            const {data: saveddeck, error} = await anonSupabase
                 .from('Deck')
                 .upsert(deck)
                 .select();
@@ -298,7 +485,7 @@ export default {
             {
                 var refs = cards.map(pcard => pcard.cardRef);
 
-                const { data: cardlist, error } = await supabase
+                const { data: cardlist, error } = await anonSupabase
                     .from('Card')
                     .select()
                     .in('reference', refs);
@@ -310,7 +497,7 @@ export default {
                     {
                         saveddeck[0].main_faction = hero[0].mainFaction;
                         saveddeck[0].hero_id = hero[0].reference;
-                        await supabase
+                        await anonSupabase
                             .from('Deck')
                             .upsert(saveddeck[0])
                             .select();
@@ -353,7 +540,7 @@ export default {
 
         async function runFetchCardsDecks(params, pdeck, pcards, onImportedDeck)
         {
-            await supabase
+            await anonSupabase
                 .from('CardsDeck')
                 .insert(pcards);
 
@@ -434,7 +621,7 @@ export default {
 
             path+= params.card.reference + '.webp';
             
-            const { data, error } = await supabase.storage
+            const { data, error } = await anonSupabase.storage
                 .from('Altered')
                 .upload(path, params.blob,
                 {
@@ -470,12 +657,9 @@ export default {
                     {
                         uploadFile({card: pcard, blob: webpBlob}, onUpdatedImageS3) 
                     })
-                    .catch((error) => 
-                    {
-                        console.error('Conversion error:', error);
-                    });
+                    .catch(error => console.error('Conversion error:', error))
                 })
-                .catch(error => console.error('Error downloading image:', error));
+                .catch(error => console.error('Error downloading image:', error))
         }
 
         function sleep(ms) 
@@ -569,7 +753,7 @@ export default {
             delete deck.hero
             deck.modifiedAt = new Date().toISOString()
 
-            var response = await supabase
+            var response = await anonSupabase
                 .from('Deck')
                 .upsert(deck)
                 .select()
@@ -578,7 +762,7 @@ export default {
             if(zedeck)
             {
                 //suppression des cartes du deck
-                response = await supabase
+                response = await anonSupabase
                     .from('CardsDeck')
                     .delete()
                     .eq('deckId', zedeck.id)
@@ -586,7 +770,7 @@ export default {
                 if(!response.error)
                 {
                     //enregistrements des cartes
-                    var req = supabase.from('CardsDeck');
+                    var req = anonSupabase.from('CardsDeck');
                     var cards = [];
                     pdeck.cards.forEach(card => {
                         cards.push({
@@ -610,7 +794,7 @@ export default {
 
         async function deleteDeck(pdeck, pcallback)
         {
-            const response = await supabase
+            const response = await anonSupabase
                 .from('Deck')
                 .delete()
                 .eq('id', pdeck.id);
@@ -630,7 +814,7 @@ export default {
          */
         async function fetchCard(preference, onFetchedCard)
         {
-            const { data: fetched, error: erreur } = await supabase
+            const { data: fetched, error: erreur } = await anonSupabase
                 .from('Card')
                 .select()
                 .eq('reference', preference);
@@ -650,7 +834,7 @@ export default {
 
         async function fetchHeroes(params)
         {
-            var req = supabase
+            var req = anonSupabase
                 .from('Card')
                 .select()
                 .eq('cardSet', 'COREKS')
@@ -674,7 +858,7 @@ export default {
 
         async function fetchFactionCards(pfaction, pcallback)
         {
-            var req = supabase
+            var req = anonSupabase
                 .from('Card')
                 .select();
 
@@ -706,7 +890,7 @@ export default {
         async function upsertCard(params, onUpdatedCard)
         {
             //pcard, pdetail, pforceupdate, pcallback
-            const { data: fetched, error: erreur } = await supabase
+            const { data: fetched, error: erreur } = await anonSupabase
                 .from('Card')
                 .select('detail')
                 .eq('reference', params.apicard.reference);
@@ -775,7 +959,7 @@ export default {
             card.mountainPower = parseInt(card.mountainPower);
             card.oceanPower = parseInt(card.oceanPower);
 
-            const { data } = await supabase
+            const { data } = await anonSupabase
                 .from('Card')
                 .upsert([card])
                 .select()
@@ -802,7 +986,7 @@ export default {
         {
             if(!pcard.imageS3) return pcard.imagePath;
 
-            const {data: image} = supabase.storage.from('Altered').getPublicUrl(pcard.imageS3);
+            const {data: image} = anonSupabase.storage.from('Altered').getPublicUrl(pcard.imageS3);
             if(image.publicUrl.endsWith("null")) return pcard.imagePath;
             return image.publicUrl;
         }
@@ -815,7 +999,7 @@ export default {
          */
         async function updateImageS3(params, onUpdatedImageS3)
         {
-            const { data: card, error: erreur } = await supabase
+            const { data: card, error: erreur } = await anonSupabase
                 .from('Card')
                 .upsert({
                     reference: params.card.reference,
@@ -835,7 +1019,7 @@ export default {
                 return
             }
 
-            app.config.globalProperties.g_retrieveuser(puser => 
+            retrieveUser(puser => 
             {
                 params.callback(puser && params.deck.userId == puser.id);
             })
@@ -860,7 +1044,7 @@ export default {
                 description: pdeck.description
             }
 
-            const {data: saveddeck, error: erreur} = await supabase
+            const {data: saveddeck, error: erreur} = await anonSupabase
             .from('Deck')
             .update(deck)
             .select()

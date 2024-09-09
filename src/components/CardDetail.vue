@@ -37,84 +37,8 @@
   </div>
 </template>
 
-<style scoped>
-.aw-rowlogo{
-  padding-left: 31%;
-    padding-right: 31%;
-    padding-top: 70px;
-}
-.aw-carddet {
-  position: relative;
-  max-width: 500px;
-  margin-top: 35px;
-}
-.aw-svg
-{
-  position: absolute;
-  margin-top: -25px;
-  margin-left: -26px;
-}
-.aw-svgbottom
-{
-  position: absolute;
-    bottom: 0;
-    right: 0;
-    margin-right: -25px;
-    margin-bottom: -26px;
-    transform: rotate3d(0, 0, 1, 180deg);
-}
-.aw-quantite {
-  position: absolute;
-  background: white;
-  color: black;
-  bottom: 3px;
-  left: 3px;
-  padding: 12px 27px;
-  font-size: 30px;
-  border-radius: 3px;
-  border: 3px solid black;
-}
-.aw-deckbuilder {
-  position: absolute;
-  overflow: hidden;
-  width: 0;
-  height: 100%;
-  left: 100%;
-  right: 0;
-  transition: .5s ease;
-  top: 0;
-  opacity: 0;
-}
-
-.aw-deckbuilder>button {
-  /*opacity: 1;*/
-  width: 100%;
-  height: 50%;
-  border-radius: 0;
-}
-.aw-carddet:hover .aw-deckbuilder {
-  width: 70%;
-  left: 30%;
-  opacity: 0.80;
-  padding: 3px;
-}
-</style>
-
-<script setup>
-const emit = defineEmits(['addcard', 'removecard']);
-
-const removeCardFromDeck = (pcard) => {
-  emit('removecard', pcard);
-}
-const addCardToDeck = (pcard) => {
-  emit('addcard', pcard);
-}
-</script>
-
 <script>
-import axios from 'axios';
 import Logo from './icons/Logo.vue';
-import { supabase } from '@/db/client'
 
 export default {
   props: {
@@ -210,4 +134,78 @@ export default {
     }
   }
 };
+</script>
+
+<style scoped>
+.aw-rowlogo{
+  padding-left: 31%;
+    padding-right: 31%;
+    padding-top: 70px;
+}
+.aw-carddet {
+  position: relative;
+  max-width: 500px;
+  margin-top: 35px;
+}
+.aw-svg
+{
+  position: absolute;
+  margin-top: -25px;
+  margin-left: -26px;
+}
+.aw-svgbottom
+{
+  position: absolute;
+    bottom: 0;
+    right: 0;
+    margin-right: -25px;
+    margin-bottom: -26px;
+    transform: rotate3d(0, 0, 1, 180deg);
+}
+.aw-quantite {
+  position: absolute;
+  background: white;
+  color: black;
+  bottom: 3px;
+  left: 3px;
+  padding: 12px 27px;
+  font-size: 30px;
+  border-radius: 3px;
+  border: 3px solid black;
+}
+.aw-deckbuilder {
+  position: absolute;
+  overflow: hidden;
+  width: 0;
+  height: 100%;
+  left: 100%;
+  right: 0;
+  transition: .5s ease;
+  top: 0;
+  opacity: 0;
+}
+
+.aw-deckbuilder>button {
+  /*opacity: 1;*/
+  width: 100%;
+  height: 50%;
+  border-radius: 0;
+}
+.aw-carddet:hover .aw-deckbuilder {
+  width: 70%;
+  left: 30%;
+  opacity: 0.80;
+  padding: 3px;
+}
+</style>
+
+<script setup>
+const emit = defineEmits(['addcard', 'removecard']);
+
+const removeCardFromDeck = (pcard) => {
+  emit('removecard', pcard);
+}
+const addCardToDeck = (pcard) => {
+  emit('addcard', pcard);
+}
 </script>

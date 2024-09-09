@@ -1,7 +1,6 @@
 import subtypes from '../rsc/subtypes.json'
 import factions from '../rsc/factions.json'
 import keywords from '../rsc/keywords.json'
-import { supabase } from '@/db/client'
 
 const altered = {
     options: {
@@ -24,18 +23,6 @@ export default {
             var heroname = phero.name.split('&')[0].trim().toLowerCase();
             return "/src/assets/img/altered/heronotext-" + heroname + '.png';
         }
-        
-        async function retrieveUser (pcallback)
-        {
-            let { data: { user } } = await supabase.auth.getUser()
-            if(pcallback) pcallback(user);
-            return user;
-        }
-        async function deconnectUser (pcallback)
-        {
-            await supabase.auth.signOut()
-            if(pcallback) pcallback();
-        }
 
         function combinaison(a, b) {
             if (b > a) return 0; // Pas possible d'avoir plus de succès que de cartes disponibles
@@ -57,10 +44,6 @@ export default {
             return (comb1 * comb2) / combTotal; // Probabilité hypergéométrique
         }
 
-        app.config.globalProperties.g_retrieveuser = function(pcallback)
-        {
-            retrieveUser(pcallback);
-        }
         app.config.globalProperties.g_deconnecter = function(pcallback)
         {
             deconnectUser(pcallback);

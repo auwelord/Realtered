@@ -66,8 +66,6 @@ const discordDeconnection = () => {
 
 <script>
 import LogoAltered from '@/components/icons/Logo.vue'
-//import { userStore } from "@/stores/userStore"
-import { supabase } from '@/db/client'
 
 export default {
     props: {
@@ -93,21 +91,10 @@ export default {
         showModal() {
             this.modalDisconnect = !this.modalDisconnect;
         },
-        async discordConnection() 
+        discordConnection() 
         {
-            if(!this.user)
-            {
-                const { pdata, perror } = await supabase.auth.signInWithOAuth({
-                    provider: 'discord',
-                    options:{
-                        redirectTo: import.meta.env.VITE_APP_BASE_URL + this.$route.path
-                    }
-                })
-            }
-            else
-            {
-                this.modalDisconnect = true;
-            }                
+            if(!this.user) this.g_connectUser(this.$route.path)
+            else this.modalDisconnect = true;
         }
     },
     mounted() {

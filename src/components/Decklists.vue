@@ -142,8 +142,7 @@ import { watch } from 'vue'
 import { getCurrentInstance } from 'vue';
 
 const props = defineProps({
-    user: { type: Object },
-    admin: { type: Boolean },
+    user: { type: Object }
 });
 
 const instance = getCurrentInstance();
@@ -179,17 +178,6 @@ export default
             }
         },
         mounted() {
-            //this.$events.listen('clearForm', () => alert('toto'))
-            /*
-            this.g_retrieveuser(puser => 
-            {
-                this.user = puser
-                this.admin = this.g_isAdmin(puser);
-            })
-                */
-               //@select="onSelectCurrentDeck" 
-               //@clear="onClearCurrentDeck" 
-            
             try {
                 var segments = (new URL(window.location.href)).pathname.split('/')
                 if(segments.length > 1)
