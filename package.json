@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -14,6 +14,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/vue-fontawesome": "^3.0.8",
+    "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.3",
     "@vueform/multiselect": "^2.6.9",
     "axios": "^1.7.4",
@@ -21,6 +22,7 @@
     "bootstrap-vue-next": "^0.24.9",
     "chart.js": "^4.4.4",
     "jquery": "^3.7.1",
+    "js-cookie": "^3.0.5",
     "markdown-it": "^14.1.0",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",

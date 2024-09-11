@@ -9,15 +9,15 @@
   </div>
 
   <div :class="getGridClass()" v-else>
-    <div class="d-flex flex-column align-items-center aw-card">
+    <div class="d-flex flex-column align-items-center aw-card" @mouseenter="mouseEnterCard(deckbuilder, card)" @mouseleave="mouseLeaveCard(deckbuilder, card)">
       <div>
         <img :src="g_getImageCardPublicUrl(card)" :title="card.name" class="img-fluid aw-alteredcard" />
         <div class="aw-collection" v-if="collection">{{ card.inMyCollection }}</div>
-        <div class="aw-deckbuilder d-flex flex-column align-items-stretch" v-if="deckbuilder">
-          <BButton size="sm" variant="unique" class="text-nowrap flex-fill" :disabled="!g_canAddCardToDeck(card, currentDeck)" @click="addCardToDeck(card)">
+        <div class="aw-deckbuilder d-flex flex-column align-items-stretch">
+          <BButton size="sm" variant="unique" class="text-nowrap flex-fill" v-if="deckbuilder" :disabled="!g_canAddCardToDeck(card, currentDeck)" @click="addCardToDeck(card)">
             <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-3" />
           </BButton>
-          <BButton size="sm" variant="danger" class="text-nowrap flex-fill" :disabled="card.quantite == 0" @click="removeCardFromDeck(card)">
+          <BButton size="sm" variant="danger" class="text-nowrap flex-fill" v-if="deckbuilder" :disabled="card.quantite == 0" @click="removeCardFromDeck(card)">
             <font-awesome-icon :icon="['fa', 'circle-minus']" class="fs-3" />
           </BButton>
           <BButton variant="rare" size="sm" class="text-nowrap flex-fill" @click="onShowCardDetail(card)">
@@ -25,13 +25,14 @@
           </BButton>
         </div>
       </div>
-      <div class="aw-cardname">{{ card.name }}</div>
+      <!--<div class="aw-cardname">{{ card.name }}</div>-->
     </div>
   </div>
 </template>
 
 <script setup>
-const emit = defineEmits(['addcard', 'onshowcarddetail', 'removecard']);
+
+const emit = defineEmits(['addcard', 'onshowcarddetail', 'removecard', 'mouseentercard', 'mouseleavecard']);
 
 const addCardToDeck = (pcard) => {
   emit('addcard', pcard);
@@ -41,6 +42,12 @@ const removeCardFromDeck = (pcard) => {
 }
 const onShowCardDetail = (pcard) => {
   emit('onshowcarddetail', pcard);
+}
+const mouseEnterCard = (pdeckbuilder, pcard) => {
+  if(!pdeckbuilder) emit('mouseentercard', pcard);
+}
+const mouseLeaveCard = (pdeckbuilder, pcard) => {
+  if(!pdeckbuilder) emit('mouseleavecard', pcard);
 }
 </script>
 

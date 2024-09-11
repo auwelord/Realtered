@@ -167,7 +167,7 @@ export default
                 mesdecksonly: false,
                 currentdeck: null,
                 afficherstats: false,
-                ipp: 5,
+                ipp: 10,
                 currentpage: 1,
                 hasnextdeck: false,
                 heroes: null,
@@ -413,8 +413,8 @@ export default
 
 .aw-deckliststat
 {
-    padding-left: 6% !important;
-    padding-right: 6% !important;
+    padding-left: 4% !important;
+    padding-right: 4% !important;
 }
 .aw-titledeck
 {

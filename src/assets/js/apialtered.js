@@ -14,7 +14,7 @@ export default {
         async function fetchCards (params, pcallback)
         {
             var apiparams = {
-                itemsPerPage: 10000,
+                itemsPerPage: params.itemsPerPage,
                 page: params.currentPage,
                 factions: params.currentFaction
             }

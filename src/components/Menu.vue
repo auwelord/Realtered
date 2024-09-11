@@ -19,10 +19,10 @@
                             <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                                 <ul id="nav" class="navbar-nav ml-auto">
                                     <li class="nav-item">
-                                        <router-link to="/accueil" class="page-scroll" href="#">Accueil</router-link>
+                                        <router-link to="/" class="page-scroll" href="#">Accueil</router-link>
                                     </li>
                                     <li class="nav-item">
-                                        <router-link to="/collection" class="page-scroll" href="#">Collection</router-link>
+                                        <router-link to="/cartes" class="page-scroll" href="#">Cartes</router-link>
                                     </li>
                                     <li class="nav-item">
                                         <router-link to="/decklists" class="page-scroll" href="#">Decks</router-link>

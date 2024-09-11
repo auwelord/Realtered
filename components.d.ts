@@ -7,7 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Accueil: typeof import('./src/components/Accueil.vue')['default']
+    AuthCallback: typeof import('./src/components/AuthCallback.vue')['default']
     BButton: typeof import('bootstrap-vue-next')['BButton']
     BCollapse: typeof import('bootstrap-vue-next')['BCollapse']
     BFormCheckbox: typeof import('bootstrap-vue-next')['BFormCheckbox']
@@ -21,13 +21,14 @@ declare module 'vue' {
     Card: typeof import('./src/components/Card.vue')['default']
     CardDecklist: typeof import('./src/components/CardDecklist.vue')['default']
     CardDetail: typeof import('./src/components/CardDetail.vue')['default']
-    Collection: typeof import('./src/components/Collection.vue')['default']
-    DeckBuilder: typeof import('./src/components/DeckBuilder.vue')['default']
-    Decklists: typeof import('./src/components/Decklists.vue')['default']
     DeckStats: typeof import('./src/components/DeckStats.vue')['default']
     Loader: typeof import('./src/components/icons/Loader.vue')['default']
     Logo: typeof import('./src/components/icons/Logo.vue')['default']
     Menu: typeof import('./src/components/Menu.vue')['default']
+    PAccueil: typeof import('./src/components/PAccueil.vue')['default']
+    PCartes: typeof import('./src/components/PCartes.vue')['default']
+    PDeckBuilder: typeof import('./src/components/PDeckBuilder.vue')['default']
+    PDecklists: typeof import('./src/components/PDecklists.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Test: typeof import('./src/components/Test.vue')['default']

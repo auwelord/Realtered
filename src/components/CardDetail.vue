@@ -12,10 +12,10 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="248" height="136" fill="none" class="aw-svgbottom">
             <path fill="url(#medium-gold_svg__a)" d="M176.686 0H248v3h-71.314z"></path><path fill="url(#medium-gold_svg__b)" fill-rule="evenodd" d="m31.879 15.5 17-15.5h127.807v3H50.121l-17 15.5H18v15.121l-15 17V136H0V49.379l15-17V28H0V0h28v15.5zM15 15.5V25H3V3h22v12.5zm37.5-9h-.198l-.144.136L35.802 22H21.5v13.816L7.12 52.676l-.12.14V136h1V53.184l14.38-16.86.12-.14V23h13.698l.144-.136L52.698 7.5H80v-1z" clip-rule="evenodd"></path><defs><linearGradient id="medium-gold_svg__a" x1="176.707" x2="248.033" y1="2.011" y2="2.002" gradientUnits="userSpaceOnUse"><stop stop-color="#FFD789"></stop><stop offset="1" stop-color="#FFD789" stop-opacity="0"></stop></linearGradient><linearGradient id="medium-gold_svg__b" x1="88.343" x2="88.343" y1="0" y2="136" gradientUnits="userSpaceOnUse"><stop stop-color="#FFD789"></stop><stop offset="0.5" stop-color="#AD7C3F"></stop><stop offset="1" stop-color="#A97948" stop-opacity="0"></stop></linearGradient></defs>
           </svg>
-          <div v-if="!g_isHero(carddet) && !g_isOOF(carddet, currentDeck)" class="aw-quantite">
+          <div v-if="deckbuilder && !g_isHero(carddet) && !g_isOOF(carddet, currentDeck)" class="aw-quantite">
             {{ carddet.quantite }}
           </div>
-          <div class="aw-deckbuilder d-flex flex-column align-items-stretch" v-if="!g_isOOF(carddet, currentDeck)">
+          <div class="aw-deckbuilder d-flex flex-column align-items-stretch" v-if="deckbuilder && !g_isOOF(carddet, currentDeck)">
             <BButton size="sm" variant="unique" class="text-nowrap flex-fill" :disabled="!canAddCard(carddet)" @click="addCardToDeck(carddet)">
               <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-1" />
             </BButton>
@@ -49,7 +49,8 @@ export default {
     currentDeck: {
       type: Object,
       required: true
-    }
+    },
+    deckbuilder: false
   },
   data() {
     return {

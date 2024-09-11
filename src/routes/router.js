@@ -1,41 +1,42 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Accueil from '../components/Accueil.vue';
-import DeckBuilder from '../components/DeckBuilder.vue';
-import Collection from '../components/Collection.vue';
-import Decklists from '../components/Decklists.vue';
+import PAccueil from '../components/PAccueil.vue';
+import PDeckBuilder from '../components/PDeckBuilder.vue';
+import PCartes from '../components/PCartes.vue';
+import PDecklists from '../components/PDecklists.vue';
 import Test from '../components/Test.vue';
 
 const routes = [
+    /*
     {
         path: '/',
         redirect: '/accueil',
         history: false
-    },
+    },*/
     {
-        path: '/accueil',
+        path: '/',
         name: 'Accueil',
-        component: Accueil,
+        component: PAccueil,
         history: true,
         props: true
     },
     {
         path: '/deckbuilder',
         name: 'DeckBuilder',
-        component: DeckBuilder,
+        component: PDeckBuilder,
         history: true,
         props: true
     },
     {
-        path: '/collection',
-        name: 'Collection',
-        component: Collection,
+        path: '/cartes',
+        name: 'Cartes',
+        component: PCartes,
         history: true,
         props: true
     },
     {
         path: '/decklists/:pathMatch(.*)*',
         name: 'Decks',
-        component: Decklists,
+        component: PDecklists,
         history: true,
         props: true
     },

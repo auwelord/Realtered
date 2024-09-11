@@ -1,2 +1,5 @@
 - decklist:
     * pouvoir filtrer par utilisateur
+
+- bugs:
+    * déconnexion sur la page decklist avec visu d'un deck privé -> le deck reste visible

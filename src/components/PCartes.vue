@@ -1,59 +1,62 @@
 <template>
-  <div class="aw-wrapper">
+  <div :class="['aw-wrapper', deckbuilder ? 'aw-deckbuilder' : '']">
     <img src="@/assets/img/collectionfond.png" class="aw-fond" />
 
     <div class="container-fluid pt-2"> <!--begin::Row-->
       <div class="row">
         <div class="col-12 col-xl-3">
-          <div class="col-12" v-if="deckbuilder">
-            <div class="card card-outline card-info mb-1">
-              <div class="card-header">
-                <h3 class="card-title">Mes decks</h3>
-                <div class="card-tools">
-                  
-                  <BButton @click="onShowProprietesDeck" variant="info" size="sm" v-if="!creatingDeck && user && currentSelectedDeck && !proprietingdeck" class="me-2">
-                    <font-awesome-icon :icon="['fas', 'gear']" class="me-2" />Propriétés
+          <div v-if="deckbuilder" class="card card-outline card-info mb-1">
+            <div class="card-header">
+              <h3 class="card-title">Mes decks</h3>
+              <div class="card-tools">
+                
+                <BButton @click="onShowProprietesDeck" variant="info" size="sm" v-if="!creatingDeck && user && currentSelectedDeck && !proprietingdeck" class="me-2">
+                  <font-awesome-icon :icon="['fas', 'gear']" class="me-2" />Propriétés
+                </BButton>
+                <BButton @click="importDeck" variant="infod2" size="sm" v-if="!creatingDeck && user && !proprietingdeck" class="me-2">
+                  <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />Importer
+                </BButton>
+                <BButton @click="createDeck" variant="primary" size="sm" v-if="!creatingDeck && !proprietingdeck">
+                  <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />Créer
+                </BButton>
+              </div>
+            </div> <!-- /.card-header -->
+            <div class="card-body">
+              <Multiselect v-if="!creatingDeck && !proprietingdeck" v-model="currentSelectedDeck" 
+                :close-on-select="true" 
+                :options="decks"
+                :searchable="true"
+                @select="onSelectCurrentDeck" 
+                @clear="onClearCurrentDeck" />
+              <div v-else>
+                <div class="input-group">
+                  <input required id="awid-fdeckname" v-model="newDeckName" type="text" class="form-control"
+                    placeholder="Nom du deck">
+                </div>
+                <div class="input-group mt-2" v-if="isImporting() && !proprietingdeck">
+                  <BFormTextarea v-model="newDecklist" placeholder="Collez ici la decklist..." rows="15" />
+                </div>
+                <div class="mt-2" v-if="proprietingdeck && !isImporting()">
+                  <div><i class="fs-8">Vous pouvez utiliser le markdown pour la description du deck</i></div>
+                  <BFormTextarea v-model="taDescDeck" placeholder="Description du deck..." rows="15" />
+                </div>
+                <div class="d-flex justify-content-end">
+                  <BButton @click="cancelCreateDeck" variant="tertiary" size="sm" class="mt-2 me-2">
+                    <font-awesome-icon :icon="['fas', 'check']" class="me-2" />Annuler
                   </BButton>
-                  <BButton @click="importDeck" variant="infod2" size="sm" v-if="!creatingDeck && user && !proprietingdeck" class="me-2">
-                    <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />Importer
-                  </BButton>
-                  <BButton @click="createDeck" variant="primary" size="sm" v-if="!creatingDeck && !proprietingdeck">
-                    <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />Créer
+                  <BButton @click="checkCreateDeck" variant="success" size="sm" class="mt-2">
+                    <font-awesome-icon :icon="['fas', 'check']" class="me-2" />Valider
                   </BButton>
                 </div>
-              </div> <!-- /.card-header -->
-              <div class="card-body">
-                <Multiselect v-if="!creatingDeck && !proprietingdeck" v-model="currentSelectedDeck" 
-                  :close-on-select="true" 
-                  :options="decks"
-                  :searchable="true"
-                  @select="onSelectCurrentDeck" 
-                  @clear="onClearCurrentDeck" />
-                <div v-else>
-                  <div class="input-group">
-                    <input required id="awid-fdeckname" v-model="newDeckName" type="text" class="form-control"
-                      placeholder="Nom du deck">
-                  </div>
-                  <div class="input-group mt-2" v-if="isImporting() && !proprietingdeck">
-                    <BFormTextarea v-model="newDecklist" placeholder="Collez ici la decklist..." rows="15" />
-                  </div>
-                  <div class="mt-2" v-if="proprietingdeck && !isImporting()">
-                    <div><i class="fs-8">Vous pouvez utiliser le markdown pour la description du deck</i></div>
-                    <BFormTextarea v-model="taDescDeck" placeholder="Description du deck..." rows="15" />
-                  </div>
-                  <div class="d-flex justify-content-end">
-                    <BButton @click="cancelCreateDeck" variant="tertiary" size="sm" class="mt-2 me-2">
-                      <font-awesome-icon :icon="['fas', 'check']" class="me-2" />Annuler
-                    </BButton>
-                    <BButton @click="checkCreateDeck" variant="success" size="sm" class="mt-2">
-                      <font-awesome-icon :icon="['fas', 'check']" class="me-2" />Valider
-                    </BButton>
-                  </div>
-                </div>
-              </div> <!-- /.card-body -->
+              </div>
+            </div> <!-- /.card-body -->
+          </div>
+          <div v-if="!deckbuilder" :class="['aw-imgapercu', imagePathFullsize ? 'aw-imageapon' : '']">
+            <div class="sticky">
+              <img :src="imagePathFullsize" class="img-fluid aw-alteredcard" />
             </div>
           </div>
-          <div class="col-12">
+          <div v-if="deckbuilder || !imagePathFullsize">
             <div class="card card-outline card-warning">
               <div class="card-header" v-if="g_isAdmin(user) && currentFaction != ''">
                 <div class="card-tools">
@@ -310,12 +313,12 @@
             <!-- /.card-body -->
           </div> <!-- /.card -->
         </div>
-        <div :class="['col-12', deckbuilder && currentSelectedDeck != null ? 'col-xl-3' : 'col-xl-9']">
+        <div :class="['col-12', deckbuilder && currentSelectedDeck != null ? 'col-xl-4' : 'col-xl-9']">
           <div class="container-fluid">
             <div class="row" v-if="!hasResult() && !loading && !imagePathFullsize && !uiparams.afficherstats">
               <img src="/src/assets/img/altered_kojo.png" alt="" class="img-fluid aw-imgmiddle" />
             </div>
-            <div v-if="!uiparams.afficherstats" :class="['row mb-3 aw-imgapercu', imagePathFullsize ? 'aw-imageapon' : '']">
+            <div v-if="!uiparams.afficherstats && deckbuilder" :class="['row mb-3 aw-imgapercu', imagePathFullsize ? 'aw-imageapon' : '']">
               <div class="col-12">
                 <div class="sticky">
                   <img :src="imagePathFullsize" alt="" class="img-fluid aw-alteredcard" />
@@ -326,11 +329,20 @@
               <DeckStats :currentDeck="currentDeck" v-if="renderStatComponent"/>
             </div>
             <div v-if="!uiparams.afficherstats">
-              <div :class="['row aw-resultsearch', imagePathFullsize ? 'aw-imageapon' : '']">
-                <Card v-for="card in fetchedCards" :key="card.id" :card="card" :arrayview="arrayview"
-                  :emptyplayset="emptyplayset" :deckbuilder="deckbuilder && currentSelectedDeck != null"
-                  :collection="gaa_isBearer()" :currentDeck="currentDeck" @addcard="addCard" @removecard="removeCard"
-                  @onshowcarddetail="onshowcarddetail" />
+              <div :class="['row aw-resultsearch', imagePathFullsize && deckbuilder ? 'aw-imageapon' : '']">
+                <Card v-for="card in fetchedCards" 
+                  :key="card.id" 
+                  :card="card" 
+                  :arrayview="arrayview"
+                  :emptyplayset="emptyplayset" 
+                  :deckbuilder="deckbuilder && currentSelectedDeck != null"
+                  :collection="gaa_isBearer()" 
+                  :currentDeck="currentDeck" 
+                  @addcard="addCard" 
+                  @removecard="removeCard"
+                  @onshowcarddetail="onshowcarddetail" 
+                  @mouseentercard="mouseenterCard" 
+                  @mouseleavecard="mouseleaveCard" />
               </div>
               <div class="row d-flex p-2">
                 <BButton v-if="hasMore && currentPage > 1 && !loading" @click="fetchCards" variant="unique" size="sm">
@@ -348,7 +360,7 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-xl-6" v-if="deckbuilder && currentDeck">
+        <div class="col-12 col-xl-5" v-if="deckbuilder && currentDeck">
           <div class="card card-outline card-primary mb-1 aw-decklist">
             <div class="card-header">
               <h3 class="card-title" v-if="currentDeck">{{ currentDeck.name }}</h3>
@@ -459,7 +471,11 @@
   </BModal>
 
   <BModal v-model="afficherDetails" size="fullscreen" hide-footer id="awid-carddetail" @hidden="onHideModalDetail" class="aw-modalecarddet">
-    <CardDetail :card="currentCardDetail" :currentDeck="currentDeck" v-if="currentCardDetail && currentDeck"
+    <CardDetail 
+      :card="currentCardDetail" 
+      :currentDeck="currentDeck" 
+      :deckbuilder="deckbuilder"
+      v-if="currentCardDetail && currentDeck"
       @addcard="addCard" @removecard="removeCard" />
   </BModal>
   <BModal v-model="showModalImportUnique" size="md" hide-footer @cancel="closeModalImportUnique" @ok="importerUnique" title="Importer une Unique" cancel-title="Annnuler" ok-title="Importer" ok-variant="unique">
@@ -599,6 +615,7 @@ export default {
       updatingname: null,
       proprietingdeck: false,
       taDescDeck: null,
+      mousetimeout: null,
     };
   },
   mounted() 
@@ -619,6 +636,7 @@ export default {
         currentSort: ["translations.name"],
         currentEditions: ["COREKS"],
         currentSoustypes: [],
+        currentKeywords: [],
         handCost: 1,
         handCostOrMore: "ouplus",
         reserveCost: 1,
@@ -745,6 +763,14 @@ export default {
             //onUpdatedCard: 
             ppcard => 
             {
+              const toast = useToast();
+
+              if(!ppcard)
+              {
+                toast("Une erreur s'est produite lors de l'import de la carte", { type: TYPE.ERROR });
+                return
+              }
+
               if(this.g_isUnique(ppcard))
               {
                 this.g_downloadImages([ppcard], 
@@ -757,7 +783,6 @@ export default {
                 )
               }
               else{
-                const toast = useToast();
                 toast("Cette carte n'est pas une unique", { type: TYPE.ERROR });
               }
             })
@@ -973,7 +998,7 @@ export default {
 
         const toast = useToast();
         if(deck) toast("Deck enregistré");
-        else toast("Deck enregistré", { type: TYPE.ERROR });
+        else toast("Une erreur s'est produite lors de la sauvegarde du deck", { type: TYPE.ERROR });
       });  
     },
     deleteDeck() 
@@ -995,13 +1020,17 @@ export default {
       localStorage.setItem("currentDeck", JSON.stringify(this.currentDeck));
     },
     mouseenterCard(card) {
-      this.oldAfficherStats = this.uiparams.afficherstats;
-      this.uiparams.afficherstats = false;
+      if(this.deckbuilder) 
+      {
+        this.oldAfficherStats = this.uiparams.afficherstats;
+        this.uiparams.afficherstats = false;
+      }
+      clearTimeout(this.mousetimeout)
       this.imagePathFullsize = this.g_getImageCardPublicUrl(card);  //"/src/assets/img/altered_kojo.png",
     },
     mouseleaveCard(card) {
-      this.uiparams.afficherstats = this.oldAfficherStats;
-      this.imagePathFullsize = null;
+      if(this.deckbuilder) this.uiparams.afficherstats = this.oldAfficherStats;
+      this.mousetimeout = setTimeout(() => this.imagePathFullsize = null, 200);
     },
     onshowcarddetail(card) {
       this.currentCardDetail = card;
@@ -1205,12 +1234,15 @@ export default {
       this.currentDeck.description = this.taDescDeck
       this.g_saveProprietesDeck(this.currentDeck, pdeck => 
       {
+        const toast = useToast();
+
         if(!pdeck)
         {
-          const toast = useToast();
           toast("Une erreur s'est produite lors de la sauvegarde des données", { type: TYPE.ERROR });
           return;
         }
+
+        toast("Les propriétés ont été enregistrées", { type: TYPE.SUCCESS });
         this.decks.forEach(pdeck => 
         {
           if(pdeck.value == this.currentDeck.id) pdeck.label = this.currentDeck.name
@@ -1431,7 +1463,8 @@ export default {
       this.fetchedCards = [];
       this.hasMore = true;
       this.currentPage = 1;
-      this.itemsPerPage = pArrayView ? 100000 : 12;
+      if(pArrayView) this.itemsPerPage = 100000
+      else this.itemsPerPage = this.deckbuilder ? 12 : 24
       this.arrayview = pArrayView;
       this.uiparams.afficherstats = pshowstat;
 
@@ -1626,6 +1659,7 @@ export default {
         currentKeywords: this.currentKeywords,
         currentSort: this.currentSort,
         currentPage: this.currentPage,
+        itemsPerPage: this.itemsPerPage,
       }
 
       if(this.database) this.fetchCardsFromDatabase(calcparams)
@@ -1636,7 +1670,7 @@ export default {
       this.g_fetchCardsFromDatabase(calcparams, pcards => 
         {
           this.currentPage++;
-          this.hasMore = pcards.length > 12;
+          this.hasMore = pcards.length > this.itemsPerPage;
           if(this.hasMore) pcards.pop(); //on vire le dernier élément qui ne sert qy'à savoir si il y a d'autres cartes à fetch
           
           pcards.forEach(card => 
@@ -1740,8 +1774,10 @@ export default {
 .aw-imgapercu img {
   transition: all .5s ease-in;
   margin-top: -1000px;
-  width: calc(0.22* 100vw);
-
+  width: calc(0.25 * 100vw);
+}
+.aw-deckbuilder .aw-imgapercu img {
+  width: calc(0.31 * 100vw);
 }
 
 .aw-imgapercu.aw-imageapon img {

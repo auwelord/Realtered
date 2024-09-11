@@ -29,7 +29,7 @@
       <img :src="getImageCardPublicUrl(card)" :title="card.name" class="img-fluid" />
     </div>
   </div>
-  <div v-else class="col-12 col-xxl-6 aw-carddecklist" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
+  <div v-else class="col-12  aw-carddecklist" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
     <div :class="['d-flex justify-content-between', getClassCardDeckList()]">
         <div>
           <BButton size="sm" variant="danger" class="me-1" @click="removeCardFromDeck(card)">
@@ -115,7 +115,7 @@ export default {
       var classe = "aw-qte" + this.card.quantite + " mt-2 aw-" + this.card.cardType;
 
       if(this.g_isHero(this.card)) classe += " d-flex col-12 justify-content-md-center";
-      else classe += " col-12 col-sm-6 col-lg-4 col-xxl-2";
+      else classe += " col-12 col-sm-6 col-lg-3"; //col-xxl-2
       return classe;
     }
   }
