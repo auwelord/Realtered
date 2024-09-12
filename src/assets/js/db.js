@@ -44,6 +44,8 @@ export default {
             if(token1) params.headers['token1'] = token1
             if(withformdata) params.headers['Content-Type'] = 'multipart/form-data'
 
+            if(!token0 && !token1 && !withformdata) delete params.headers
+            console.log(params)
             return params
         }
 
