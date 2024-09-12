@@ -75,7 +75,7 @@ export default {
             puser.admin = false
 
             try {
-                const { data, error: erreur } = await axios.get(API_BASEURL + 'user/admin/' + puser.id)
+                const { data, error: erreur } = await axios.get(API_BASEURL + 'user/admin/' + puser.id, {withCredentials: true})
                 puser.admin = data && data.isadmin
             } 
             catch (error) 
@@ -832,7 +832,7 @@ export default {
             card.oceanPower = parseInt(card.oceanPower);
 
             try {
-                const { data, error } = await axios.post(API_BASEURL + '/card/update', card)
+                const { data, error } = await axios.post(API_BASEURL + '/card/update', card, {withCredentials: true})
 
                 if(error) console.error(error)
                 if(onUpdatedCard) onUpdatedCard(error ? null : data)
@@ -871,7 +871,7 @@ export default {
                 var deck = $.extend({}, pdeck)
                 delete deck.cards //pas besoni d'envoyer les cartes
                 delete deck.hero //ni le hero
-                const { data, error } = await axios.post(API_BASEURL + 'deck/saveprops', deck)
+                const { data, error } = await axios.post(API_BASEURL + 'deck/saveprops', deck, {withCredentials: true})
 
                 if(error) console.error(error)
                 onSavedDeck(error ? null : data)
@@ -894,11 +894,7 @@ export default {
         async function saveDeck(pdeck, pcallback)
         {
             try {
-                const { data, error } = await axios.post(API_BASEURL + 'deck/save', 
-                {//body:
-                    deck: pdeck
-                },
-                {withCredentials: true})
+                const { data, error } = await axios.post(API_BASEURL + 'deck/save', {deck: pdeck}, {withCredentials: true})
 
                 if(error) console.error(error)
                 pcallback(error ? null : data)
@@ -1021,7 +1017,8 @@ export default {
                 const { error } = await axios.post(API_BASEURL + '/image/s3/upload', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
-                    }
+                    },
+                    withCredentials: true
                 }) 
                 //const { error } = await axios.post(API_BASEURL + '/image/s3/upload', apiparams, {withCredentials: true})
 
