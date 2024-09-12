@@ -1,6 +1,7 @@
 
 import { anonCreateClient } from '@/assets/js/supabase'
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const anonSupabase = anonCreateClient()
 
@@ -75,7 +76,19 @@ export default {
             puser.admin = false
 
             try {
-                const { data, error: erreur } = await axios.get(API_BASEURL + 'user/admin/' + puser.id, {withCredentials: true})
+                //check for transmissible cookies
+                console.log(process.env.NODE_ENV)
+                if(process.env.NODE_ENV === 'production')
+                {
+                    var token0 = Cookies.get('sb-fyqptmokmnymednlerpj-auth-token.0')
+                    var token1 = Cookies.get('sb-fyqptmokmnymednlerpj-auth-token.1')
+                }
+
+                const { data, error: erreur } = await axios.get(API_BASEURL + 'user/admin/' + puser.id,
+                    {
+                        headers: { 'token0': token0, 'token1': token1 },
+                        withCredentials: true
+                    })
                 puser.admin = data && data.isadmin
             } 
             catch (error) 
