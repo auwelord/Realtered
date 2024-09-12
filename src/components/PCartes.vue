@@ -1912,6 +1912,7 @@ a.aw-unique::after {
     overflow: hidden;
     height: 25px;
     -webkit-appearance: none;
+    appearance: none;
     background-color: #ddd;
   }
 
