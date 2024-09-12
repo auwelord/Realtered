@@ -323,7 +323,7 @@ export default
                 }
             },
             getDeckFactionImage(pdeck) {
-                return '/src/assets/img/altered/factions/icons/' + this.g_getFactionName(pdeck.main_faction, true) + '.png'
+                return '@/assets/img/altered/factions/icons/' + this.g_getFactionName(pdeck.main_faction, true) + '.png'
             },
             getCurrentDeckCssClass()
             {
