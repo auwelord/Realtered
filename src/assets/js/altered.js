@@ -15,13 +15,13 @@ export default {
         app.config.globalProperties.g_getImageBanner = function(phero)
         {
             var heroname = phero.name.split('&')[0].trim().toLowerCase();
-            return "/src/assets/img/altered/banner-" + heroname + '.png';
+            return "https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/banner-" + heroname + '.png';
         }
 
         app.config.globalProperties.g_getImageHeroNotext = function(phero)
         {
             var heroname = phero.name.split('&')[0].trim().toLowerCase();
-            return "/src/assets/img/altered/heronotext-" + heroname + '.png';
+            return "https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/heronotext-" + heroname + '.png';
         }
 
         function combinaison(a, b) {

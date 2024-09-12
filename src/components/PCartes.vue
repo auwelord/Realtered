@@ -1758,7 +1758,7 @@ export default {
 }
 .aw-modalecarddet .modal-body
 {
-  background-image: url("@/assets/img/altered/fond1.png");
+  background-image: url("https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/fond1.png");
   background-size: cover;
 }
 .aw-modalecarddet .modal-header
