@@ -26,6 +26,28 @@ axios.interceptors.request.use(config =>
 export default {
     install: (app, options) => 
     {
+        function hparams()
+        {
+            var token0 = null;
+            var token1 = null;
+            if(process.env.NODE_ENV === 'production')
+            {
+                token0 = Cookies.get('sb-fyqptmokmnymednlerpj-auth-token.0')
+                token1 = Cookies.get('sb-fyqptmokmnymednlerpj-auth-token.1')
+            }
+
+            var params = {
+                withCredentials: true
+            }
+            if(token0) params.headers = 
+            {
+                'token0': token0,
+                'token1': token1
+            }
+
+            return params
+        }
+
         async function handleApiError (error)
         {
             if (error.response) {
@@ -76,19 +98,7 @@ export default {
             puser.admin = false
 
             try {
-                //check for transmissible cookies
-                console.log(process.env.NODE_ENV)
-                if(process.env.NODE_ENV === 'production')
-                {
-                    var token0 = Cookies.get('sb-fyqptmokmnymednlerpj-auth-token.0')
-                    var token1 = Cookies.get('sb-fyqptmokmnymednlerpj-auth-token.1')
-                }
-
-                const { data, error: erreur } = await axios.get(API_BASEURL + 'user/admin/' + puser.id,
-                    {
-                        headers: { 'token0': token0, 'token1': token1 },
-                        withCredentials: true
-                    })
+                const { data, error: erreur } = await axios.get(API_BASEURL + 'user/admin/' + puser.id, hparams())
                 puser.admin = data && data.isadmin
             } 
             catch (error) 
