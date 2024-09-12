@@ -323,7 +323,7 @@ export default
                 }
             },
             getDeckFactionImage(pdeck) {
-                return '/assets/img/altered/factions/icons/' + this.g_getFactionName(pdeck.main_faction, true) + '.png'
+                return 'https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/icons/' + this.g_getFactionName(pdeck.main_faction, true) + '.png'
             },
             getCurrentDeckCssClass()
             {
