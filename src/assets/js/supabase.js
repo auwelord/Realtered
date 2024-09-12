@@ -5,7 +5,9 @@ export function anonCreateClient(){
     {
         cookieOptions: 
         {
-            secure: process.env.NODE_ENV === 'production'
+            secure: process.env.NODE_ENV === 'production',
+            domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : 'localhost',
+            //httpOnly: true,
         }
     })
 }
