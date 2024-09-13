@@ -4,6 +4,8 @@
     * controler la validité des decks
     * ne pas pouvoir ajouter une unique OOF
     * switch pour statut deck public
+    * pouvoir reset les filtres (au moins les couts et les patates)
+    * faire la courbe de patate
 
 - bugs:
     * déconnexion sur la page decklist avec visu d'un deck privé -> le deck reste visible
