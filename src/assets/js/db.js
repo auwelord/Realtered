@@ -855,7 +855,7 @@ export default {
             card.oceanPower = parseInt(card.oceanPower);
 
             try {
-                const { data, error } = await axios.post(API_BASEURL + '/card/update', card, hparams())
+                const { data, error } = await axios.post(API_BASEURL + 'card/update', card, hparams())
 
                 if(error) console.error(error)
                 if(onUpdatedCard) onUpdatedCard(error ? null : data)
@@ -1037,7 +1037,7 @@ export default {
                 formData.append('path', v_path)
 
                 //res.data: card
-                const { error } = await axios.post(API_BASEURL + '/image/s3/upload', formData, hparams(true)) 
+                const { error } = await axios.post(API_BASEURL + 'image/s3/upload', formData, hparams(true)) 
 
                 if(error) console.error(error)
                 else 
@@ -1068,7 +1068,7 @@ export default {
                     path: ppath
                 }
                 //res.data: card
-                const { data, error } = await axios.post(API_BASEURL + '/image/s3', apiparams, hparams())
+                const { data, error } = await axios.post(API_BASEURL + 'image/s3', apiparams, hparams())
 
                 if(error) console.error(error)
                 else 
