@@ -1,8 +1,8 @@
 <template>
     <Bar v-if="chartCost" :options="chartCost.chartOptions" :data="chartCost.chartData" />
     <Bar v-if="chartTotalCost" :options="chartTotalCost.chartOptions" :data="chartTotalCost.chartData" class="mt-2" />
-    <Pie v-if="chartType" :options="chartType.chartOptions" :data="chartType.chartData" class="mt-5" />
     <Bar v-if="chartStat" :options="chartStat.chartOptions" :data="chartStat.chartData" class="mt-5" />
+    <Pie v-if="chartType" :options="chartType.chartOptions" :data="chartType.chartData" class="mt-5" />    
 </template>
 
 <script>

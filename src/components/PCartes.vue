@@ -540,7 +540,9 @@
     <div  v-if="importedUnique" class="d-flex flex-column justify-content-center mt-2">
       <div class="text-center fs-5 p-2">Carte trouvée et importée</div>
       <img :src="g_getImageCardPublicUrl(importedUnique)" class="img-fluid"/>
-      <BButton variant="primary" @click="addUniqueToDeck" class="mt-2"><font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>Ajouter la carte au deck</BButton>
+      <BButton variant="primary" @click="addUniqueToDeck" class="mt-2"  v-if="!g_isOOF(importedUnique, currentDeck)">
+          <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>Ajouter la carte au deck
+      </BButton>
     </div>
   </BModal>
 
@@ -847,6 +849,7 @@ export default {
         if(pcard)
         {
           const toast = useToast();
+          this.importedUnique = pcard
           toast("Cette carte existe déjà", { type: TYPE.ERROR });
         }
         else 
