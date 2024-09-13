@@ -24,13 +24,13 @@
       <div>0 : {{ proba[3] }}</div>
     </div>
   </div>
-  <div v-else-if="!g_isHero(card)" class="col-12  aw-carddecklist" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
+  <div v-else-if="!g_isHero(card)" class="col-12  aw-carddecklist">
         <div class="d-flex justify-content-between">
           <div class="aw-comparecard" title="Comparer les raretés" @click="onShowCardDetail(card)">
             <font-awesome-icon :icon="['fas', 'code-compare']" />
           </div>
           <div :class="['d-flex justify-content-between flex-fill aw-carddeck', getClassCardDeckList()]">
-            <div class="d-flex">
+            <div class="d-flex" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
               <div class="aw-costcarddeck me-3">{{  card.mainCost }} / {{ card.recallCost }}</div>
               <div class="aw-namecarddeck">{{ card.name }} </div>
             </div>
