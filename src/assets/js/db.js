@@ -170,7 +170,7 @@ export default {
 
             var keywords = [];
             params.currentKeywords.forEach(kw => {
-                var label = this.g_getKeywordLabel(kw);
+                var label = app.config.globalProperties.g_getKeywordLabel(kw);
                 keywords.push('main_effect.ilike.%' + label + '%,echo_effect.ilike.%' + label + '%');
             });
             if(keywords.length > 0) req = req.or(keywords.join(','));

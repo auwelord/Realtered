@@ -7,3 +7,5 @@
 
 - bugs:
     * déconnexion sur la page decklist avec visu d'un deck privé -> le deck reste visible
+
+- sessions : gérer le refresh et sessions plus courtes
