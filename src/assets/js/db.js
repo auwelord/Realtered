@@ -98,7 +98,7 @@ export default {
             puser.admin = false
 
             try {
-                const { data, error: erreur } = await axios.get(API_BASEURL + 'user/admin/' + puser.id, hparams())
+                const { data, error: erreur } = await axios.get(API_BASEURL + '/user/admin/' + puser.id, hparams())
                 puser.admin = data && data.isadmin
             } 
             catch (error) 
@@ -528,7 +528,7 @@ export default {
         async function deleteDeck(pdeck, pcallback)
         {
             try {
-                const { data, error } = await axios.get(API_BASEURL + 'deck/delete/' + pdeck.id, {}, hparams())
+                const { data, error } = await axios.get(API_BASEURL + '/deck/delete/' + pdeck.id, {}, hparams())
 
                 if(error) console.error(error)
                 pcallback(error ? null : data);
@@ -577,7 +577,7 @@ export default {
 
             var saveddeck;
             try {
-                const { data, error } = await axios.post(API_BASEURL + 'deck/new', deck, hparams())
+                const { data, error } = await axios.post(API_BASEURL + '/deck/new', deck, hparams())
 
                 if(error) console.error(error)
                 else saveddeck = data
@@ -638,7 +638,7 @@ export default {
                         saveddeck.hero_id = hero[0].reference;
 
                         try {
-                            const { data, error } = await axios.post(API_BASEURL + 'deck/update', saveddeck, hparams())
+                            const { data, error } = await axios.post(API_BASEURL + '/deck/update', saveddeck, hparams())
             
                             if(error) console.error(error)
                         }
@@ -686,7 +686,7 @@ export default {
         async function runFetchCardsDecks(pdeck, pcards, onImportedDeck)
         {
             try {
-                const { data, error } = await axios.post(API_BASEURL + 'cardsdeck/set', pcards, hparams())
+                const { data, error } = await axios.post(API_BASEURL + '/cardsdeck/set', pcards, hparams())
 
                 if(error) console.error(error)
                 onImportedDeck(error ? null : pdeck);
@@ -748,7 +748,7 @@ export default {
         async function updateCardFromApi(preference, onUpdatedCard)
         {
             try {
-                const { data, error } = await axios.get(API_BASEURL + 'card/getfromapi/' + preference, {}, hparams())
+                const { data, error } = await axios.get(API_BASEURL + '/card/getfromapi/' + preference, {}, hparams())
 
                 if(error) 
                 {
@@ -855,7 +855,7 @@ export default {
             card.oceanPower = parseInt(card.oceanPower);
 
             try {
-                const { data, error } = await axios.post(API_BASEURL + 'card/update', card, hparams())
+                const { data, error } = await axios.post(API_BASEURL + '/card/update', card, hparams())
 
                 if(error) console.error(error)
                 if(onUpdatedCard) onUpdatedCard(error ? null : data)
@@ -894,7 +894,7 @@ export default {
                 var deck = $.extend({}, pdeck)
                 delete deck.cards //pas besoni d'envoyer les cartes
                 delete deck.hero //ni le hero
-                const { data, error } = await axios.post(API_BASEURL + 'deck/saveprops', deck, hparams())
+                const { data, error } = await axios.post(API_BASEURL + '/deck/saveprops', deck, hparams())
 
                 if(error) console.error(error)
                 onSavedDeck(error ? null : data)
@@ -917,7 +917,7 @@ export default {
         async function saveDeck(pdeck, pcallback)
         {
             try {
-                const { data, error } = await axios.post(API_BASEURL + 'deck/save', {deck: pdeck}, hparams())
+                const { data, error } = await axios.post(API_BASEURL + '/deck/save', {deck: pdeck}, hparams())
 
                 if(error) console.error(error)
                 pcallback(error ? null : data)
@@ -1037,7 +1037,7 @@ export default {
                 formData.append('path', v_path)
 
                 //res.data: card
-                const { error } = await axios.post(API_BASEURL + 'image/s3/upload', formData, hparams(true)) 
+                const { error } = await axios.post(API_BASEURL + '/image/s3/upload', formData, hparams(true)) 
 
                 if(error) console.error(error)
                 else 
@@ -1068,7 +1068,7 @@ export default {
                     path: ppath
                 }
                 //res.data: card
-                const { data, error } = await axios.post(API_BASEURL + 'image/s3', apiparams, hparams())
+                const { data, error } = await axios.post(API_BASEURL + '/image/s3', apiparams, hparams())
 
                 if(error) console.error(error)
                 else 
