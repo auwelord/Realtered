@@ -25,9 +25,7 @@
     </div>
   </div>
   <div v-else-if="g_isHero(card)" class="aw-HERO">
-    <div>
       <img :src="getImageCardPublicUrl(card)" :title="card.name" class="img-fluid" />
-    </div>
   </div>
   <div v-else class="col-12  aw-carddecklist" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
     <div :class="['d-flex justify-content-between', getClassCardDeckList()]">
@@ -43,7 +41,6 @@
           </BButton>
           {{ card.quantite }} - {{ card.name }} 
         </div>
-        <div><img :src="getImageRarete()" /></div>
     </div>
     <!--( {{  card.elements.MAIN_COST }} / {{  card.elements.RECALL_COST }}) */-->
   </div>
@@ -100,9 +97,6 @@ export default {
     getImageCardPublicUrl(pcard)
     {
       return this.g_isHero(pcard) ? this.g_getImageHeroNotext(pcard) : this.g_getImageCardPublicUrl(pcard)
-    },
-    getImageRarete(){
-      return "/src/assets/img/altered/rarities/" + this.card.rarity.toLowerCase() + ".png";
     },
     canAddCard(pcard)
     {

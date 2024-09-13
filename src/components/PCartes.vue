@@ -373,61 +373,80 @@
         <div class="col-12 col-xl-5" v-if="deckbuilder && currentDeck">
           <div class="card card-outline card-primary mb-1 aw-decklist">
             <div class="card-header">
-              <h3 class="card-title" v-if="currentDeck">{{ currentDeck.name }}</h3>
-              <div class="card-tools d-flex">
-                 <BButton @click="saveDeck()" variant="primary" size="sm" class="me-2" v-if="user">
-                    <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" />Enregistrer
-                  </BButton>
-                  
-                  <BDropdown v-model="showDecklistoptions" start size="sm" variant="outline-secondary">
-                    <template #button-content>
-                      <font-awesome-icon :icon="['fas', 'gear']" />
-                    </template>
-                    <BDropdownItem @click="affModalImportUnique()" variant="unique">
-                      <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer une carte Unique
-                    </BDropdownItem>
-                    <BDropdownDivider />
-                    <BDropdownItem @click="redirectToDecklist()">
-                      <font-awesome-icon :icon="['far', 'eye']" class="me-2" v-if="user" />Afficher la DeckList
-                    </BDropdownItem>                      
-                  </BDropdown>               
+              <div class="d-flex justify-content-between">
+                <div class="d-flex flex-column">
+                  <h3 class="fs-5" v-if="currentDeck">{{ currentDeck.name }}</h3>
+                  <div class="fs-7">Cartes: {{ g_getTotalCardsInDeck({deck: currentDeck}) }}</div>
+                </div>
+                <div class="d-flex align-items-end">
+                    <div>
+                      <BButton @click="saveDeck()" variant="primary" size="sm" class="me-2" v-if="user">
+                        <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" />Enregistrer
+                      </BButton>
+                    </div>                    
+                    <BDropdown v-model="showDecklistoptions" start size="sm" variant="outline-secondary">
+                      <template #button-content>
+                        <font-awesome-icon :icon="['fas', 'gear']" />
+                      </template>
+                      <BDropdownItem @click="affModalImportUnique()" variant="unique">
+                        <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer une carte Unique
+                      </BDropdownItem>
+                      <BDropdownDivider />
+                      <BDropdownItem @click="redirectToDecklist()">
+                        <font-awesome-icon :icon="['far', 'eye']" class="me-2" v-if="user" />Afficher la DeckList
+                      </BDropdownItem>                      
+                    </BDropdown>               
+                </div>
               </div>
             </div> <!-- /.card-header -->
             <div class="card-body">
               <div class="row">
                 <div class="col-4">
-                  <label class="switch me-2">
-                    <input type="checkbox" v-model="uiparams.afficherstats" @change="onChangeAfficherStats"/>
-                    <span class="slider round"></span>
-                  </label><font-awesome-icon :icon="['fas', 'chart-column']" class="me-2" />Stats
-                  <label class="switch me-2 mt-2">
-                    <input type="checkbox" v-model="uiparams.modeliste" @change="storeModeListe">
-                    <span class="slider round"></span>
-                  </label><font-awesome-icon :icon="['fas', 'list']" class="me-2" />Vue Liste
-                  <div class="mt-2">
-                    Cartes : {{ g_getTotalCardsInDeck({deck: currentDeck}) }}
-                  </div>
-                  <div class="mt-2">
-                    Communes : {{ g_getTotalCommunesInDeck({deck: currentDeck}) }}
-                  </div>
-                  <div>
-                    Rares : {{ g_getTotalRaresInDeck({deck: currentDeck}) }}
-                  </div>
-                  <div>
-                    Uniques : {{ g_getTotalUniquesInDeck({deck: currentDeck}) }}
-                  </div>
-                  <div class="mt-2">
-                    Personnages : {{ g_getTotalPersosInDeck({deck: currentDeck}) }}
-                  </div>
-                  <div>
-                    Sorts : {{ g_getTotalSortsInDeck({deck: currentDeck}) }}
-                  </div>
-                  <div>
-                    Permanents : {{ g_getTotalPermasInDeck({deck: currentDeck}) }}
+                  <div class="d-flex flex-column">
+                    <div>
+                      <label class="switch me-2">
+                        <input type="checkbox" v-model="uiparams.afficherstats" @change="onChangeAfficherStats"/>
+                        <span class="slider round"></span>
+                      </label><font-awesome-icon :icon="['fas', 'chart-column']" class="me-2" />Stats
+                    </div>
+                    <div>
+                      <label class="switch me-2 mt-2 text-nowrap">
+                        <input type="checkbox" v-model="uiparams.modeliste" @change="storeModeListe">
+                        <span class="slider round"></span>
+                      </label><font-awesome-icon :icon="['fas', 'list']" class="me-2" />Vue Liste
+                    </div>
                   </div>
                 </div>
                 <div class="col-4">
                   <div class="aw-herodeck d-flex flex-column justify-content-end">
+                    <div class="d-flex justify-content-between mb-2 ps-1 pe-1">
+                      <div class="d-flex flex-column align-items-center">
+                        {{ g_getTotalCommunesInDeck({deck: currentDeck}) }}
+                        <img src="/src/assets/img/altered/rarities/common.png" width="40px"/>
+                      </div>
+                      <div class="d-flex flex-column align-items-center">
+                        {{ g_getTotalRaresInDeck({deck: currentDeck}) }}
+                        <img src="/src/assets/img/altered/rarities/rare.png" width="40px"/>
+                      </div>
+                      <div class="d-flex flex-column align-items-center">
+                        {{ g_getTotalUniquesInDeck({deck: currentDeck}) }}
+                        <img src="/src/assets/img/altered/rarities/unique.png" width="40px"/>
+                      </div>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 ps-3 pe-3">
+                      <div class="d-flex flex-column align-items-center">
+                        {{ g_getTotalPersosInDeck({deck: currentDeck}) }}
+                        <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-6" />
+                      </div>
+                      <div class="d-flex flex-column align-items-center">
+                        {{ g_getTotalSortsInDeck({deck: currentDeck}) }}
+                        <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-6" />
+                      </div>
+                      <div class="d-flex flex-column align-items-center">
+                        {{ g_getTotalPermasInDeck({deck: currentDeck}) }}
+                        <font-awesome-icon :icon="['fas', 'building-shield']" class="fs-6" />
+                      </div>
+                    </div>
                     <CardDecklist v-for="card in getHeroCurrentDeck()" :card="card" @addcard="addCard"
                       @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard" @onshowcarddetail="onshowcarddetail"
                       :modeliste="uiparams.modeliste" :currentDeck="currentDeck"/>
@@ -444,8 +463,7 @@
                 </div>
               </div>
               <BCollapse id="awid-descdeck" class="row">
-                <div class="col-12 mt-4" v-html="getFormattedDescriptionCurrentDeck()">
-                </div>
+                <div class="col-12 mt-4" v-html="getFormattedDescriptionCurrentDeck()"></div>
               </BCollapse>
               <div class="row mt-2 pb-2 aw-decklistpersos">
                 <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Personnages</div>
