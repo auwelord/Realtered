@@ -411,25 +411,20 @@
                           <font-awesome-icon :icon="['fas', 'list']" class="me-2" />Passer en mode liste
                         </span>
                       </BDropdownItem>
+                      <BDropdownItem @click="changeModeStats()">
+                          <font-awesome-icon :icon="['fas', 'chart-column']" class="me-2" />
+                          <span v-if="!uiparams.afficherstats">Afficher les stats</span>
+                          <span v-else>Cacher les stats</span>
+                      </BDropdownItem>
                     </BDropdown>               
                 </div>
               </div>
             </div> <!-- /.card-header -->
             <div class="card-body">
-              <div class="row">
-                <div class="col-4">
-                  <div class="d-flex flex-column">
-                    <div>
-                      <label class="switch me-2">
-                        <input type="checkbox" v-model="uiparams.afficherstats" @change="onChangeAfficherStats"/>
-                        <span class="slider round"></span>
-                      </label><font-awesome-icon :icon="['fas', 'chart-column']" class="me-2" />Stats
-                    </div>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <div class="aw-herodeck d-flex flex-column justify-content-end">
-                    <div class="d-flex justify-content-between mb-2 ps-1 pe-1">
+              <div class="row justify-content-md-cente">
+                <div class="col-12">
+                  <div class="aw-herodeck d-flex flex-column justify-content-start">
+                    <div class="d-flex mb-2 ps-1 pe-1">
                       <div class="d-flex flex-column align-items-center">
                         {{ g_getTotalCommunesInDeck({deck: currentDeck}) }}
                         <img src="/src/assets/img/altered/rarities/common.png" width="40px"/>
@@ -443,12 +438,12 @@
                         <img src="/src/assets/img/altered/rarities/unique.png" width="40px"/>
                       </div>
                     </div>
-                    <div class="d-flex justify-content-between mb-2 ps-3 pe-3">
-                      <div class="d-flex flex-column align-items-center">
+                    <div class="d-flex mb-2 ps-3 pe-3">
+                      <div class="d-flex flex-column align-items-center me-4">
                         {{ g_getTotalPersosInDeck({deck: currentDeck}) }}
                         <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-6" />
                       </div>
-                      <div class="d-flex flex-column align-items-center">
+                      <div class="d-flex flex-column align-items-center me-4">
                         {{ g_getTotalSortsInDeck({deck: currentDeck}) }}
                         <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-6" />
                       </div>
@@ -457,24 +452,36 @@
                         <font-awesome-icon :icon="['fas', 'building-shield']" class="fs-6" />
                       </div>
                     </div>
+                    <div class="col-12 d-flex flex-column justify-content-between">
+                      <!--
+                      <div>
+                        Proba en main de départ
+                        <Multiselect v-model="qtesuccessproba" :close-on-select="true" :options="[1,2,3]" />
+                      </div>
+                    -->
+                      <div class="d-flex justify-content-end">
+                        Description <img v-b-toggle.awid-descdeck src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                      </div>
+                      <BCollapse id="awid-descdeck">
+                        <div class="col-12 mt-4" v-html="getFormattedDescriptionCurrentDeck()"></div>
+                      </BCollapse>
+                    </div>
+                    <div v-if="currentDeck && currentDeck.hero" :class="['d-flex flex-column justify-content-between aw-HERO', 'aw-' + g_getHeroName(currentDeck.hero)]">
+                        <div class="aw-heroname">{{ currentDeck.hero.name }}</div>
+                        
+                        <div class="aw-herodelete">
+                          <font-awesome-icon :icon="['far', 'trash-can']" class="fs-5" @click="removeCard(currentDeck.hero)" title="Supprimer le héro/la héroïne"/>
+                        </div>
+                    </div>
+                    <!--
                     <CardDecklist v-for="card in getHeroCurrentDeck()" :card="card" @addcard="addCard"
                       @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard" @onshowcarddetail="onshowcarddetail"
                       :modeliste="uiparams.modeliste" :currentDeck="currentDeck"/>
+                  -->
                   </div>
                 </div>
-                <div class="col-4 d-flex flex-column justify-content-between">
-                  <div>
-                    Proba en main de départ
-                    <Multiselect v-model="qtesuccessproba" :close-on-select="true" :options="[1,2,3]" />
-                  </div>
-                  <div class="d-flex justify-content-end">
-                    Description <img v-b-toggle.awid-descdeck src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
-                  </div>
-                </div>
+                
               </div>
-              <BCollapse id="awid-descdeck" class="row">
-                <div class="col-12 mt-4" v-html="getFormattedDescriptionCurrentDeck()"></div>
-              </BCollapse>
               <div class="row mt-2 pb-2 aw-decklistpersos">
                 <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Personnages</div>
                 <CardDecklist v-for="card in getPersosCurrentDeck()" :card="card" @addcard="addCard"
@@ -897,7 +904,8 @@ export default {
 
       localStorage.setItem("uiparams", JSON.stringify(uiparams));
     },
-    onChangeAfficherStats(){
+    changeModeStats(){
+      this.uiparams.afficherstats = !this.uiparams.afficherstats
       this.storeUiparams();
     },
     onChangeMainCostOrMore() {
@@ -1090,6 +1098,7 @@ export default {
           if(this.g_isHero(card))
           {
             this.currentDeck.hero_id = null
+            this.currentDeck.hero = null
           }
 
           if (pcard.quantite == 0) 
@@ -1160,7 +1169,8 @@ export default {
         if(this.g_isHero(card))
         {
           this.currentDeck.hero_id = card.reference 
-          this.currentDeck.main_faction = card.mainFaction;
+          this.currentDeck.main_faction = card.mainFaction
+          this.currentDeck.hero = card
         }
         const addedCard = $.extend(card, { quantite: 1 });
         this.currentDeck.cards.push(addedCard);
@@ -1760,6 +1770,117 @@ export default {
 </script>
 
 <style>
+.aw-HERO .aw-herodelete
+{
+  color: white;
+  position: relative;
+  padding: 2px 10px;
+  font-size: small;
+}
+.aw-HERO .aw-herodelete svg
+{
+  cursor: pointer;
+}
+
+.aw-HERO  .aw-heroname
+{
+  color: white;
+  position: relative;
+  background-color: #00000070;
+  padding: 2px 10px;
+  font-size: small;
+}
+.aw-HERO{
+  height: 100px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+}
+.aw-HERO::before 
+{ 
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  transition: all 0.5s;
+}
+.aw-HERO:hover::before
+{
+  transform: scale(1.5);
+}
+.aw-HERO.aw-arjun::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-arjun.png');
+}
+.aw-HERO.aw-teija::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-teija.png');
+}
+.aw-HERO.aw-rin::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-rin.png');
+}
+.aw-HERO.aw-sierra::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-sierra.png');
+}
+.aw-HERO.aw-subhash::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-subhash.png');
+}
+.aw-HERO.aw-treyst::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-treyst.png');
+}
+.aw-HERO.aw-atsadi::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-atsadi.png');
+}
+.aw-HERO.aw-kojo::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-kojo.png');
+}
+.aw-HERO.aw-basira::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-basira.png');
+}
+.aw-HERO.aw-fen::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-fen.png');
+}
+.aw-HERO.aw-nevenka::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-nevenka.png');
+}
+.aw-HERO.aw-auraq::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-auraq.png');
+}
+.aw-HERO.aw-waru::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-waru.png');
+}
+.aw-HERO.aw-sigismar::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-sigismar.png');
+}
+.aw-HERO.aw-gulrang::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-gulrang.png');
+}
+.aw-HERO.aw-lindiwe::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-lindiwe.png');
+}
+.aw-HERO.aw-afanas::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-afanas.png');
+}
+.aw-HERO.aw-akesha::before
+{
+  background-image: url('@/assets/img/altered/heronotext-small-akesha.png');
+}
 .aw-imgmiddle
 {
   max-width: 500px !important;

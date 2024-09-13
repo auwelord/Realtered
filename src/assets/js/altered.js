@@ -12,15 +12,20 @@ const altered = {
 export default {
     install: (app, options) => 
     {
+        app.config.globalProperties.g_getHeroName = function(phero)
+        {
+            return phero.name.split('&')[0].trim().toLowerCase()
+        }
+
         app.config.globalProperties.g_getImageBanner = function(phero)
         {
-            var heroname = phero.name.split('&')[0].trim().toLowerCase();
+            var heroname = app.config.globalProperties.g_getHeroName(phero)
             return "https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/banner-" + heroname + '.png';
         }
 
         app.config.globalProperties.g_getImageHeroNotext = function(phero)
         {
-            var heroname = phero.name.split('&')[0].trim().toLowerCase();
+            var heroname = app.config.globalProperties.g_getHeroName(phero)
             return "https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/heronotext-" + heroname + '.png';
         }
 

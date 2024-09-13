@@ -24,10 +24,7 @@
       <div>0 : {{ proba[3] }}</div>
     </div>
   </div>
-  <div v-else-if="g_isHero(card)" class="aw-HERO">
-      <img :src="getImageCardPublicUrl(card)" :title="card.name" class="img-fluid" />
-  </div>
-  <div v-else class="col-12  aw-carddecklist" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
+  <div v-else-if="!g_isHero(card)" class="col-12  aw-carddecklist" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
         <div class="d-flex justify-content-between">
           <div class="aw-comparecard" title="Comparer les raretés" @click="onShowCardDetail(card)">
             <font-awesome-icon :icon="['fas', 'code-compare']" />
@@ -204,11 +201,6 @@ export default {
 
 .aw-carddeck {
   position: relative;
-}
-
-.aw-HERO img{
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
-  border-radius: 20px;
 }
 
 /*.aw-carddeck .aw-quantite */
