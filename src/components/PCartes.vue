@@ -47,7 +47,15 @@
                 <div class="input-group mt-2" v-if="isImporting() && !proprietingdeck">
                   <BFormTextarea v-model="newDecklist" placeholder="Collez ici la decklist..." rows="15" />
                 </div>
-                <div class="mt-2" v-if="proprietingdeck && !isImporting()">
+                <div class="mt-3" v-if="proprietingdeck && !isImporting()">
+                  <div class="d-flex justify-content-end">
+                    Deck public
+                    <label class="switch ms-2 mb-2">
+                      <input type="checkbox" v-model="currentDeck.public"/>
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+
                   <div><i class="fs-8">Vous pouvez utiliser le markdown pour la description du deck</i></div>
                   <BFormTextarea v-model="taDescDeck" placeholder="Description du deck..." rows="15" />
                 </div>
@@ -375,7 +383,7 @@
             <div class="card-header">
               <div class="d-flex justify-content-between">
                 <div class="d-flex flex-column">
-                  <h3 class="fs-5" v-if="currentDeck">{{ currentDeck.name }}</h3>
+                  <h3 class="fs-5" v-if="currentDeck"><font-awesome-icon :icon="['fas', 'lock']" class="me-2" v-if="!currentDeck.public"/>{{ currentDeck.name }}</h3>
                   <div class="fs-7">Cartes: {{ g_getTotalCardsInDeck({deck: currentDeck}) }}</div>
                 </div>
                 <div class="d-flex align-items-end">
@@ -1265,6 +1273,7 @@ export default {
     {
       this.currentDeck.name = this.newDeckName
       this.currentDeck.description = this.taDescDeck
+
       this.g_saveProprietesDeck(this.currentDeck, pdeck => 
       {
         const toast = useToast();
@@ -1274,7 +1283,6 @@ export default {
           toast("Une erreur s'est produite lors de la sauvegarde des données", { type: TYPE.ERROR });
           return;
         }
-
         toast("Les propriétés ont été enregistrées", { type: TYPE.SUCCESS });
         this.decks.forEach(pdeck => 
         {
