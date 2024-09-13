@@ -504,12 +504,17 @@ export default {
                 return
             }
 
-            var onUpdatedCard = pcard => 
+            var onUpdatedCard = (pcard, palreadyexists) => 
             {
                 //si la carte n'est pas unique => ras
                 if(app.config.globalProperties.g_isUnique(pcard))
                 {
-                    downloadImages([pcard], onDownloadingImage, onDownloadedImages, onUpdatedImageS3);
+                    if(palreadyexists)
+                    {
+                        //on appelle le trigger de fin
+                        if(onUpdatedImageS3) onUpdatedImageS3(pcard, palreadyexists)
+                    }
+                    else downloadImages([pcard], onDownloadingImage, onDownloadedImages, onUpdatedImageS3);
                 }
             }
 
@@ -520,6 +525,7 @@ export default {
                 {
                     updateCardFromApi(preference, onUpdatedCard)
                 }
+                else onUpdatedCard(pcard, true)
             }
 
             fetchCard(preference, onFetchedCard)
@@ -666,9 +672,9 @@ export default {
                         //onDownloadedImage
                         null,
                         //onUpdatedImageS3
-                        ppcard => 
+                        (ppcard, palreadyexists) => 
                         {
-                            console.log("Upload de " + ppcard.imageS3)
+                            if(!palreadyexists) console.log("Upload de " + ppcard.imageS3)
                             cptUniques++
 
                             if(cptUniques == uniques.length)

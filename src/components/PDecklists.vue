@@ -561,7 +561,6 @@ export default
 
 .aw-colleft.aw-imageapon
 {
-    transition: all .3s ease-in;
     padding-left: 20px !important;
     padding-right: 20px !important;
 }

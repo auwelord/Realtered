@@ -9,18 +9,20 @@
             <div class="card-header">
               <h3 class="card-title">Mes decks</h3>
               <div class="card-tools d-flex">
-                <BButton @click="createDeck" variant="primary" size="sm" v-if="!creatingDeck && !proprietingdeck" class="me-2">
-                  <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />Créer
-                </BButton>
+                <BDropdown v-model="showDDCreateDeck" v-if="!creatingDeck && !proprietingdeck" size="sm" split split-href="#foo/bar" variant="primary" class="me-2" @click="createDeck">
+                  <template #button-content>
+                    <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>Créer
+                  </template>
+                  <BDropdownItem @click="importDeck" variant="infod2" v-if="!creatingDeck && user && !proprietingdeck">
+                    <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer
+                  </BDropdownItem>
+                </BDropdown>
                 <BDropdown v-model="showDeckoptions" start size="sm" variant="outline-secondary">
                   <template #button-content>
                     <font-awesome-icon :icon="['fas', 'gear']" />
                   </template>
                   <BDropdownItem @click="onShowProprietesDeck" v-if="!creatingDeck && user && currentSelectedDeck && !proprietingdeck">
                     <font-awesome-icon :icon="['fas', 'gear']" class="me-2" />Propriétés
-                  </BDropdownItem>
-                  <BDropdownItem @click="importDeck" variant="infod2" v-if="!creatingDeck && user && !proprietingdeck">
-                    <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer
                   </BDropdownItem>
                   <BDropdownItem @click="exporterCurrentDeck()" v-if="user && currentDeck">
                     <font-awesome-icon :icon="['fas', 'file-export']" class="me-2"/>Exporter
@@ -40,9 +42,14 @@
                 @select="onSelectCurrentDeck" 
                 @clear="onClearCurrentDeck" />
               <div v-else>
+                <div class="input-group mb-2">
+                  <input type="text" class="form-control" placeholder="Identifiant d'un deck Altered" v-model="fIdAlteredDeck">
+                  <span class="input-group-append">
+                    <button type="button" class="btn btn-primary" @click="searchAlteredDeck"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></button>
+                  </span>
+                </div>
                 <div class="input-group">
-                  <input required id="awid-fdeckname" v-model="newDeckName" type="text" class="form-control"
-                    placeholder="Nom du deck">
+                  <input required id="awid-fdeckname" v-model="newDeckName" type="text" class="form-control" placeholder="Nom du deck">
                 </div>
                 <div class="input-group mt-2" v-if="isImporting() && !proprietingdeck">
                   <BFormTextarea v-model="newDecklist" placeholder="Collez ici la decklist..." rows="15" />
@@ -638,6 +645,7 @@ export default {
       currentSelectedDeck: null,
       creatingDeck: false,
       newDeckName: null,
+      fIdAlteredDeck: null,
       newDecklist: null,
       currentCardDetail: null,
       currentKeywords: null,
@@ -663,6 +671,7 @@ export default {
       mousetimeout: null,
       showDeckoptions: false,
       showDecklistoptions: false,
+      showDDCreateDeck: false,
     };
   },
   mounted() 
@@ -736,6 +745,42 @@ export default {
     },
   },
   methods: {
+    searchAlteredDeck()
+    {
+      if(this.fIdAlteredDeck)
+      {
+        var tab = this.fIdAlteredDeck.split('/')
+        var id = tab[tab.length - 1]
+        this.fIdAlteredDeck = id
+        
+        this.gaa_fetchDeck(this.fIdAlteredDeck, pdeck => 
+        {
+          const toast = useToast()
+
+          if(!pdeck)
+          {
+            toast("Une erreur s'est produite lors de la récupération du deck", { type: TYPE.ERROR })    
+            return
+          }
+
+          toast("Le deck a été trouvé", { type: TYPE.SUCCESS })    
+          this.newDeckName = pdeck.name
+
+          this.newDecklist = ""
+          var cards = []
+          if(pdeck.cardIndexes) for (let key in pdeck.cardIndexes) 
+          {
+            cards.push(pdeck.cardIndexes[key] + ' ' + key.split('/').pop());
+          }
+          this.newDecklist = ''
+          if(pdeck.alterator)
+          {
+            this.newDecklist = '1 ' + pdeck.alterator.reference + '\n'
+          }
+          this.newDecklist += cards.join('\n')
+        })
+      }
+    },
     exporterCurrentDeck()
     {
       const toast = useToast();
@@ -1071,15 +1116,19 @@ export default {
     mouseenterCard(card) {
       if(this.deckbuilder) 
       {
-        this.oldAfficherStats = this.uiparams.afficherstats;
-        this.uiparams.afficherstats = false;
+        if(this.uiparams.afficherstats != null) this.oldAfficherStats = this.uiparams.afficherstats;
+        this.uiparams.afficherstats = null;
       }
-      clearTimeout(this.mousetimeout)
+      if(this.mousetimeout) clearTimeout(this.mousetimeout)
       this.imagePathFullsize = this.g_getImageCardPublicUrl(card);  //"/src/assets/img/altered_kojo.png",
     },
     mouseleaveCard(card) {
-      if(this.deckbuilder) this.uiparams.afficherstats = this.oldAfficherStats;
-      this.mousetimeout = setTimeout(() => this.imagePathFullsize = null, 200);
+      
+      this.mousetimeout = setTimeout(() => 
+      {
+        if(this.deckbuilder) this.uiparams.afficherstats = this.oldAfficherStats;
+        this.imagePathFullsize = null
+      }, 200);
     },
     onshowcarddetail(card) {
       this.currentCardDetail = card;
@@ -1934,16 +1983,11 @@ export default {
 }
 
 .aw-imgapercu img {
-  transition: all .5s ease-in;
-  margin-top: -1000px;
+  margin-top: 0;
   width: calc(0.25 * 100vw);
 }
 .aw-deckbuilder .aw-imgapercu img {
   width: calc(0.31 * 100vw);
-}
-
-.aw-imgapercu.aw-imageapon img {
-  margin-top: 0;
 }
 
 .aw-resultsearch {

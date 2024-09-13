@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const bearer = null
 const API_CARDS_ENDPOINT = 'https://api.altered.gg/cards'
+const API_DECK_ENDPOINT = 'https://api.altered.gg/deck_user_lists/'
 
 export default {
     install: (app, options) => 
@@ -64,5 +65,27 @@ export default {
         {
             fetchCards(params, pcallback)
         }
+
+        app.config.globalProperties.gaa_fetchDeck = function(pid, pcallback)
+        {
+            fetchDeck(pid, pcallback)
+        }
+
+        async function fetchDeck (pid, pcallback)
+        {
+            try{
+                const { data, error} = await axios.get(API_DECK_ENDPOINT + pid)
+                
+                if(error) console.error(error)
+                pcallback(error ? null : data)
+            }
+            catch(error)
+            {
+                console.error(error)
+                pcallback(null)
+            }
+            
+        }
+
     }
 }
