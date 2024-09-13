@@ -5,9 +5,9 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <nav class="navbar navbar-expand-lg fixed-top">
-                            <a href="https://www.altered.gg/fr-fr" class="navbar-brand" target="_blank">
-                                <LogoAltered :width="100" :height="50" />
-                            </a>
+                            <router-link to="/" class="navbar-brand">
+                                <img src="@/assets/img/altered/Realtered.png" width="150">
+                            </router-link>
                             <button class="navbar-toggler" type="button" data-toggle="collapse"
                                 data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                                 aria-expanded="false" aria-label="Toggle navigation">
