@@ -211,6 +211,15 @@
                     </a>
                   </div><!-- /.isotope-overlay -->
                 </div><!-- /.item -->
+                <div class="item">
+                  <img src="@/assets/img/altered/tools/AlteRate.png" alt="AlteRate">
+                  <div class="d-flex justify-content-center fs-5">AlteRate</div>
+                  <div class="isotope-overlay">
+                    <a href="https://github.com/Ticoche-Tougan/AlteRate/releases">
+                      AlteRate
+                    </a>
+                  </div><!-- /.isotope-overlay -->
+                </div><!-- /.item -->
               </div><!-- /.col -->
             </div><!-- /.row -->
           </div><!--/.isotope-->
