@@ -50,12 +50,15 @@
   --c-ordistp: #0B597433;
   --c-yzmirtp: #714A7933;
   --c-common: #ADB7C6;
+  --c-commond1: #a9a9a9;  
   --c-commond2: #7d8897;
   --c-rare: #0AB6FA;
   --c-rared2: #0883b4;
+  --c-rared3: #0a4860;
   --c-unique: #FFB410;
   --c-uniquetp: #FFB41033;
-  --c-uniqued2: #aa7708;
+  --c-uniqued1: #e7a411;
+  --c-uniqued2: #aa7708;  
   --c-forest: #B4BF4D;
   --c-mountain: #BE8049;
   --c-water: #648AB9;

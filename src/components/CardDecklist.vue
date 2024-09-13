@@ -28,21 +28,24 @@
       <img :src="getImageCardPublicUrl(card)" :title="card.name" class="img-fluid" />
   </div>
   <div v-else class="col-12  aw-carddecklist" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
-    <div :class="['d-flex justify-content-between', getClassCardDeckList()]">
-        <div>
-          <BButton size="sm" variant="danger" class="me-1" @click="removeCardFromDeck(card)">
-            <font-awesome-icon :icon="['fa', 'circle-minus']" />
-          </BButton>
-          <BButton size="sm" variant="unique" class="me-1" @click="addCardToDeck(card)" :disabled="!canAddCard(card)">
-            <font-awesome-icon :icon="['fa', 'circle-plus']" />
-          </BButton>
-          <BButton size="sm" variant="rare" class="me-1" @click="onShowCardDetail(card)">
-            <font-awesome-icon :icon="['far', 'eye']" />
-          </BButton>
-          {{ card.quantite }} - {{ card.name }} 
+        <div class="d-flex justify-content-between">
+          <div class="aw-comparecard" title="Comparer les raretés" @click="onShowCardDetail(card)">
+            <font-awesome-icon :icon="['fas', 'code-compare']" />
+          </div>
+          <div :class="['d-flex justify-content-between flex-fill aw-carddeck', getClassCardDeckList()]">
+            <div class="d-flex">
+              <div class="aw-costcarddeck me-3">{{  card.mainCost }} / {{ card.recallCost }}</div>
+              <div class="aw-namecarddeck">{{ card.name }} </div>
+            </div>
+            <div class="d-flex">
+              <div class="aw-addremovecard ps-2 pe-2 me-1" @click="removeCardFromDeck(card)">-</div>
+              <div class="aw-qtecarddeck">{{ card.quantite }} </div>
+              <div class="aw-addremovecard ps-2 pe-2 ms-1" @click="addCardToDeck(card)" v-visible="canAddCard(card)">+</div>
+            </div>
+          </div>
         </div>
-    </div>
-    <!--( {{  card.elements.MAIN_COST }} / {{  card.elements.RECALL_COST }}) */-->
+    
+    <!-- {{ card.quantite }} - -->
   </div>
 </template>
 
@@ -117,32 +120,86 @@ export default {
 </script>
 
 <style scoped>
+
+.aw-carddecklist .aw-comparecard
+{
+  padding: 4px 7px 0 0;
+  cursor: pointer;
+}
+
+.aw-carddecklist .aw-comparecard:hover
+{
+  color: var(--c-uniqued2)
+}
+
+.aw-carddecklist .aw-addremovecard
+{
+  transition: all 0.5s;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.aw-carddecklist .aw-costcarddeck
+{
+  padding: 0 6px;
+  border-radius: 5px;
+}
+
+.aw-carddecklist .aw-namecarddeck
+{
+  font-weight: bold;
+}
+
+.aw-carddecklist .aw-qtecarddeck
+{
+  padding: 0 6px;
+  border-radius: 5px;
+}
+.aw-carddecklist div.aw-carddeck.aw-UNIQUE .aw-qtecarddeck,
+.aw-carddecklist div.aw-carddeck.aw-UNIQUE .aw-costcarddeck,
+.aw-carddecklist div.aw-carddeck.aw-UNIQUE .aw-addremovecard:hover
+{
+  background-color: var(--c-uniqued2);
+}
+.aw-carddecklist div.aw-carddeck.aw-RARE .aw-qtecarddeck,
+.aw-carddecklist div.aw-carddeck.aw-RARE .aw-costcarddeck,
+.aw-carddecklist div.aw-carddeck.aw-RARE .aw-addremovecard:hover
+{
+  background-color: var(--c-rared3);
+}
+.aw-carddecklist div.aw-carddeck.aw-COMMON .aw-costcarddeck,
+.aw-carddecklist div.aw-carddeck.aw-COMMON .aw-addremovecard:hover
+{
+  background-color: var(--c-commond2);
+}
 .aw-carddecklist
 {
   position: relative;
 }
-.aw-carddecklist > div
+.aw-carddecklist div.aw-carddeck
 {
-    color: black;
-    margin: 2px 0;
-    padding: 10px 8px;
-    border-radius: 6px;
+  padding: 2px 11px;
+  color: white;
+  border-radius: 9px;
+  margin-top: 2px;
 }
-.aw-carddecklist > div::after
+.aw-carddecklist div.aw-carddeck.aw-UNIQUE
 {
-  background-repeat: no-repeat;
-    background-size: contain;
-    position: absolute;
-    right: 11px;
-    top: 21px;
-    content: "";
-    width: 40px;
-    height: 18px;
-    display: block;
+  background-color: var(--c-uniqued1);
 }
-.aw-carddecklist img
+.aw-carddecklist div.aw-carddeck.aw-RARE
 {
-  width: 50px;
+  background-color: var(--c-rared2);
+}
+.aw-carddecklist div.aw-carddeck.aw-COMMON
+{
+  background-color: var(--c-commond1);
+}
+.aw-decklistpersos .aw-carddecklist:nth-child(2),
+.aw-decklistsorts .aw-carddecklist:nth-child(2),
+.aw-decklistpermas .aw-carddecklist:nth-child(2)
+{
+  margin-top: 15px;
 }
 
 .aw-carddeck {

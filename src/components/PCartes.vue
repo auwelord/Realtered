@@ -394,7 +394,15 @@
                       <BDropdownDivider />
                       <BDropdownItem @click="redirectToDecklist()">
                         <font-awesome-icon :icon="['far', 'eye']" class="me-2" v-if="user" />Afficher la DeckList
-                      </BDropdownItem>                      
+                      </BDropdownItem>
+                      <BDropdownItem @click="changeModeListe()">
+                        <span v-if="uiparams.modeliste">
+                          <font-awesome-icon :icon="['far', 'image']" class="me-2" />Passer en mode visuel
+                        </span>
+                        <span v-else>
+                          <font-awesome-icon :icon="['fas', 'list']" class="me-2" />Passer en mode liste
+                        </span>
+                      </BDropdownItem>
                     </BDropdown>               
                 </div>
               </div>
@@ -408,12 +416,6 @@
                         <input type="checkbox" v-model="uiparams.afficherstats" @change="onChangeAfficherStats"/>
                         <span class="slider round"></span>
                       </label><font-awesome-icon :icon="['fas', 'chart-column']" class="me-2" />Stats
-                    </div>
-                    <div>
-                      <label class="switch me-2 mt-2 text-nowrap">
-                        <input type="checkbox" v-model="uiparams.modeliste" @change="storeModeListe">
-                        <span class="slider round"></span>
-                      </label><font-awesome-icon :icon="['fas', 'list']" class="me-2" />Vue Liste
                     </div>
                   </div>
                 </div>
@@ -905,7 +907,8 @@ export default {
     onChangeWaterOrMore() {
       this.onChangeFilter();
     },
-    storeModeListe() {
+    changeModeListe() {
+      this.uiparams.modeliste = !this.uiparams.modeliste
       this.storeUiparams();
     },
     showModalDeleteDeck() {
