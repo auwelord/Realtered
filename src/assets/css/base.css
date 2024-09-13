@@ -54,6 +54,7 @@
   --c-rare: #0AB6FA;
   --c-rared2: #0883b4;
   --c-unique: #FFB410;
+  --c-uniquetp: #FFB41033;
   --c-uniqued2: #aa7708;
   --c-forest: #B4BF4D;
   --c-mountain: #BE8049;
@@ -157,6 +158,18 @@
 {
   background-color: var(--c-unique);
   color: #fff;
+}
+
+.dropdown-item.text-unique {
+  --bs-text-opacity: 1;
+    color: var(--c-uniqued2) !important;
+}
+.dropdown-item.text-unique:hover, .dropdown-item.text-unique:focus{
+  background-color: var(--c-uniquetp);
+}
+
+.dropdown-item.text-danger:hover, .dropdown-item.text-danger:focus{
+  background-color: rgb(220 53 69 / 22%) !important;
 }
 
 img.aw-alteredcard

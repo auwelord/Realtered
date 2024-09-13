@@ -8,17 +8,28 @@
           <div v-if="deckbuilder" class="card card-outline card-info mb-1">
             <div class="card-header">
               <h3 class="card-title">Mes decks</h3>
-              <div class="card-tools">
-                
-                <BButton @click="onShowProprietesDeck" variant="info" size="sm" v-if="!creatingDeck && user && currentSelectedDeck && !proprietingdeck" class="me-2">
-                  <font-awesome-icon :icon="['fas', 'gear']" class="me-2" />Propriétés
-                </BButton>
-                <BButton @click="importDeck" variant="infod2" size="sm" v-if="!creatingDeck && user && !proprietingdeck" class="me-2">
-                  <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />Importer
-                </BButton>
-                <BButton @click="createDeck" variant="primary" size="sm" v-if="!creatingDeck && !proprietingdeck">
+              <div class="card-tools d-flex">
+                <BButton @click="createDeck" variant="primary" size="sm" v-if="!creatingDeck && !proprietingdeck" class="me-2">
                   <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />Créer
                 </BButton>
+                <BDropdown v-model="showDeckoptions" start size="sm" variant="outline-secondary">
+                  <template #button-content>
+                    <font-awesome-icon :icon="['fas', 'gear']" />
+                  </template>
+                  <BDropdownItem @click="onShowProprietesDeck" v-if="!creatingDeck && user && currentSelectedDeck && !proprietingdeck">
+                    <font-awesome-icon :icon="['fas', 'gear']" class="me-2" />Propriétés
+                  </BDropdownItem>
+                  <BDropdownItem @click="importDeck" variant="infod2" v-if="!creatingDeck && user && !proprietingdeck">
+                    <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer
+                  </BDropdownItem>
+                  <BDropdownItem @click="exporterCurrentDeck()" v-if="user && currentDeck">
+                    <font-awesome-icon :icon="['fas', 'file-export']" class="me-2"/>Exporter
+                  </BDropdownItem>                  
+                  <BDropdownDivider />  
+                  <BDropdownItem  @click="showModalDeleteDeck()" variant="danger" v-if="user && currentDeck">
+                      <font-awesome-icon :icon="['far', 'trash-can']" class="me-2" />Supprimer
+                  </BDropdownItem>
+                </BDropdown>
               </div>
             </div> <!-- /.card-header -->
             <div class="card-body">
@@ -57,17 +68,16 @@
             </div>
           </div>
           <div v-if="deckbuilder || !imagePathFullsize">
+            <div v-if="!database && fetchedCards && g_isAdmin(user) && currentFaction != ''">
+                <BButton @click="updateDetailFromApi" variant="secondary" size="sm" class="me-2">
+                  <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Details <span v-if="updatingname">{{  updatingname }}</span>
+                </BButton>
+                <BButton @click="onClickDownloadImages" variant="secondary" size="sm" class="me-2">
+                  <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Images <span v-if="updatingname">{{  updatingname }}</span>
+                </BButton>
+            </div>
+
             <div class="card card-outline card-warning">
-              <div class="card-header" v-if="g_isAdmin(user) && currentFaction != ''">
-                <div class="card-tools">
-                  <BButton @click="updateDetailFromApi" variant="secondary" size="sm" v-if="!database && fetchedCards" class="me-2">
-                    <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Details <span v-if="updatingname">{{  updatingname }}</span>
-                  </BButton>
-                  <BButton @click="onClickDownloadImages" variant="secondary" size="sm" v-if="!database && fetchedCards" class="me-2">
-                    <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Images <span v-if="updatingname">{{  updatingname }}</span>
-                  </BButton>
-                </div>
-              </div>
               <div class="card-header" v-if="currentFaction != ''">
                 <div class="d-flex justify-content-end">
                   <div v-if="g_isAdmin(user) && currentFaction != ''">
@@ -364,26 +374,23 @@
           <div class="card card-outline card-primary mb-1 aw-decklist">
             <div class="card-header">
               <h3 class="card-title" v-if="currentDeck">{{ currentDeck.name }}</h3>
-              <div class="card-tools">
-                  Mode liste
-                  <label class="switch me-2">
-                    <input type="checkbox" v-model="uiparams.modeliste" @change="storeModeListe">
-                    <span class="slider round"></span>
-                  </label>
-                  <BButton @click="affModalImportUnique()" variant="unique" size="sm" class="me-2" title="Importer une carte Unique">
-                    <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Unique
-                  </BButton>
-                  <BButton @click="saveDeck()" variant="success" size="sm" class="me-2" v-if="user">
+              <div class="card-tools d-flex">
+                 <BButton @click="saveDeck()" variant="primary" size="sm" class="me-2" v-if="user">
                     <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" />Enregistrer
                   </BButton>
-                  <BButton @click="showModalDeleteDeck()" variant="danger" size="sm" class="me-2" v-if="user">
-                    <font-awesome-icon :icon="['far', 'trash-can']" /></BButton>
-                  <BButton @click="redirectToDecklist()" variant="light" size="sm" class="me-2" v-if="user && currentDeck" title="Afficher dans la vue 'DeckList'">
-                    <font-awesome-icon :icon="['far', 'eye']" />
-                  </BButton>
-                  <BButton @click="exporterCurrentDeck()" variant="light" size="sm" class="me-2" v-if="user && currentDeck" title="Exporter le deck">
-                    <font-awesome-icon :icon="['fas', 'file-export']" />
-                  </BButton>                
+                  
+                  <BDropdown v-model="showDecklistoptions" start size="sm" variant="outline-secondary">
+                    <template #button-content>
+                      <font-awesome-icon :icon="['fas', 'gear']" />
+                    </template>
+                    <BDropdownItem @click="affModalImportUnique()" variant="unique">
+                      <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer une carte Unique
+                    </BDropdownItem>
+                    <BDropdownDivider />
+                    <BDropdownItem @click="redirectToDecklist()">
+                      <font-awesome-icon :icon="['far', 'eye']" class="me-2" v-if="user" />Afficher la DeckList
+                    </BDropdownItem>                      
+                  </BDropdown>               
               </div>
             </div> <!-- /.card-header -->
             <div class="card-body">
@@ -393,7 +400,10 @@
                     <input type="checkbox" v-model="uiparams.afficherstats" @change="onChangeAfficherStats"/>
                     <span class="slider round"></span>
                   </label><font-awesome-icon :icon="['fas', 'chart-column']" class="me-2" />Stats
-                  
+                  <label class="switch me-2 mt-2">
+                    <input type="checkbox" v-model="uiparams.modeliste" @change="storeModeListe">
+                    <span class="slider round"></span>
+                  </label><font-awesome-icon :icon="['fas', 'list']" class="me-2" />Vue Liste
                   <div class="mt-2">
                     Cartes : {{ g_getTotalCardsInDeck({deck: currentDeck}) }}
                   </div>
@@ -616,6 +626,8 @@ export default {
       proprietingdeck: false,
       taDescDeck: null,
       mousetimeout: null,
+      showDeckoptions: false,
+      showDecklistoptions: false,
     };
   },
   mounted() 

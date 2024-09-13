@@ -9,6 +9,9 @@ declare module 'vue' {
   export interface GlobalComponents {
     BButton: typeof import('bootstrap-vue-next')['BButton']
     BCollapse: typeof import('bootstrap-vue-next')['BCollapse']
+    BDropdown: typeof import('bootstrap-vue-next')['BDropdown']
+    BDropdownDivider: typeof import('bootstrap-vue-next')['BDropdownDivider']
+    BDropdownItem: typeof import('bootstrap-vue-next')['BDropdownItem']
     BFormCheckbox: typeof import('bootstrap-vue-next')['BFormCheckbox']
     BFormInput: typeof import('bootstrap-vue-next')['BFormInput']
     BFormTextarea: typeof import('bootstrap-vue-next')['BFormTextarea']
