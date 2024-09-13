@@ -14,5 +14,5 @@ yarn-error.log*
 dist/
 build/
 
-./TODO.txt
+TODO.txt
 node_modules/
