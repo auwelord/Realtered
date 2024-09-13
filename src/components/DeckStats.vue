@@ -2,6 +2,7 @@
     <Bar v-if="chartCost" :options="chartCost.chartOptions" :data="chartCost.chartData" />
     <Bar v-if="chartTotalCost" :options="chartTotalCost.chartOptions" :data="chartTotalCost.chartData" class="mt-2" />
     <Bar v-if="chartStat" :options="chartStat.chartOptions" :data="chartStat.chartData" class="mt-5" />
+    <Bar v-if="chartTotalStat" :options="chartTotalStat.chartOptions" :data="chartTotalStat.chartData" class="mt-2" />
     <Pie v-if="chartType" :options="chartType.chartOptions" :data="chartType.chartData" class="mt-5" />    
 </template>
 
@@ -142,6 +143,59 @@ export default {
                     }
                 }
             },
+            chartTotalStat: {
+                chartData: {
+                    labels: ["Coût total"],
+                    datasets: [
+                        {
+                            label: "Patates en forêt",
+                            data: [this.getStatTotalForest()],
+                            borderColor: "white",
+                            backgroundColor: this.g_colorForest(),
+                        },
+                        {
+                            label: "Patates en montagne",
+                            data: [this.getStatTotalMountain()],
+                            borderColor: "white",
+                            backgroundColor: this.g_colorMountain(),
+                        }
+                        ,
+                        {
+                            label: "Patates en océan",
+                            data: [this.getStatTotalOcean()],
+                            borderColor: "white",
+                            backgroundColor: this.g_colorWater(),
+                        }
+                    ]
+                },
+                chartOptions: {
+                    responsive: true,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: false,
+                                text: 'Coût en mana',
+                            }
+                        },
+                        y: {
+                            display: false                            
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Patates totales par biôme',
+                        },
+                        legend: {
+                            title: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            },
             chartStat: {
                 chartData: {
                     labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "10+"],
@@ -277,8 +331,7 @@ export default {
             }
 
             return tab;
-        }
-        ,
+        },
         getQuantiteStatWater() {
             var tab = [];
             for (let patate = 0; patate <= 10; patate++) {
@@ -291,8 +344,34 @@ export default {
             }
 
             return tab;
+        },
+        getStatTotalForest()
+        {
+            var total = 0;
+            this.currentDeck.cards.forEach(card => 
+            {
+                if (this.g_isPersonnage(card)) total += card.forestPower;
+            });
+            return total;
+        },
+        getStatTotalMountain()
+        {
+            var total = 0;
+            this.currentDeck.cards.forEach(card => 
+            {
+                if (this.g_isPersonnage(card)) total += card.mountainPower;
+            });
+            return total;
+        },
+        getStatTotalOcean()
+        {
+            var total = 0;
+            this.currentDeck.cards.forEach(card => 
+            {
+                if (this.g_isPersonnage(card)) total += card.oceanPower;
+            });
+            return total;
         }
-
     }
 }
 </script>
