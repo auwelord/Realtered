@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createBootstrap } from 'bootstrap-vue-next'
+import { createHead } from '@vueuse/head';
 import Multiselect from '@vueform/multiselect'
 import piniaPluginPersistedState from "pinia-plugin-persistedstate"
 import FontAwesomeIcon from "@/utilities/fontawesome-icons";
@@ -35,6 +36,7 @@ const app = createApp(App)
     .use(db)
     .use(apialtered)
     .use(Toast)
+    .use(createHead())
     .use(createBootstrap());
 
 app.directive('focus', {

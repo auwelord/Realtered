@@ -165,6 +165,7 @@ watch(() => props.user, async (newUser, oldUser) => {
 
 <script>
 import { useToast, TYPE } from "vue-toastification";
+import { useHead } from '@vueuse/head';
 
 export default
     {
@@ -205,9 +206,24 @@ export default
             }
             else
             {
-                this.onShowDeck(null)
+                this.onShowDeck(null, pdeck => 
+                {
+                    useHead({
+                        title: this.getOgTitle(),
+                        meta: [
+                            { property: 'og:title', content: this.getOgTitle() },
+                            { property: 'og:description', content: this.getOgDescription() },
+                            { property: 'og:image', content: this.getOgImage() },
+                            { property: 'og:url', content: window.location.href },
+                            { property: 'og:type', content: 'article' }
+                        ]
+                    });
+                })
                 this.afficherstats = true
+
+                
             }
+            
         },
         watch:{
             // Watcher for 'message'
@@ -289,7 +305,7 @@ export default
                 });
                 return formatter.format(date);
             },
-            onShowDeck(pdeck) 
+            onShowDeck(pdeck, pcallback) 
             {
                 var zedeckid = pdeck ? pdeck.id : this.deckid
 
@@ -307,7 +323,10 @@ export default
                             //le deck n'est pas public, il faut vérifier si l'user est connecté et possesseur du deck
                             //this.setCurrentDeck(isowner ? pdeck : null)
                             this.erreurdeckid = !isowner
-                            if(isowner) this.setCurrentDeck(pdeck)
+                            if(isowner) {
+                                this.setCurrentDeck(pdeck)
+                                if(pcallback) pcallback(pdeck)
+                            }
                         }
                     })
                 })
@@ -419,7 +438,16 @@ export default
             isCurrentYzmir() {
                 return this.currentFaction == "YZ";
             },
-        }
+            getOgTitle(){
+                return 'Realtered : ' + this.deckid ? this.currentdeck.name + ' (' + this.currentdeck.hero.name + ')' : 'liste des decks'
+            },         
+            getOgDescription(){
+                return this.deckid ? 'Decklist du deck ' + this.currentdeck.name : ''
+            },
+            getOgImage(){
+                return this.deckid ? this.g_getImageBanner(this.currentdeck.hero) : this.g_getImageLogo()
+            }
+        },
     }
 </script>
 

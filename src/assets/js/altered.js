@@ -17,6 +17,11 @@ export default {
             return phero.name.split('&')[0].trim().toLowerCase()
         }
 
+        app.config.globalProperties.g_getImageLogo = function()
+        {
+            return 'https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/logos/Realtered.png'
+        }
+
         app.config.globalProperties.g_getImageBanner = function(phero)
         {
             var heroname = app.config.globalProperties.g_getHeroName(phero)
