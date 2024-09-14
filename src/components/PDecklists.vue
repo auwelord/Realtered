@@ -113,9 +113,15 @@
                                         </label> Voir les statistiques
                                     </div>
                                     
+                                    <div class="d-flex">
                                     <BButton @click="onImporterDeck" variant="unique" size="sm" title="importer le deck" class="mt-2">
                                         <font-awesome-icon :icon="['fas', 'right-long']" class="me-2"/>Importer
                                     </BButton>
+
+                                    <BButton @click="onCopierLienDeck" variant="uniqued2" size="sm" title="Copier le lien" class="mt-2 ms-2">
+                                        <font-awesome-icon :icon="['fab', 'threads']" class="me-2" />Copier le lien
+                                    </BButton>
+                                    </div>
 
                                     <div class="mt-2">
                                         Description <font-awesome-icon v-b-toggle.awid-descdeck :icon="['fas', 'chevron-right']" class="text-white aw-arrowcollapse" /> 
@@ -146,32 +152,54 @@
 </template>
 
 <script setup>
-import { watch, ref, onMounted } from 'vue'
-import { getCurrentInstance } from 'vue';
-import MarkdownIt from "markdown-it";
+import { watch, defineProps, onMounted, getCurrentInstance } from 'vue'
 import { useHead } from '@vueuse/head';
+import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
+import MarkdownIt from "markdown-it";
 
 const props = defineProps({
+    deckid: { 
+        type: Number,
+        default: 0,     // Valeur par défaut (facultatif)
+        validator: (value) => Number.isInteger(value)  // Vérifier que la valeur est un entier
+    },
     user: { type: Object }
 });
-
+const route = useRoute();
 const instance = getCurrentInstance();
 instance.proxy.currentdeck = null
+
 
 watch(() => props.user, async (newUser, oldUser) => {
     if (!newUser) {
         instance.proxy.loadDecks();
     }
 })
+watch(() => route.params.deckid, (newId) => {
+    if(newId === undefined)
+    {
+        window.location.reload()
+    }
+});
+
+useHead({
+    title: 'Realtered',
+    meta: [
+        { property: 'og:title', content: 'Realtered' },
+        { property: 'og:description', content: 'Realtered: deckbuilder by Auwelord' },
+        { property: 'og:image', content: 'https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/logos/Realtered.png' },
+        { property: 'og:url', content: window.location.href },
+        { property: 'og:type', content: 'article' }
+    ]
+})
 
 onMounted(async () => {
     
-    instance.proxy.recupDeckIdFromURL()
-    if(instance.proxy.deckid)
+    if(props.deckid)
     {
         instance.proxy.onShowDeck(null, pdeck => {
             useHead({
-                title: pdeck.name,
+                title: 'Realtered : ' + pdeck.name,
                 meta: [
                     { property: 'og:title', content: instance.proxy.getOgTitle() },
                     { property: 'og:description', content: instance.proxy.getOgDescription() },
@@ -183,22 +211,18 @@ onMounted(async () => {
         });
     }
 })
-
-
-// Définir dynamiquement les balises meta
-
-
 </script>
 
 <script>
 import { useToast, TYPE } from "vue-toastification";
 import { useHead } from '@vueuse/head';
 
+const toast = useToast();
+
 export default
     {
         data() {
             return {
-                deckid: null,
                 currentFaction: null,
                 decks: null,
                 mesdecksonly: false,
@@ -251,20 +275,6 @@ export default
         },
         methods:
         {
-            recupDeckIdFromURL()
-            {
-                try {
-                    var segments = (new URL(window.location.href)).pathname.split('/')
-                    if(segments.length > 1)
-                    {
-                        this.deckid = parseInt(segments[segments.length - 1])
-                    }
-                } catch (error) {
-                    console.error(error)
-                    this.erreurdeckid = true
-                    this.deckid = 0
-                }
-            },
             getFormattedDescriptionCurrentDeck()
             {
                 const markdown = new MarkdownIt();
@@ -281,13 +291,26 @@ export default
                     if(this.mousetimeout)this.imagePathFullsize = null
                 }, 200)
             },
+            onCopierLienDeck()
+            {
+                if(this.deckid)
+                {
+                    navigator.clipboard.writeText(window.location.href)
+                }
+                else
+                {
+                    var link = window.location.href + (window.location.href.endsWith('/') ? '' : '/')
+                    navigator.clipboard.writeText(link + this.currentdeck.id)
+                }
+
+                toast("Le lien vers ce deck a été copié dans le presse-papier", { type: TYPE.SUCCESS });
+            },
             onImporterDeck()
             {
                 this.g_importDeck({deck: this.currentdeck}, 
                     //onImportedDeck: 
                     pdeck => 
                     {
-                        const toast = useToast();
                         if(pdeck) toast("Deck importé !", { type: TYPE.SUCCESS })
                         else toast("Une erreur s'est produite", { type: TYPE.ERROR })
                     }

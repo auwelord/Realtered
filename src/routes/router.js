@@ -34,8 +34,15 @@ const routes = [
         props: true
     },
     {
-        path: '/decklists/:pathMatch(.*)*',
+        path: '/decklists/:deckid',
         name: 'Decks',
+        component: PDecklists,
+        history: true,
+        props: route => ({ deckid: convertIntegerParam(route.params.deckid)})
+    },
+    {
+        path: '/decklists',
+        name: 'DeckList',
         component: PDecklists,
         history: true,
         props: true
@@ -48,6 +55,12 @@ const routes = [
         props: true
     }
 ];
+
+const convertIntegerParam = function(pval)
+{
+    const num = Number(pval);
+    return Number.isInteger(num) && pval.trim() === num.toString() ? num : 0
+}
 
 const router = createRouter({
     history: createWebHistory(),

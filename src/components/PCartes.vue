@@ -26,7 +26,10 @@
                   </BDropdownItem>
                   <BDropdownItem @click="exporterCurrentDeck()" v-if="user && currentDeck">
                     <font-awesome-icon :icon="['fas', 'file-export']" class="me-2"/>Exporter
-                  </BDropdownItem>                  
+                  </BDropdownItem>
+                  <BDropdownItem @click="onCopierLienDecklist()" v-if="user && currentDeck">
+                    <font-awesome-icon :icon="['fab', 'threads']" class="me-2"/>Copier le lien de la decklist
+                  </BDropdownItem>             
                   <BDropdownDivider />  
                   <BDropdownItem  @click="showModalDeleteDeck()" variant="danger" v-if="user && currentDeck">
                       <font-awesome-icon :icon="['far', 'trash-can']" class="me-2" />Supprimer
@@ -559,12 +562,16 @@
 <style src="@vueform/multiselect/themes/default.css"></style>
 
 <script setup>
-import { watch } from 'vue'
-import { getCurrentInstance } from 'vue';
+import { watch, getCurrentInstance } from 'vue'
+import { useHead } from '@vueuse/head';
 
 const props = defineProps({
   user: { type: Object},
   deckbuilder: false,
+});
+
+useHead({
+  title: 'Realtered'
 });
 
 const instance = getCurrentInstance();
@@ -581,6 +588,9 @@ watch(() => props.user, async (newUser, oldUser) =>
 <script>
 import { useToast, TYPE } from "vue-toastification";
 import MarkdownIt from "markdown-it";
+import { useRouter } from 'vue-router';
+
+const toast = useToast();
 
 export default {
   name: 'Collection',
@@ -674,10 +684,12 @@ export default {
       showDeckoptions: false,
       showDecklistoptions: false,
       showDDCreateDeck: false,
+      router: null,
     };
   },
   mounted() 
   { 
+    this.router = useRouter();
     const storeduiparams = localStorage.getItem("uiparams");
     if(storeduiparams) this.uiparams = JSON.parse(storeduiparams);
     
@@ -757,8 +769,6 @@ export default {
         
         this.gaa_fetchDeck(this.fIdAlteredDeck, pdeck => 
         {
-          const toast = useToast()
-
           if(!pdeck)
           {
             toast("Une erreur s'est produite lors de la récupération du deck", { type: TYPE.ERROR })    
@@ -783,9 +793,16 @@ export default {
         })
       }
     },
+    onCopierLienDecklist()
+    {
+      const baseUrl = window.location.origin; 
+      const { href: decklisturl } = this.router.resolve({ name: 'DeckList' });
+      navigator.clipboard.writeText(baseUrl + decklisturl + '/' + this.currentDeck.id)
+      toast("Le lien vers ce deck a été copié dans le presse-papier", { type: TYPE.SUCCESS });
+    },
     exporterCurrentDeck()
     {
-      const toast = useToast();
+      
       var copy = ''
       this.currentDeck.cards.forEach(card => copy += (copy == '' ? '' : '\n') + card.quantite + ' ' + card.reference)
       navigator.clipboard.writeText(copy)
@@ -848,7 +865,6 @@ export default {
         //si la carte a ete trouvé => message d'erreur
         if(pcard)
         {
-          const toast = useToast();
           this.importedUnique = pcard
           toast("Cette carte existe déjà", { type: TYPE.ERROR });
         }
@@ -858,8 +874,6 @@ export default {
             //onUpdatedCard: 
             ppcard => 
             {
-              const toast = useToast();
-
               if(!ppcard)
               {
                 toast("Une erreur s'est produite lors de l'import de la carte", { type: TYPE.ERROR });
@@ -1093,7 +1107,6 @@ export default {
         this.updateCurrentDeck(deck);
         this.deckModified = false;
 
-        const toast = useToast();
         if(deck) toast("Deck enregistré");
         else toast("Une erreur s'est produite lors de la sauvegarde du deck", { type: TYPE.ERROR });
       });  
@@ -1338,8 +1351,6 @@ export default {
 
       this.g_saveProprietesDeck(this.currentDeck, pdeck => 
       {
-        const toast = useToast();
-
         if(!pdeck)
         {
           toast("Une erreur s'est produite lors de la sauvegarde des données", { type: TYPE.ERROR });
@@ -1355,7 +1366,6 @@ export default {
       })
     },
     checkCreateDeck() {
-      const toast = useToast();
 
       if (!this.newDeckName || (this.isImporting() && !this.newDecklist)) {
         
