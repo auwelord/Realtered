@@ -146,21 +146,48 @@
 </template>
 
 <script setup>
-import { watch } from 'vue'
+import { watch, ref, onMounted } from 'vue'
 import { getCurrentInstance } from 'vue';
 import MarkdownIt from "markdown-it";
+import { useHead } from '@vueuse/head';
 
 const props = defineProps({
     user: { type: Object }
 });
 
 const instance = getCurrentInstance();
+instance.proxy.currentdeck = null
 
 watch(() => props.user, async (newUser, oldUser) => {
     if (!newUser) {
         instance.proxy.loadDecks();
     }
 })
+
+onMounted(async () => {
+    
+    instance.proxy.recupDeckIdFromURL()
+    if(instance.proxy.deckid)
+    {
+        instance.proxy.onShowDeck(null, pdeck => {
+            useHead({
+                title: pdeck.name,
+                meta: [
+                    { property: 'og:title', content: instance.proxy.getOgTitle() },
+                    { property: 'og:description', content: instance.proxy.getOgDescription() },
+                    { property: 'og:image', content: instance.proxy.getOgImage() },
+                    { property: 'og:url', content: window.location.href },
+                    { property: 'og:type', content: 'article' }
+                ]
+            });
+        });
+    }
+})
+
+
+// Définir dynamiquement les balises meta
+
+
 </script>
 
 <script>
@@ -187,43 +214,21 @@ export default
                 mousetimeout: null,
             }
         },
-        mounted() {
-            try {
-                var segments = (new URL(window.location.href)).pathname.split('/')
-                if(segments.length > 1)
-                {
-                    this.deckid = parseInt(segments[segments.length - 1])
-                }
-            } catch (error) {
-                console.error(error)
-                this.erreurdeckid = true
-                return
-            }
-
+        mounted() 
+        {
             if(!this.deckid)
             {
                 this.alimListeHeroes()
             }
             else
             {
-                this.onShowDeck(null, pdeck => 
-                {
-                    useHead({
-                        title: this.getOgTitle(),
-                        meta: [
-                            { property: 'og:title', content: this.getOgTitle() },
-                            { property: 'og:description', content: this.getOgDescription() },
-                            { property: 'og:image', content: this.getOgImage() },
-                            { property: 'og:url', content: window.location.href },
-                            { property: 'og:type', content: 'article' }
-                        ]
-                    });
+                /*
+                this.onShowDeck(null, pdeck => {
+                    console.log(pdeck)
                 })
+                    */
                 this.afficherstats = true
-
-                
             }
-            
         },
         watch:{
             // Watcher for 'message'
@@ -246,6 +251,20 @@ export default
         },
         methods:
         {
+            recupDeckIdFromURL()
+            {
+                try {
+                    var segments = (new URL(window.location.href)).pathname.split('/')
+                    if(segments.length > 1)
+                    {
+                        this.deckid = parseInt(segments[segments.length - 1])
+                    }
+                } catch (error) {
+                    console.error(error)
+                    this.erreurdeckid = true
+                    this.deckid = 0
+                }
+            },
             getFormattedDescriptionCurrentDeck()
             {
                 const markdown = new MarkdownIt();
@@ -315,7 +334,11 @@ export default
                 this.g_fetchDeck(zedeckid, true, pdeck => 
                 {
                     if(this.deckid && !pdeck) this.erreurdeckid = true
-                    else if(!this.deckid || !pdeck || pdeck.public) this.setCurrentDeck(pdeck)
+                    else if(!this.deckid || !pdeck || pdeck.public) 
+                    {
+                        this.setCurrentDeck(pdeck)
+                        if(pcallback) pcallback(pdeck)
+                    }
                     else this.g_isOwerDeck({
                         deck: pdeck,
                         callback: isowner => 
@@ -442,7 +465,7 @@ export default
                 return 'Realtered : ' + this.deckid ? this.currentdeck.name + ' (' + this.currentdeck.hero.name + ')' : 'liste des decks'
             },         
             getOgDescription(){
-                return this.deckid ? 'Decklist du deck ' + this.currentdeck.name : ''
+                return this.deckid ? 'Realtered Decklist : ' + this.currentdeck.name : ''
             },
             getOgImage(){
                 return this.deckid ? this.g_getImageBanner(this.currentdeck.hero) : this.g_getImageLogo()
