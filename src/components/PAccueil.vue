@@ -316,9 +316,21 @@
 </template>
 
 <script setup>
+import { useHead } from '@vueuse/head';
+
 defineProps({
   user: { type: Object }
 });
+useHead({
+    title: 'Realtered',
+    meta: [
+        { property: 'og:title', content: 'Realtered' },
+        { property: 'og:description', content: 'Realtered: deckbuilder by Auwelord' },
+        { property: 'og:image', content: 'https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/logos/Realtered.png' },
+        { property: 'og:url', content: window.location.href },
+        { property: 'og:type', content: 'article' }
+    ]
+})
 </script>
 
 <script>
