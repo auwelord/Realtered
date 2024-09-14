@@ -106,21 +106,29 @@
                                         <div class="fs-6">Permanents : {{ g_getTotalPermasInDeck({deck: currentdeck}) }} </div>
                                     </div>
 
-                                    <div v-if="!deckid">
+                                    <div v-if="!deckid" class="mt-2">
                                         <label class="switch me-2">
                                             <input type="checkbox" v-model="afficherstats">
                                             <span class="slider round"></span>
                                         </label> Voir les statistiques
                                     </div>
                                     
-                                    <BButton @click="onImporterDeck" variant="unique" size="sm" title="importer le deck">
+                                    <BButton @click="onImporterDeck" variant="unique" size="sm" title="importer le deck" class="mt-2">
                                         <font-awesome-icon :icon="['fas', 'right-long']" class="me-2"/>Importer
                                     </BButton>
+
+                                    <div class="mt-2">
+                                        Description <font-awesome-icon v-b-toggle.awid-descdeck :icon="['fas', 'chevron-right']" class="text-white aw-arrowcollapse" /> 
+                                    </div>
+
                                 </div>
                                 <img :src="g_getImageBanner(currentdeck.hero)" />
                             </div>
                         </div>
-                        <div class="card-body">                        
+                        <div class="card-body">
+                            <BCollapse id="awid-descdeck">
+                                <div class="col-12 mt-4" v-html="getFormattedDescriptionCurrentDeck()"></div>
+                            </BCollapse>                        
                             <div class="row">
                                 <template v-for="card in currentdeck.cards">
                                     <div class="col-12 col-lg-4 col-xl-3 col-xxl-2 aw-decklistcard" v-if="!g_isHero(card)" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
@@ -140,6 +148,7 @@
 <script setup>
 import { watch } from 'vue'
 import { getCurrentInstance } from 'vue';
+import MarkdownIt from "markdown-it";
 
 const props = defineProps({
     user: { type: Object }
@@ -221,6 +230,11 @@ export default
         },
         methods:
         {
+            getFormattedDescriptionCurrentDeck()
+            {
+                const markdown = new MarkdownIt();
+                return markdown.render(this.currentdeck.description)
+            },
             mouseEnterCard(pcard)
             {
                 clearTimeout(this.mousetimeout)
