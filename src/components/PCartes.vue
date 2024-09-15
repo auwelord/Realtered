@@ -105,6 +105,9 @@
                       <span class="slider round"></span>
                     </label>
                   </div>
+                  <BButton @click="clearFilters" variant="light" size="sm" class="me-2" title="Supprimer tous les filtres (hors factions/éditions/tris)">
+                    <font-awesome-icon :icon="['fas', 'eraser']" />
+                  </BButton>
                   <BButton @click="searchCards(false, false, false)" variant="unique" size="sm">
                     <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="me-2" />Rechercher
                   </BButton>
@@ -701,54 +704,34 @@ export default {
     if(storeduiparams) this.uiparams = JSON.parse(storeduiparams);
     
     var filters = JSON.parse(localStorage.getItem("filters"));
-    if (!filters) {
-      filters = {
-        isSelectedCharacter: false,
-        isSelectedPermanent: false,
-        isSelectedSpell: false,
-        isSelectedHero: false,
-        isSelectedCommon: false,
-        isSelectedRare: false,
-        isSelectedUnique: false,
-        currentSort: ["translations.name"],
-        currentEditions: ["COREKS"],
-        currentSoustypes: [],
-        currentKeywords: [],
-        handCost: 1,
-        handCostOrMore: "ouplus",
-        reserveCost: 1,
-        reserveCostOrMore: "ouplus",
-        forest: 0,
-        forestOrMore: "ouplus",
-        water: 0,
-        waterOrMore: "ouplus",
-        mountain: 0,
-        mountainOrMore: "ouplus",
-      };
+    if (!filters) 
+    {
+      filters = this.getInitialFilters()
       localStorage.setItem("filters", JSON.stringify(filters));
     }
 
-    this.isSelectedCharacter = filters.isSelectedCharacter;
-    this.isSelectedPermanent = filters.isSelectedPermanent;
-    this.isSelectedSpell = filters.isSelectedSpell;
-    this.isSelectedHero = filters.isSelectedHero;
-    this.isSelectedCommon = filters.isSelectedCommon;
-    this.isSelectedRare = filters.isSelectedRare;
-    this.isSelectedUnique = filters.isSelectedUnique;
-    this.currentSort = filters.currentSort;
-    this.currentKeywords = filters.currentKeywords;
-    this.currentEditions = filters.currentEditions;
-    this.currentSoustypes = filters.currentSoustypes;
-    this.handCost = filters.handCost;
-    this.handCostOrMore = filters.handCostOrMore;
-    this.reserveCost = filters.reserveCost;
-    this.reserveCostOrMore = filters.reserveCostOrMore;
-    this.forest = filters.forest;
-    this.forestOrMore = filters.forestOrMore;
-    this.water = filters.water;
-    this.waterOrMore = filters.waterOrMore;
-    this.mountain = filters.mountain;
-    this.mountainOrMore = filters.mountainOrMore;
+    this.currentName = filters.currentName
+    this.isSelectedCharacter = filters.isSelectedCharacter
+    this.isSelectedPermanent = filters.isSelectedPermanent
+    this.isSelectedSpell = filters.isSelectedSpell
+    this.isSelectedHero = filters.isSelectedHero
+    this.isSelectedCommon = filters.isSelectedCommon
+    this.isSelectedRare = filters.isSelectedRare
+    this.isSelectedUnique = filters.isSelectedUnique
+    this.currentSort = filters.currentSort
+    this.currentKeywords = filters.currentKeywords
+    this.currentEditions = filters.currentEditions
+    this.currentSoustypes = filters.currentSoustypes
+    this.handCost = filters.handCost
+    this.handCostOrMore = filters.handCostOrMore
+    this.reserveCost = filters.reserveCost
+    this.reserveCostOrMore = filters.reserveCostOrMore
+    this.forest = filters.forest
+    this.forestOrMore = filters.forestOrMore
+    this.water = filters.water
+    this.waterOrMore = filters.waterOrMore
+    this.mountain = filters.mountain
+    this.mountainOrMore = filters.mountainOrMore
 
     this.loadDecks();
     //this.loadMore(); // Charger les premiers éléments
@@ -766,6 +749,33 @@ export default {
     },
   },
   methods: {
+    getInitialFilters()
+    {
+      return {
+        isSelectedCharacter: false,
+        isSelectedPermanent: false,
+        isSelectedSpell: false,
+        isSelectedHero: false,
+        isSelectedCommon: false,
+        isSelectedRare: false,
+        isSelectedUnique: false,
+        currentNme: '',
+        currentSort: ["translations.name"],
+        currentEditions: ["COREKS"],
+        currentSoustypes: [],
+        currentKeywords: [],
+        handCost: 1,
+        handCostOrMore: "ouplus",
+        reserveCost: 1,
+        reserveCostOrMore: "ouplus",
+        forest: 0,
+        forestOrMore: "ouplus",
+        water: 0,
+        waterOrMore: "ouplus",
+        mountain: 0,
+        mountainOrMore: "ouplus",
+      }
+    },
     searchAlteredDeck()
     {
       if(this.fIdAlteredDeck)
@@ -953,6 +963,36 @@ export default {
       await this.$nextTick();
       // Add MyComponent back in
       this.renderStatComponent = true;
+    },
+    clearFilters()
+    {
+      var filters = this.getInitialFilters()
+
+      this.currentName = 
+      this.isSelectedCharacter = filters.isSelectedCharacter
+      this.isSelectedPermanent = filters.isSelectedPermanent
+      this.isSelectedSpell = filters.isSelectedSpell
+      this.isSelectedHero = filters.isSelectedHero
+      this.isSelectedCommon = filters.isSelectedCommon
+      this.isSelectedRare = filters.isSelectedRare
+      this.isSelectedUnique = filters.isSelectedUnique
+      this.currentName = filters.currentName
+      //this.currentSort = filters.currentSort
+      this.currentKeywords = filters.currentKeywords
+      //this.currentEditions = filters.currentEditions
+      this.currentSoustypes = filters.currentSoustypes
+      this.handCost = filters.handCost
+      this.handCostOrMore = filters.handCostOrMore
+      this.reserveCost = filters.reserveCost
+      this.reserveCostOrMore = filters.reserveCostOrMore
+      this.forest = filters.forest
+      this.forestOrMore = filters.forestOrMore
+      this.water = filters.water
+      this.waterOrMore = filters.waterOrMore
+      this.mountain = filters.mountain
+      this.mountainOrMore = filters.mountainOrMore
+
+      this.onChangeFilter()
     },
     storeUiparams()
     {
