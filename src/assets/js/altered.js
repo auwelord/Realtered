@@ -159,12 +159,17 @@ export default {
 
         app.config.globalProperties.g_isOOF = function (pcard, pdeck)
         {
-            var heros = this.g_getCardsOfTypeHero(pdeck);
+            if(!pdeck.main_faction) return false;
       
-            if(!heros || heros.length == 0) return false;
-      
-            return heros[0].mainFaction != pcard.mainFaction;
+            return pdeck.main_faction != pcard.mainFaction;
         };
+
+        app.config.globalProperties.g_containsOOF = function (pdeck)
+        {
+            if(!pdeck.main_faction) return false
+
+            return pdeck.cards.some(pcard => this.g_isOOF(pcard, pdeck))
+        }
 
         app.config.globalProperties.g_isHero = function (pcard) {
             return pcard.cardType == "HERO";

@@ -393,7 +393,7 @@
         </div>
         <div class="col-12 col-xl-5" v-if="deckbuilder && currentDeck">
           <div class="card card-outline card-primary mb-1 aw-decklist">
-            <div class="card-header">
+            <div class="card-header position-relative">
               <div class="d-flex justify-content-between">
                 <div class="d-flex flex-column">
                   <h3 class="fs-5" v-if="currentDeck"><font-awesome-icon :icon="['fas', 'lock']" class="me-2" v-if="!currentDeck.public"/>{{ currentDeck.name }}</h3>
@@ -433,8 +433,13 @@
                 </div>
               </div>
             </div> <!-- /.card-header -->
-            <div class="card-body">
-              <div class="row justify-content-md-cente">
+            <div class="card-body position-relative">
+              <div class="ribbon-wrapper ribbon-lg">
+                <div :class="['ribbon text-white', currentDeck.valide ? 'bg-success' : 'bg-danger']">
+                {{ currentDeck.valide ? 'Valide' : 'Non valide'}}
+                </div>
+              </div>
+              <div class="row">
                 <div class="col-12">
                   <div class="aw-herodeck d-flex flex-column justify-content-start">
                     <div class="d-flex mb-2 ps-1 pe-1">
@@ -1217,8 +1222,7 @@ export default {
           {
             this.currentDeck.cards.splice(indice, 1);
           }
-          this.saveCurrentDeckToLocalStorage();
-          this.refreshStatComponent();
+          this.onChangedDeck()
           return;
         }
         indice++;
@@ -1288,8 +1292,26 @@ export default {
         this.currentDeck.cards.push(addedCard);
         this.deckModified = true;
       }
-      this.refreshStatComponent();
+      this.onChangedDeck()
+    },
+    onChangedDeck()
+    {
+      if(!this.currentDeck) return
+
+      //calcul de la validité du deck
+      if(!this.currentDeck.main_faction || 
+        !this.currentDeck.hero_id ||
+        this.g_getTotalCardsInDeck({deck: this.currentDeck}) != 40 || 
+        this.g_getTotalRaresInDeck({deck: this.currentDeck}) > 15 ||
+        this.g_getTotalUniquesInDeck({deck: this.currentDeck}) > 3 || 
+        this.g_containsOOF(this.currentDeck)
+      ){
+        this.currentDeck.valide = false
+      }
+      else this.currentDeck.valide = true
+      
       this.saveCurrentDeckToLocalStorage();
+      this.refreshStatComponent();
     },
     onChangeSorting() {
       setTimeout(() => this.onChangeFilter(), 500);
