@@ -146,12 +146,13 @@ export default {
         
         async function fetchCardsFromDatabase(params, pcallback)
         {
+            console.log(params)
             var req = anonSupabase
                 .from('Card')
                 .select()
                 .eq('mainFaction', params.currentFaction);
 
-            if (params.currentName != '') req = req.ilike('name', '%' + params.currentName + '%');
+            if (params.currentName) req = req.ilike('name', '%' + params.currentName + '%');
             if (params.calculatedrarity.length > 0) req = req.in("rarity", params.calculatedrarity);
             if (params.calculatedmaincost.length > 0) req = req.in("mainCost", params.calculatedmaincost);
             if (params.calculatedrecallcost.length > 0) req = req.in("recallCost", params.calculatedrecallcost);
