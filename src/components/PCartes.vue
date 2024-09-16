@@ -46,7 +46,7 @@
                 @clear="onClearCurrentDeck" />
               <div v-else>
                 <div class="input-group mb-2">
-                  <input type="text" class="form-control" placeholder="Identifiant d'un deck Altered" v-model="fIdAlteredDeck">
+                  <input type="text" class="form-control" placeholder="Identifiant / URL d'un deck Altered" v-model="fIdAlteredDeck">
                   <span class="input-group-append">
                     <button type="button" class="btn btn-primary" @click="searchAlteredDeck"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></button>
                   </span>
@@ -421,7 +421,10 @@
         <div :class="['col-12', deckbuilder && currentSelectedDeck != null ? 'col-xl-4' : 'col-xl-9']">
           <div class="container-fluid">
             <div class="row" v-if="!hasResult() && !loading && !imagePathFullsize && !uiparams.afficherstats">
-              <img src="/src/assets/img/altered_kojo.png" alt="" class="img-fluid aw-imgmiddle" />
+              <div class="col-12 d-flex flex-column align-items-center">
+                  <div class="fs-4">Sélectionnez une faction et paramétrez vos filtres pour lancer la recherche</div>
+                  <img src="/src/assets/img/empty.png" alt="" class="mt-5" style="width: 300px" />
+              </div>
             </div>
             <div v-if="!uiparams.afficherstats && deckbuilder" :class="['row mb-3 aw-imgapercu', imagePathFullsize ? 'aw-imageapon' : '']">
               <div class="col-12">

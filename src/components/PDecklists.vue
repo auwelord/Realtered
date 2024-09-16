@@ -90,7 +90,13 @@
                     </div>
                     <DeckStats v-if="currentdeck && afficherstats && !imagePathFullsize" :currentDeck="currentdeck" />
                 </div>
-                <div class="col-xl-8 col-12" v-if="currentdeck">
+                <div class="col-xl-8 col-12" v-if="!currentdeck">
+                    <div class="col-12 d-flex flex-column align-items-center">
+                        <div class="fs-4">Sélectionnez un deck pour voir la decklist</div>
+                        <img src="/src/assets/img/empty.png" alt="" class="mt-5" style="width: 300px" />
+                    </div>
+                </div>
+                <div v-else class="col-xl-8 col-12">
 
                     <div :class="['card aw-carddeck', getCurrentDeckCssClass()]">
                         <div class="card-header">
