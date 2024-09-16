@@ -149,7 +149,6 @@ export default {
         
         async function fetchCardsFromDatabase(params, pcallback)
         {
-            console.log(params)
             var req = anonSupabase
                 .from('Card')
                 .select()
