@@ -24,7 +24,7 @@
       <div>0 : {{ proba[3] }}</div>
     </div>
   </div>
-  <div v-else-if="!g_isHero(card)" class="col-12  aw-carddecklist">
+  <div v-else-if="!g_isHero(card)" class="col-12 col-xxxl-6 aw-carddecklist">
         <div class="d-flex justify-content-between">
           <div class="aw-comparecard" title="Comparer les raretés" @click="onShowCardDetail(card)">
             <font-awesome-icon :icon="['fas', 'code-compare']" />
@@ -140,6 +140,7 @@ export default {
 {
   padding: 0 6px;
   border-radius: 5px;
+  text-wrap: nowrap;
 }
 
 .aw-carddecklist .aw-namecarddeck
@@ -196,7 +197,7 @@ export default {
 .aw-decklistsorts .aw-carddecklist:nth-child(2),
 .aw-decklistpermas .aw-carddecklist:nth-child(2)
 {
-  margin-top: 15px;
+  /*margin-top: 15px;*/
 }
 
 .aw-carddeck {
