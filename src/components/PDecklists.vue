@@ -65,7 +65,7 @@
                                                     class="d-none aw-privateico ms-2" />
                                             </div>
                                             <div class="d-flex flex-column justify-content-end align-items-end">
-                                                <div><span v-if="deck.hero">{{ deck.hero.name }}</span><span :class="['ms-2 badge', deck.valide ? 'bg-success':'bg-danger']">{{(deck.valide ? '': 'Non ') + 'Valide'}}</span> </div>
+                                                <div><span v-if="deck.hero">{{ deck.hero.name }}</span><span :class="['ms-2 badge', deck.valide ? 'bg-success':'bg-danger']">{{(deck.valide ? '': 'Non ') + 'Légal'}}</span> </div>
                                                 <div><i class="fs-8">{{ getDateDeckFormatee(deck) }}</i></div>
                                             </div>
                                         </div>
@@ -96,7 +96,7 @@
                         <div class="card-header">
                             <div class="ribbon-wrapper ribbon-lg">
                                 <div :class="['ribbon text-white', currentdeck.valide ? 'bg-success' : 'bg-danger']">
-                                {{ currentdeck.valide ? 'Valide' : 'Non valide'}}
+                                {{ currentdeck.valide ? 'Légal' : 'Non Légal'}}
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between">

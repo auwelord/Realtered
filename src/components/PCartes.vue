@@ -133,15 +133,49 @@
                     @click="changeFaction"><img src="@/assets/img/altered/factions/yzmir.webp" class="aw-faction" /></a>
                 </div>
                 <div class="input-group mt-4">
-                  <input type="text" v-model="currentName" class="form-control" placeholder="Nom de carte" />
+                  <div class="d-flex flex-column flex-fill align-items-center">
+                    <input type="text" class="form-control" placeholder="Nom de carte et/ou filtres..." 
+                      v-model="currentName" 
+                      @keyup.enter="searchCards(false, false, false)" />
+
+                      <!--
+                    <font-awesome-icon v-b-toggle.awid-aidecurrentname :icon="['fas', 'chevron-right']" class="aw-arrowcollapse mt-2" />
+
+                    <BCollapse id="awid-aidecurrentname">
+                      <BButton variant="light" size="xs" class="me-1" title="Rareté">
+                        Rareté (r:c,r,u)
+                      </BButton>
+                      <BButton variant="light" size="xs" class="me-1" title="Type">
+                        Type (t:c,s,p)
+                      </BButton>
+                      <BButton variant="light" size="xs" class="me-1" title="Sous-type">
+                        Sous-type (st)
+                      </BButton>
+                      <BButton variant="light" size="xs" class="me-1" title="Patate forêt">
+                        Patate forêt (pf:0,1,...)
+                      </BButton>
+                      <BButton variant="light" size="xs" class="me-1" title="Patate montagne">
+                        Patate montagne (pm:0,1,...)
+                      </BButton>
+                      <BButton variant="light" size="xs" class="me-1" title="Patate océan">
+                        Patate océan (po:0,1,2)
+                      </BButton>
+                    </BCollapse>
+                  -->
+                  </div>
                 </div>
 
                 <hr>
                 <div class="d-flex justify-content-between mt-3">
-                  Rareté
-                  <img v-b-toggle.aw-filtresrarity src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                  <div>
+                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechRarete && currentFaction">
+                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+                    </BButton>
+                    Rareté
+                  </div>
+                  <font-awesome-icon v-b-toggle.awid-filtresrarity :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
                 </div>
-                <BCollapse id="aw-filtresrarity" v-model="uiparams.filtreRarity" @hide="storeUiparams" @show="storeUiparams">
+                <BCollapse id="awid-filtresrarity" v-model="uiparams.filtreRarity" @hide="storeUiparams" @show="storeUiparams">
                   <div class="d-flex justify-content-evenly aw-raritysel mt-2">
                     <a href="javascript:" id="COMMON" :class="['aw-common', isSelectedCommon ? 'aw-selected' : '']"
                       @click="selectCommon"><img src="@/assets/img/altered/rarities/common.png" class="aw-rarity" /></a>
@@ -154,10 +188,15 @@
 
                 <hr>
                 <div class="d-flex justify-content-between mt-3">
-                  Type
-                  <img v-b-toggle.aw-filtrestype src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                  <div>
+                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechType && currentFaction">
+                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+                    </BButton>
+                    Type
+                  </div>
+                  <font-awesome-icon v-b-toggle.awid-filtrestype :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
                 </div>
-                <BCollapse id="aw-filtrestype" v-model="uiparams.filtreType" @hide="storeUiparams" @show="storeUiparams">
+                <BCollapse id="awid-filtrestype" v-model="uiparams.filtreType" @hide="storeUiparams" @show="storeUiparams">
                   <div class="card-group justify-content-evenly aw-type mt-2">
                     <a href="javascript:" id="CHARACTER"
                       :class="['aw-character d-flex flex-column align-items-center mb-3', isSelectedCharacter ? 'aw-selected' : '']"
@@ -179,10 +218,15 @@
                 
                 <hr>
                 <div class="d-flex justify-content-between mt-3">
-                  Coût de main
-                  <img v-b-toggle.aw-filtrescoutmain src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                  <div>
+                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechMaincost && currentFaction">
+                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+                    </BButton>
+                    Coût de main
+                  </div>
+                  <font-awesome-icon v-b-toggle.awid-filtrescoutmain :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
                 </div>
-                <BCollapse id="aw-filtrescoutmain" v-model="uiparams.filtreMainCost" @hide="storeUiparams" @show="storeUiparams">
+                <BCollapse id="awid-filtrescoutmain" v-model="uiparams.filtreMainCost" @hide="storeUiparams" @show="storeUiparams">
                 <div class="d-flex flex-column ">
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="fs-3">{{ handCost }}</div>
@@ -197,17 +241,22 @@
                   </div>
                   <div class="aw-slider aw-handcost">
                     <input type="range" id="handCost" v-model="handCost" class="w-100 mt-0" min="1" max="10" step="1"
-                      value="1" @change="onChangeCost" />
+                      value="1" @change="onChangeMaincost" />
                   </div>
                 </div>
                 </BCollapse>
 
                 <hr>
                 <div class="d-flex justify-content-between mt-3 mb-2">
-                  Coût de réserve
-                  <img v-b-toggle.aw-filtrescoutreserve src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                  <div>
+                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechRecallcost && currentFaction">
+                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+                    </BButton>
+                    Coût de réserve
+                  </div>
+                  <font-awesome-icon v-b-toggle.awid-filtrescoutreserve :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
                 </div>
-                <BCollapse id="aw-filtrescoutreserve" v-model="uiparams.filtreRecallCost" @hide="storeUiparams" @show="storeUiparams">
+                <BCollapse id="awid-filtrescoutreserve" v-model="uiparams.filtreRecallCost" @hide="storeUiparams" @show="storeUiparams">
                   <div class="d-flex flex-column ">
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="fs-3">{{ reserveCost }}</div>
@@ -222,7 +271,7 @@
                   </div>
                   <div class="aw-slider aw-reservecost">
                     <input type="range" id="reserveCost" v-model="reserveCost" class="w-100 mt-0" min="1" max="10"
-                      step="1" value="1" @change="onChangeCost" />
+                      step="1" value="1" @change="onChangeRecallCost" />
                   </div>
                 </div>
                 </BCollapse>
@@ -230,10 +279,15 @@
                 <div v-if="isSelectedCharacter">
                   <hr>
                   <div class="d-flex justify-content-between mt-3">
-                    Patates
-                    <img v-b-toggle.aw-filtrespower src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                    <div>
+                      <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechPower && currentFaction">
+                        <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+                      </BButton>
+                      Patates
+                    </div>
+                    <font-awesome-icon v-b-toggle.awid-filtrespower :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
                   </div>
-                  <BCollapse id="aw-filtrespower" v-model="uiparams.filtrePower" @hide="storeUiparams" @show="storeUiparams">
+                  <BCollapse id="awid-filtrespower" v-model="uiparams.filtrePower" @hide="storeUiparams" @show="storeUiparams">
                     <div class="d-flex flex-column aw-stats">
                       <div class="card-group justify-content-between align-items-center">
                         <div><i class="altered-forest fs-5 me-2"></i><span class="fs-3">{{ forest }}</span></div>
@@ -286,24 +340,34 @@
 
                 <hr>
                 <div class="d-flex justify-content-between mt-3">
-                  Mots-clés
-                  <img v-b-toggle.aw-filtreskeyword src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                  <div class="mb-1">
+                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechKeyword && currentFaction">
+                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+                    </BButton>
+                    Mots-clés
+                  </div>
+                  <font-awesome-icon v-b-toggle.awid-filtreskeyword :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
                 </div>
-                <BCollapse id="aw-filtreskeyword" v-model="uiparams.filtreKeyword" @hide="storeUiparams" @show="storeUiparams">
+                <BCollapse id="awid-filtreskeyword" v-model="uiparams.filtreKeyword" @hide="storeUiparams" @show="storeUiparams">
                   <Multiselect v-model="currentKeywords" mode="tags" class="mb-2"
                     :close-on-select="true" 
                     :create-option="true" 
-                    :searchable="true"
+                    :searchable="false"
                     :options="keywords" 
                     @change="onChangeKeywords" />
                 </BCollapse>
 
                 <hr>
                 <div class="d-flex justify-content-between mt-3">
-                  Sous-types
-                  <img v-b-toggle.aw-filtressubtype src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                  <div class="mb-1">
+                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechSubtype && currentFaction">
+                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+                    </BButton>
+                    Sous-types
+                  </div>
+                  <font-awesome-icon v-b-toggle.awid-filtressubtype :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
                 </div>
-                <BCollapse id="aw-filtressubtype" v-model="uiparams.filtreSubtype" @hide="storeUiparams" @show="storeUiparams">
+                <BCollapse id="awid-filtressubtype" v-model="uiparams.filtreSubtype" @hide="storeUiparams" @show="storeUiparams">
                 <Multiselect v-model="currentSoustypes" mode="tags" class="mb-2"
                   :close-on-select="true" 
                   :create-option="true" 
@@ -314,10 +378,15 @@
 
                 <hr>
                 <div class="d-flex justify-content-between mt-3">
-                  Editions
-                  <img v-b-toggle.aw-filtresedition src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                  <div class="mb-1">
+                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechEdition && currentFaction">
+                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+                    </BButton>
+                    Editions
+                  </div>
+                  <font-awesome-icon v-b-toggle.awid-filtresedition :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
                 </div>
-                <BCollapse id="aw-filtresedition" v-model="uiparams.filtreEdition" @hide="storeUiparams" @show="storeUiparams"> 
+                <BCollapse id="awid-filtresedition" v-model="uiparams.filtreEdition" @hide="storeUiparams" @show="storeUiparams"> 
                 <Multiselect v-model="currentEditions" mode="tags" class="mb-2"
                   :close-on-select="true" 
                   :create-option="true" 
@@ -327,10 +396,15 @@
 
                 <hr>
                 <div class="d-flex justify-content-between mt-3">
-                  Trier par
-                  <img v-b-toggle.aw-filtrestri src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                  <div class="mb-1">
+                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechSort && currentFaction">
+                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+                    </BButton>
+                    Trier par 
+                  </div>
+                  <font-awesome-icon v-b-toggle.awid-filtrestri :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
                 </div>
-                <BCollapse id="aw-filtrestri" v-model="uiparams.filtreSort" @hide="storeUiparams" @show="storeUiparams">              
+                <BCollapse id="awid-filtrestri" v-model="uiparams.filtreSort" @hide="storeUiparams" @show="storeUiparams">              
                   <Multiselect v-model="currentSort" mode="tags" :close-on-select="true" :create-option="true"
                     :options="sortingTypes" @change="onChangeSorting" class="mb-2"/>
                 </BCollapse>
@@ -436,7 +510,7 @@
             <div class="card-body position-relative">
               <div class="ribbon-wrapper ribbon-lg">
                 <div :class="['ribbon text-white', currentDeck.valide ? 'bg-success' : 'bg-danger']">
-                {{ currentDeck.valide ? 'Valide' : 'Non valide'}}
+                {{ currentDeck.valide ? 'Légal' : 'Non Légal'}}
                 </div>
               </div>
               <div class="row">
@@ -572,6 +646,7 @@
 <script setup>
 import { watch, getCurrentInstance } from 'vue'
 import { useHead } from '@vueuse/head';
+import '@/assets/css/animate.css';
 
 const props = defineProps({
   user: { type: Object},
@@ -623,7 +698,7 @@ export default {
       isSelectedRare: false,
       isSelectedUnique: false,
       currentName: '',
-      currentSort: ["name"],
+      currentSort: ["mainCost", "recallCost", "name"],
       fetchedCards: [],
       itemsPerPage: 12,
       arrayview: false,
@@ -700,6 +775,25 @@ export default {
       showDecklistoptions: false,
       showDDCreateDeck: false,
       router: null,
+      dureeTimeoutRech: 4000,
+      showRechRarete: false,
+      timeoutRechRarete: null,
+      showRechType: false,
+      timeoutRechType: null,
+      showRechMaincost: false,
+      timeoutRechMaincost: null,
+      showRechRecallcost: false,
+      timeoutRechRecallcost: null,
+      showRechPower: false,
+      timeoutRechPower: null,
+      showRechKeyword: false,
+      timeoutRechKeyword: null,
+      showRechSubtype: false,
+      timeoutRechSubtype: null,
+      showRechEdition: false,
+      timeoutRechEdition: null,
+      showRechSort: false,
+      timeoutRechSort: null,
     };
   },
   mounted() 
@@ -737,6 +831,8 @@ export default {
     this.waterOrMore = filters.waterOrMore
     this.mountain = filters.mountain
     this.mountainOrMore = filters.mountainOrMore
+
+
 
     this.loadDecks();
     //this.loadMore(); // Charger les premiers éléments
@@ -1022,20 +1118,30 @@ export default {
       this.uiparams.afficherstats = !this.uiparams.afficherstats
       this.storeUiparams();
     },
-    onChangeMainCostOrMore() {
-      this.onChangeFilter();
+    onChangeMainCostOrMore() 
+    {
+      this.setTimeoutRechMaincost()
+      this.onChangeFilter()
     },
-    onChangeRecallCostOrMore() {
-      this.onChangeFilter();
+    onChangeRecallCostOrMore() 
+    {
+      this.setTimeoutRechRecallcost()
+      this.onChangeFilter()
     },
-    onChangeForestOrMore() {
-      this.onChangeFilter();
+    onChangeForestOrMore() 
+    {
+      this.setTimeoutRechPower()
+      this.onChangeFilter()
     },
-    onChangeMountainOrMore() {
-      this.onChangeFilter();
+    onChangeMountainOrMore() 
+    {
+      this.setTimeoutRechPower()
+      this.onChangeFilter()
     },
-    onChangeWaterOrMore() {
-      this.onChangeFilter();
+    onChangeWaterOrMore() 
+    {
+      this.setTimeoutRechPower()
+      this.onChangeFilter()
     },
     changeModeListe() {
       this.uiparams.modeliste = !this.uiparams.modeliste
@@ -1310,37 +1416,45 @@ export default {
       }
       else this.currentDeck.valide = true
       
-      this.saveCurrentDeckToLocalStorage();
-      this.refreshStatComponent();
+      this.saveCurrentDeckToLocalStorage()
+      this.refreshStatComponent()
     },
-    onChangeSorting() {
-      setTimeout(() => this.onChangeFilter(), 500);
+    onChangeSorting()
+    {
+      this.setTimeoutRechSort()
+      setTimeout(() => this.onChangeFilter(), 500)
     },
-    onChangeKeywords(){
-      setTimeout(() => this.onChangeFilter(), 500);
+    onChangeKeywords()
+    {
+      this.setTimeoutRechKeyword()
+      setTimeout(() => this.onChangeFilter(), 500)
     },
-    onChangeEditions(){
-      setTimeout(() => this.onChangeFilter(), 500);
+    onChangeEditions()
+    {
+      this.setTimeoutRechEdition()
+      setTimeout(() => this.onChangeFilter(), 500)
     },
-    onChangeSoustypes(){
-      setTimeout(() => this.onChangeFilter(), 500);
+    onChangeSoustypes()
+    {
+      this.setTimeoutRechSubtype()
+      setTimeout(() => this.onChangeFilter(), 500)
     },
     onSelectCurrentDeck() 
     {
       if(this.deckModified && !this.showModalConfirmChangeDeck)
       {
-        this.showModalConfirmChangeDeck = true;
-        this.actionOriConfirmChangeDeck = "CHANGER";
-        return;
+        this.showModalConfirmChangeDeck = true
+        this.actionOriConfirmChangeDeck = "CHANGER"
+        return
       }
 
       if(this.currentSelectedDeck == 0)
       {
         //si on sélectionne un deck en cours de création c'est que les données ont déjà été perdues....
         //on reinit le current Deck
-        var option = this.decks.find(daik => daik.value == 0);
-        this.initEmptyNewDeck(option.label);
-        return;
+        var option = this.decks.find(daik => daik.value == 0)
+        this.initEmptyNewDeck(option.label)
+        return
       }
 
       this.deckModified = false;
@@ -1585,35 +1699,54 @@ export default {
     hasResult() {
       return this.fetchedCards.length > 0;
     },
-    onChangeStat(event) {
-
+    onChangeStat(event) 
+    {
       var rangePercent = this.forest;
 
       if ($(event.target).attr("id") == "mountain") rangePercent = this.mountain;
       // : this.forest);
       $(event.target).css('filter', 'grayscale(' + (50 - (5 * rangePercent)) + '%)');
 
+      this.setTimeoutRechPower()
       this.onChangeFilter();
     },
-    onChangeCost(event) {
-      var rangePercent = ($(event.target).attr("id") == "handCost" ? this.handCost : this.reserveCost) * 10;
+    onChangeMaincost(event)
+    {
+      var rangePercent = this.handCost * 10;
       $(event.target).css('filter', 'hue-rotate(-' + rangePercent + 'deg)');
 
+      this.setTimeoutRechMaincost()
       this.onChangeFilter();
     },
-    selectCharacter() {
+    onChangeRecallCost(event) 
+    {
+      var rangePercent = this.reserveCost * 10;
+      $(event.target).css('filter', 'hue-rotate(-' + rangePercent + 'deg)');
+
+      this.setTimeoutRechRecallcost()
+      this.onChangeFilter();
+    },
+    selectCharacter() 
+    {
+      this.setTimeoutRechType()
       this.isSelectedCharacter = !this.isSelectedCharacter;
       this.onChangeFilter();
     },
-    selectSpell() {
+    selectSpell() 
+    {
+      this.setTimeoutRechType()
       this.isSelectedSpell = !this.isSelectedSpell;
       this.onChangeFilter();
     },
-    selectPermanent() {
+    selectPermanent() 
+    {
+      this.setTimeoutRechType()
       this.isSelectedPermanent = !this.isSelectedPermanent;
       this.onChangeFilter();
     },
-    selectHero() {
+    selectHero() 
+    {
+      this.setTimeoutRechType()
       this.isSelectedHero = !this.isSelectedHero;
       this.onChangeFilter();
     },
@@ -1671,17 +1804,104 @@ export default {
       this.currentFaction = link.attr("id");
       link.addClass("aw-selected")
     },
-    selectCommon() {
+    selectCommon() 
+    {
+      this.setTimeoutRechRarete()
       this.isSelectedCommon = !this.isSelectedCommon
-      this.onChangeFilter();;
+      this.onChangeFilter()
     },
-    selectRare() {
-      this.isSelectedRare = !this.isSelectedRare;
-      this.onChangeFilter();
+    selectRare() 
+    {
+      this.setTimeoutRechRarete()
+      this.isSelectedRare = !this.isSelectedRare
+      this.onChangeFilter()
     },
-    selectUnique() {
-      this.isSelectedUnique = !this.isSelectedUnique;
-      this.onChangeFilter();
+    selectUnique() 
+    {
+      this.setTimeoutRechRarete()
+      this.isSelectedUnique = !this.isSelectedUnique
+      this.onChangeFilter()
+    },
+    setTimeoutRechRarete()
+    {
+      this.showRechRarete = true
+      clearTimeout(this.timeoutRechRarete)
+
+      this.timeoutRechRarete = setTimeout(() => {
+        this.showRechRarete = false
+      }, this.dureeTimeoutRech)
+    },
+    setTimeoutRechType()
+    {
+      this.showRechType = true
+      clearTimeout(this.timeoutRechType)
+
+      this.timeoutRechType = setTimeout(() => {
+        this.showRechType = false
+      }, this.dureeTimeoutRech)
+    },
+    setTimeoutRechMaincost()
+    {
+      this.showRechMaincost = true
+      clearTimeout(this.timeoutRechMaincost)
+
+      this.timeoutRechMaincost = setTimeout(() => {
+        this.showRechMaincost = false
+      }, this.dureeTimeoutRech)
+    },
+    setTimeoutRechRecallcost()
+    {
+      this.showRechRecallcost = true
+      clearTimeout(this.timeoutRechRecallcost)
+
+      this.timeoutRechRecallcost = setTimeout(() => {
+        this.showRechRecallcost = false
+      }, this.dureeTimeoutRech)
+    },
+    setTimeoutRechPower()
+    {
+      this.showRechPower = true
+      clearTimeout(this.timeoutRechPower)
+
+      this.timeoutRechPower = setTimeout(() => {
+        this.showRechPower = false
+      }, this.dureeTimeoutRech)
+    },
+    setTimeoutRechKeyword()
+    {
+      this.showRechKeyword = true
+      clearTimeout(this.timeoutRechKeyword)
+
+      this.timeoutRechKeyword = setTimeout(() => {
+        this.showRechKeyword = false
+      }, this.dureeTimeoutRech)
+    },
+    setTimeoutRechSubtype()
+    {
+      this.showRechSubtype = true
+      clearTimeout(this.timeoutRechSubtype)
+
+      this.timeoutRechSubtype = setTimeout(() => {
+        this.showRechSubtype = false
+      }, this.dureeTimeoutRech)
+    },
+    setTimeoutRechEdition()
+    {
+      this.showRechEdition = true
+      clearTimeout(this.timeoutRechEdition)
+
+      this.timeoutRechEdition = setTimeout(() => {
+        this.showRechEdition = false
+      }, this.dureeTimeoutRech)
+    },
+    setTimeoutRechSort()
+    {
+      this.showRechSort = true
+      clearTimeout(this.timeoutRechSort)
+
+      this.timeoutRechSort = setTimeout(() => {
+        this.showRechSort = false
+      }, this.dureeTimeoutRech)
     },
     calcCost(rangeType, costValue) {
       var couts = [];

@@ -103,7 +103,8 @@ export default {
 
         app.config.globalProperties.g_getKeywordLabel = function (preference) 
         {
-            return keywords.find(kw => kw.reference == preference).name;
+            var keyword = keywords.find(kw => kw.reference == preference)
+            return keyword ? keyword.name : preference;
         }
         app.config.globalProperties.g_getKeywordsOptions = function () 
         {
