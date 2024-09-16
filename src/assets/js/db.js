@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 
 const anonSupabase = anonCreateClient()
 
+const bearer = null
 const API_BASEURL = import.meta.env.VITE_API_BASE_URL
 const PROXY_BASEURL = import.meta.env.VITE_PROXY_BASE_URL
 
@@ -48,7 +49,7 @@ export default {
             return params
         }
 
-        async function handleApiError (error)
+        function handleApiError(error)
         {
             if (error.response) {
                 // Server error (status code is not in the range 2xx)
@@ -129,6 +130,8 @@ export default {
         
         async function deconnectUser (pcallback)
         {
+            Cookies.remove('sb-fyqptmokmnymednlerpj-auth-token.0')
+            Cookies.remove('sb-fyqptmokmnymednlerpj-auth-token.1')
             await anonSupabase.auth.signOut()
             if(pcallback) pcallback();
         }
@@ -544,7 +547,8 @@ export default {
             {
                 handleApiError(error)
                 pcallback(null);
-            }        }
+            }
+        }
 
         app.config.globalProperties.g_deleteDeck = function(pdeck, pcallback)
         {
@@ -1089,6 +1093,93 @@ export default {
                 handleApiError(error)
                 if(onUpdatedImageS3) onUpdatedImageS3(null)
             }
+        }
+
+        app.config.globalProperties.g_isBearer = function()
+        {
+            return bearer != null
+        }
+
+        async function fetchCardsFromApi (params, pcallback)
+        {
+            var apiparams = {
+                itemsPerPage: params.itemsPerPage,
+                page: params.currentPage,
+                factions: params.currentFaction
+            }
+
+            params.currentSort.forEach((sortingType) => {
+                var tabs = sortingType.split(',');
+                apiparams["order[" + (tabs[0] == 'name' ? 'translations.name' : tabs[0]) + "]"] = (tabs.length == 1 ? "ASC" : "DESC");
+            });
+    
+            if (bearer) $.extend(apiparams, { collection: true });
+            if (params.currentName != '') $.extend(apiparams, { "translations.name": params.currentName });
+            if (params.calculatedforest.length > 0) $.extend(apiparams, { forestPower: params.calculatedforest });
+            if (params.calculatedmountain.length > 0) $.extend(apiparams, { mountainPower: params.calculatedmountain });
+            if (params.calculatedwater.length > 0) $.extend(apiparams, { oceanPower: params.calculatedwater });
+            if (params.calculatedmaincost.length > 0) $.extend(apiparams, { mainCost: params.calculatedmaincost });
+            if (params.calculatedrecallcost.length > 0) $.extend(apiparams, { recallCost: params.calculatedrecallcost });
+            if (params.calculatedtype.length > 0) $.extend(apiparams, { cardType: params.calculatedtype });
+            if (params.calculatedrarity.length > 0) $.extend(apiparams, { rarity: params.calculatedrarity });
+            if (params.currentKeywords.length > 0) $.extend(apiparams, { keyword: params.currentKeywords });
+            if (params.currentEditions.length > 0) $.extend(apiparams, { cardSet: params.currentEditions });
+            if (params.currentSoustypes.length > 0) $.extend(apiparams, { cardSubTypes: params.currentSoustypes });
+    
+            var headers = hparams()
+
+            if (bearer) {
+                $.extend(headers, { 'Authorization': "Bearer " + bearer });
+            }
+    
+            try {
+                const { data, error } = await axios.post(API_BASEURL + '/cards/getfromapi/', apiparams, {headers: headers})
+
+                if(error) 
+                {
+                    console.error(error)
+                    pcallback([], false)
+                }
+                else 
+                {
+                    var hasMore = data["hydra:view"]["hydra:next"] != undefined
+                    var pcards = data["hydra:member"]
+
+                    pcallback(pcards, hasMore)
+                }
+            }
+            catch (error) 
+            {
+                handleApiError(error)
+                pcallback([], false)
+            }               
+        }
+
+        app.config.globalProperties.gaa_fetchCards = function(params, pcallback)
+        {
+            fetchCardsFromApi(params, pcallback)
+        }
+
+        app.config.globalProperties.gaa_fetchDeck = function(pid, pcallback)
+        {
+            fetchDeckFromApi(pid, pcallback)
+        }
+
+        async function fetchDeckFromApi (pid, pcallback)
+        {
+            try 
+            {
+                const { data, error } = await axios.get(API_BASEURL + '/deck/getfromapi/' + pid, {}, hparams())
+                
+                if(error) console.error(error)
+                pcallback(error ? null : data)
+            }
+            catch(error)
+            {
+                console.error(error)
+                pcallback(null)
+            }
+            
         }
     }
 }

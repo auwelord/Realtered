@@ -111,7 +111,7 @@
                   <BButton @click="searchCards(false, false, false)" variant="unique" size="sm">
                     <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="me-2" />Rechercher
                   </BButton>
-                  <BButton @click="searchPlayset" variant="common" size="sm" class="ms-2" v-if="gaa_isBearer() && !deckbuilder">
+                  <BButton @click="searchPlayset" variant="common" size="sm" class="ms-2" v-if="g_isBearer() && !deckbuilder">
                     <font-awesome-icon :icon="['fas', 'magnifying-glass-arrow-right']" class="me-2" />Playset
                   </BButton>
                 </div>
@@ -409,7 +409,7 @@
                     :options="sortingTypes" @change="onChangeSorting" class="mb-2"/>
                 </BCollapse>
 
-                <div class="mt-3" v-if="gaa_isBearer() && !deckbuilder">
+                <div class="mt-3" v-if="g_isBearer() && !deckbuilder">
                   <b-form-checkbox id="emptyplayset" v-model="emptyplayset" name="emptyplayset">Playsets non complet
                     uniquement</b-form-checkbox>
                 </div>
@@ -444,7 +444,7 @@
                   :arrayview="arrayview"
                   :emptyplayset="emptyplayset" 
                   :deckbuilder="deckbuilder && currentSelectedDeck != null"
-                  :collection="gaa_isBearer()" 
+                  :collection="g_isBearer()" 
                   :currentDeck="currentDeck" 
                   @addcard="addCard" 
                   @removecard="removeCard"

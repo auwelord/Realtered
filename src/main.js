@@ -12,7 +12,6 @@ import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 import altered from './assets/js/altered';
 import db from './assets/js/db';
-import apialtered from './assets/js/apialtered';
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 import './assets/fonts/AlteredIcons.css'
@@ -34,7 +33,6 @@ const app = createApp(App)
     .use(pinia)
     .use(altered)
     .use(db)
-    .use(apialtered)
     .use(Toast)
     .use(createHead())
     .use(createBootstrap());
