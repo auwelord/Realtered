@@ -9,7 +9,7 @@
             <div class="card-header">
               <h3 class="card-title">Mes decks</h3>
               <div class="card-tools d-flex">
-                <BDropdown v-model="showDDCreateDeck" v-if="!creatingDeck && !proprietingdeck" size="sm" split split-href="#foo/bar" variant="primary" class="me-2" @click="createDeck">
+                <BDropdown v-model="showDDCreateDeck" v-if="!creatingDeck && !proprietingdeck" size="sm" split variant="primary" class="me-2" @click="createDeck">
                   <template #button-content>
                     <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>Créer
                   </template>
@@ -45,7 +45,7 @@
                 @select="onSelectCurrentDeck" 
                 @clear="onClearCurrentDeck" />
               <div v-else>
-                <div class="input-group mb-2">
+                <div class="input-group mb-2" v-if="isImporting()">
                   <input type="text" class="form-control" placeholder="Identifiant / URL d'un deck Altered" v-model="fIdAlteredDeck">
                   <span class="input-group-append">
                     <button type="button" class="btn btn-primary" @click="searchAlteredDeck"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></button>
