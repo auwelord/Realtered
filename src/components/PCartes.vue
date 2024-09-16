@@ -852,6 +852,7 @@ export default {
         }
     },
   },
+  inject: ['callShowWaitingScreen', 'callHideWaitingScreen'], // Injecter la méthode de App.vue
   methods: {
     getInitialFilters()
     {
@@ -986,8 +987,9 @@ export default {
         //si la carte a ete trouvé => message d'erreur
         if(pcard)
         {
+          this.callHideWaitingScreen()
           this.importedUnique = pcard
-          toast("Cette carte existe déjà", { type: TYPE.ERROR });
+          toast("Cette carte existe déjà", { type: TYPE.ERROR })
         }
         else 
         {
@@ -997,7 +999,8 @@ export default {
             {
               if(!ppcard)
               {
-                toast("Une erreur s'est produite lors de l'import de la carte", { type: TYPE.ERROR });
+                this.callHideWaitingScreen()
+                toast("Une erreur s'est produite lors de l'import de la carte", { type: TYPE.ERROR })
                 return
               }
 
@@ -1009,16 +1012,23 @@ export default {
                   //onDownloadedImages
                   pcards => this.importedUnique = pcards[0],
                   //onUpdatedImageS3
-                  pppcard => console.log("maj base Card.imageS3 : " + pppcard.imageS3)                  
+                  pppcard => 
+                  {
+                    this.callHideWaitingScreen()
+                    if(!pppcard) toast("La carte a été importée mais l'upload de l'image a échoué", { type: TYPE.ERROR })
+                    else console.log("maj base Card.imageS3 : " + pppcard.imageS3)
+                  }
                 )
               }
               else{
+                this.callHideWaitingScreen()
                 toast("Cette carte n'est pas une unique", { type: TYPE.ERROR });
               }
             })
           }
         }
 
+      this.callShowWaitingScreen(500)
       this.g_fetchCard(this.codeImportUnique, onFetchedCard);
     },
     closeModalImportUnique()
@@ -1264,12 +1274,15 @@ export default {
     },
     saveDeck() 
     {
-      this.g_saveDeck(this.currentDeck, deck => {
-        this.updateCurrentDeck(deck);
-        this.deckModified = false;
+      this.callShowWaitingScreen(500)
+      this.g_saveDeck(this.currentDeck, deck =>
+      {
+        this.updateCurrentDeck(deck)
+        this.deckModified = false
+        this.callHideWaitingScreen()
 
-        if(deck) toast("Deck enregistré");
-        else toast("Une erreur s'est produite lors de la sauvegarde du deck", { type: TYPE.ERROR });
+        if(deck) toast("Deck enregistré")
+        else toast("Une erreur s'est produite lors de la sauvegarde du deck", { type: TYPE.ERROR })
       });  
     },
     deleteDeck() 
@@ -1535,8 +1548,10 @@ export default {
       this.currentDeck.name = this.newDeckName
       this.currentDeck.description = this.taDescDeck
 
+      this.callShowWaitingScreen(500)
       this.g_saveProprietesDeck(this.currentDeck, pdeck => 
       {
+        this.callHideWaitingScreen()
         if(!pdeck)
         {
           toast("Une erreur s'est produite lors de la sauvegarde des données", { type: TYPE.ERROR });
@@ -1579,10 +1594,12 @@ export default {
           });
 
           //on enregistre directement en base et on reload tout
+          this.callShowWaitingScreen(500)
           this.g_importDeck({name: this.newDeckName, cards: decklist},
             //onImportedDeck: 
             pdeck => 
             {
+              this.callHideWaitingScreen()
               if(!pdeck) toast('Une erreur s\'est produite', { type: TYPE.ERROR });
               else {
                 //reload des decks en se positionnant sur celui importé
@@ -1593,6 +1610,7 @@ export default {
         }
         catch (error) 
         {
+          this.callHideWaitingScreen()
           console.log(error);
           toast('Une erreur s\'est produite', { type: TYPE.ERROR });
         }

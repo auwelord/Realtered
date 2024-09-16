@@ -646,3 +646,12 @@ img.aw-alteredcard
     overflow-y: auto;
   }
 }
+
+
+.aw-waitingscreen .modal-content
+{
+  background-color: #00000091;
+  color: white;
+  font-size: 24px;
+  cursor: progress;
+}
