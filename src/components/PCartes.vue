@@ -1010,11 +1010,13 @@ export default {
                   //onDownloadingImage
                   pppcard => console.log("Téléchargement de l'image " + pppcard.imagePath),
                   //onDownloadedImages
-                  pcards => this.importedUnique = pcards[0],
+                  pcards => {
+                    this.callHideWaitingScreen()
+                    this.importedUnique = pcards[0]
+                  },
                   //onUpdatedImageS3
                   pppcard => 
                   {
-                    this.callHideWaitingScreen()
                     if(!pppcard) toast("La carte a été importée mais l'upload de l'image a échoué", { type: TYPE.ERROR })
                     else console.log("maj base Card.imageS3 : " + pppcard.imageS3)
                   }
