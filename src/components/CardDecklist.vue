@@ -31,13 +31,13 @@
           </div>
           <div :class="['d-flex justify-content-between flex-fill aw-carddeck', getClassCardDeckList()]">
             <div class="d-flex" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
-              <div class="aw-costcarddeck me-3">{{  card.mainCost }} / {{ card.recallCost }}</div>
+              <div class="aw-costcarddeck me-3 d-flex align-items-center">{{  card.mainCost }} / {{ card.recallCost }}</div>
               <div class="aw-namecarddeck">{{ card.name }} </div>
             </div>
             <div class="d-flex">
-              <div class="aw-addremovecard ps-2 pe-2 me-1" @click="removeCardFromDeck(card)">-</div>
-              <div class="aw-qtecarddeck">{{ card.quantite }} </div>
-              <div class="aw-addremovecard ps-2 pe-2 ms-1" @click="addCardToDeck(card)" v-visible="canAddCard(card)">+</div>
+              <div class="aw-addremovecard ps-2 pe-2 me-1 d-flex align-items-center" @click="removeCardFromDeck(card)">-</div>
+              <div class="aw-qtecarddeck d-flex align-items-center">{{ card.quantite }} </div>
+              <div class="aw-addremovecard ps-2 pe-2 ms-1 d-flex align-items-center" @click="addCardToDeck(card)" v-visible="canAddCard(card)">+</div>
             </div>
           </div>
         </div>

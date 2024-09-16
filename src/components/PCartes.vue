@@ -46,7 +46,7 @@
                 @clear="onClearCurrentDeck" />
               <div v-else>
                 <div class="input-group mb-2" v-if="isImporting()">
-                  <input type="text" class="form-control" placeholder="Identifiant / URL d'un deck Altered" v-model="fIdAlteredDeck">
+                  <input type="text" class="form-control" placeholder="Id. / URL deck Altered (optionnel)" v-model="fIdAlteredDeck">
                   <span class="input-group-append">
                     <button type="button" class="btn btn-primary" @click="searchAlteredDeck"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></button>
                   </span>
@@ -555,7 +555,7 @@
                       </div>
                     -->
                       <div class="d-flex justify-content-end">
-                        Description <img v-b-toggle.awid-descdeck src="@/assets/img/arrow.png" class="aw-arrowcollapse ms-3" />
+                        Description <font-awesome-icon v-b-toggle.awid-descdeck :icon="['fas', 'chevron-right']" class="aw-arrowcollapse mt-1" />
                       </div>
                       <BCollapse id="awid-descdeck">
                         <div class="col-12 mt-4" v-html="getFormattedDescriptionCurrentDeck()"></div>
@@ -975,8 +975,8 @@ export default {
       this.addCard(this.importedUnique)
       this.closeModalImportUnique()
     },
-    importerUnique(){
-      //this.codeImportUnique = 'ALT_COREKS_B_MU_11_U_2926';
+    importerUnique()
+    {
       if(!this.codeImportUnique)
       {
         return;
