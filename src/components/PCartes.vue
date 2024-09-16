@@ -982,6 +982,10 @@ export default {
         return;
       }
 
+      var tab = this.codeImportUnique.split('/')
+      var id = tab[tab.length - 1]
+      this.codeImportUnique = id
+
       const onFetchedCard = pcard => 
       {
         //si la carte a ete trouvé => message d'erreur
