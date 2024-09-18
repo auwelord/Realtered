@@ -871,6 +871,7 @@ export default {
       fCapaExhaust: null,
       cbCapaSupport: false,
       fCapaSupport: null,
+      starting: true,
     };
   },
   mounted() 
@@ -917,6 +918,7 @@ export default {
     this.cbCapaSupport = filters.cbCapaSupport
     
     this.loadDecks();
+    setTimeout(() => this.starting = false, 300)
     //this.loadMore(); // Charger les premiers éléments
     //window.addEventListener('scroll', this.handleScroll); // Ajouter l'écouteur d'événements pour le scroll
   },
@@ -934,26 +936,32 @@ export default {
     cbCapaStatic(newValue, oldValue){
       if(newValue) this.fCapaStatic = ''
       this.onChangeFilter()
+      if(!this.starting) this.setTimeoutRechKeyword()
     },
     cbCapaEtb(newValue, oldValue){
       if(newValue) this.fCapaEtb = ''
       this.onChangeFilter()
+      if(!this.starting) this.setTimeoutRechKeyword()
     },
     cbCapaHand(newValue, oldValue){
       if(newValue) this.fCapaHand = ''
       this.onChangeFilter()
+      if(!this.starting) this.setTimeoutRechKeyword()
     },
     cbCapaReserve(newValue, oldValue){
       if(newValue) this.fCapaReserve = ''
       this.onChangeFilter()
+      if(!this.starting) this.setTimeoutRechKeyword()
     },
     cbCapaExhaust(newValue, oldValue){
       if(newValue) this.fCapaExhaust = ''
       this.onChangeFilter()
+      if(!this.starting) this.setTimeoutRechKeyword()
     },
     cbCapaSupport(newValue, oldValue){
       if(newValue) this.fCapaSupport = ''
       this.onChangeFilter()
+      if(!this.starting) this.setTimeoutRechKeyword()
     },
   },
   inject: ['callShowWaitingScreen', 'callHideWaitingScreen'], // Injecter la méthode de App.vue
