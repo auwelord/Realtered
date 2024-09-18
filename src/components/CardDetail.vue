@@ -15,23 +15,25 @@
           <div v-if="deckbuilder && !g_isHero(carddet) && !g_isOOF(carddet, currentDeck)" class="aw-quantite">
             {{ carddet.quantite }}
           </div>
-          <div class="aw-deckbuilder d-flex flex-column align-items-stretch" v-if="deckbuilder && !g_isOOF(carddet, currentDeck)">
-            <BButton size="sm" variant="unique" class="text-nowrap flex-fill" :disabled="!canAddCard(carddet)" @click="addCardToDeck(carddet)">
-              <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-1" />
-            </BButton>
-            <BButton size="sm" variant="danger" class="text-nowrap flex-fill" :disabled="carddet.quantite == 0" @click="removeCardFromDeck(carddet)">
-              <font-awesome-icon :icon="['fa', 'circle-minus']" class="fs-1" />
-            </BButton>
-          </div>
+          <div class="aw-cardoptions" v-if="deckbuilder && !g_isOOF(carddet, currentDeck)">
+            <div class="d-flex align-items-center">
+              <div class="d-flex flex-column align-items-center flex-fill">
+                <div class="d-flex justify-content-between aw-tools">
+                  <div class="aw-button d-flex align-items-center" v-visible="carddet.quantite > 0" @click="removeCardFromDeck(carddet)">
+                    <font-awesome-icon :icon="['fa', 'circle-minus']" class="fs-1" />
+                  </div>
+                  <div class="fs-1" v-if="deckbuilder">{{ carddet.quantite }}</div>              
+                  <div class="aw-button d-flex align-items-center" v-visible="g_canAddCardToDeck(carddet, currentDeck)" @click="addCardToDeck(carddet)">
+                    <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-1" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>       
         </div>
       </div>
     </div>
     <div class="row aw-rowlogo">
-      <!--
-      <BButton size="sm" variant="unique" class="text-nowrap flex-fill" @click="updateallcards()">
-        <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-1" />
-      </BButton>
-      -->
         <Logo :width="'100%'" :height="'100%'" />
     </div>
   </div>
@@ -178,29 +180,9 @@ export default {
   border-radius: 3px;
   border: 3px solid black;
 }
-.aw-deckbuilder {
-  position: absolute;
-  overflow: hidden;
-  width: 0;
-  height: 100%;
-  left: 100%;
-  right: 0;
-  transition: .5s ease;
-  top: 0;
-  opacity: 0;
-}
-
-.aw-deckbuilder>button {
-  /*opacity: 1;*/
-  width: 100%;
-  height: 50%;
-  border-radius: 0;
-}
-.aw-carddet:hover .aw-deckbuilder {
-  width: 70%;
-  left: 30%;
-  opacity: 0.80;
-  padding: 3px;
+.aw-cardoptions .aw-tools
+{
+  padding: 25px !important;
 }
 </style>
 

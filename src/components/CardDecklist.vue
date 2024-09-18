@@ -2,19 +2,26 @@
   <div :class="getClassGrid()" v-if="!modeliste">
     <div class="aw-carddeck">
       <img :src="getImageCardPublicUrl(card)" :title="card.name" class="img-fluid aw-alteredcard" />
-      <div v-if="!g_isHero(card)" class="aw-quantite">
+      <div v-if="!g_isHero(card)" class="aw-quantiteindeck">
         {{ card.quantite }}
       </div>
-      <div class="aw-deckbuilder d-flex flex-column align-items-stretch">
-        <BButton size="sm" variant="unique" class="text-nowrap flex-fill" :disabled="!canAddCard(card)" @click="addCardToDeck(card)">
-          <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-3" />
-        </BButton>
-        <BButton size="sm" variant="danger" class="text-nowrap flex-fill" v-if="card.quantite > 0" @click="removeCardFromDeck(card)">
-          <font-awesome-icon :icon="['fa', 'circle-minus']" class="fs-3" />
-        </BButton>
-        <BButton variant="rare" size="sm" class="text-nowrap flex-fill" @click="onShowCardDetail(card)">
-          <font-awesome-icon :icon="['far', 'eye']" class="fs-3" />
-        </BButton>
+      <div class="aw-cardoptions ">
+        <div class="d-flex align-items-center">
+          <div class="d-flex flex-column align-items-center flex-fill">
+            <div class="d-flex justify-content-between aw-tools" v-if="!g_isOOF(card, currentDeck)">
+              <div class="aw-button d-flex align-items-center" v-visible="card.quantite > 0" @click="removeCardFromDeck(card)">
+                <font-awesome-icon :icon="['fa', 'circle-minus']" class="fs-4" />
+              </div>
+              <div class="aw-quantite fs-4">{{ card.quantite }}</div>              
+              <div class="aw-button d-flex align-items-center" v-visible="g_canAddCardToDeck(card, currentDeck)" @click="addCardToDeck(card)">
+                <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-4" />
+              </div>
+            </div>
+            <div class="mt-2 aw-tools aw-raritycompare d-flex flex-column align-items-center" @click="onShowCardDetail(card)" title="Comparer les raretés">
+              <font-awesome-icon :icon="['fas', 'code-compare']" class="fs-6" />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="d-flex flex-column fs-7" v-if="!g_isHero(card) && qtesuccessproba != null">
@@ -204,8 +211,7 @@ export default {
   position: relative;
 }
 
-/*.aw-carddeck .aw-quantite */
-.aw-quantite {
+.aw-quantiteindeck {
   position: absolute;
   background: white;
   color: black;
@@ -215,31 +221,5 @@ export default {
   font-size: 25px;
   border-radius: 3px;
   border: 3px solid black;
-}
-
-.aw-carddeck:hover .aw-deckbuilder {
-  width: 75%;
-  left: 25%;
-  opacity: 0.80;
-  padding: 3px;
-}
-
-.aw-deckbuilder {
-  position: absolute;
-  overflow: hidden;
-  width: 0;
-  height: 100%;
-  left: 100%;
-  right: 0;
-  transition: .5s ease;
-  top: 0;
-  opacity: 0;
-}
-
-.aw-deckbuilder>button {
-  /*opacity: 1;*/
-  width: 100%;
-  height: 33.33%;
-  border-radius: 0;
 }
 </style>

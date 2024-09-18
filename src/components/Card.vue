@@ -13,19 +13,25 @@
       <div>
         <img :src="g_getImageCardPublicUrl(card)" :title="card.name" class="img-fluid aw-alteredcard" />
         <div class="aw-collection" v-if="collection">{{ card.inMyCollection }}</div>
-        <div class="aw-deckbuilder d-flex flex-column align-items-stretch">
-          <BButton size="sm" variant="unique" class="text-nowrap flex-fill" v-if="deckbuilder" :disabled="!g_canAddCardToDeck(card, currentDeck)" @click="addCardToDeck(card)">
-            <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-3" />
-          </BButton>
-          <BButton size="sm" variant="danger" class="text-nowrap flex-fill" v-if="deckbuilder" :disabled="card.quantite == 0" @click="removeCardFromDeck(card)">
-            <font-awesome-icon :icon="['fa', 'circle-minus']" class="fs-3" />
-          </BButton>
-          <BButton variant="rare" size="sm" class="text-nowrap flex-fill" @click="onShowCardDetail(card)">
-            <font-awesome-icon :icon="['far', 'eye']" class="fs-3" />
-          </BButton>
+        <div class="aw-cardoptions ">
+          <div class="d-flex align-items-center">
+            <div class="d-flex flex-column align-items-center flex-fill">
+              <div class="d-flex justify-content-between aw-tools" v-if="!g_isOOF(card, currentDeck)">
+                <div class="aw-button d-flex align-items-center" v-if="deckbuilder" v-visible="card.quantite > 0" @click="removeCardFromDeck(card)">
+                  <font-awesome-icon :icon="['fa', 'circle-minus']" class="fs-3" />
+                </div>
+                <div class="aw-quantite fs-4" v-if="deckbuilder">{{ card.quantite }}</div>              
+                <div class="aw-button d-flex align-items-center" v-if="deckbuilder" v-visible="g_canAddCardToDeck(card, currentDeck)" @click="addCardToDeck(card)">
+                  <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-3" />
+                </div>
+              </div>
+              <div class="mt-2 aw-tools aw-raritycompare d-flex flex-column align-items-center" @click="onShowCardDetail(card)" title="Comparer les raretés">
+                <font-awesome-icon :icon="['fas', 'code-compare']" class="fs-6" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <!--<div class="aw-cardname">{{ card.name }}</div>-->
     </div>
   </div>
 </template>
@@ -81,32 +87,6 @@ export default {
 .aw-playset {
   display: grid;
   grid-template-columns: 150px 80px 80px repeat(auto-fill, 350px) 100%;
-}
-
-.aw-card:hover .aw-deckbuilder {
-  width: 75%;
-  left: 25%;
-  opacity: 0.80;
-  padding: 3px;
-}
-
-.aw-deckbuilder {
-  position: absolute;
-  overflow: hidden;
-  width: 0;
-  height: 100%;
-  left: 100%;
-  right: 0;
-  transition: .5s ease;
-  top: 0;
-  opacity: 0;
-}
-
-.aw-deckbuilder>button {
-  /*opacity: 1;*/
-  width: 100%;
-  height: 50%;
-  border-radius: 0;
 }
 
 .aw-card>div {
