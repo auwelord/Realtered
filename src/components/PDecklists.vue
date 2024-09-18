@@ -9,7 +9,7 @@
 
         <div class="container-fluid pt-2" v-if="!erreurdeckid"> <!--begin::Row-->
             <div class="row">
-                <div :class="['col-xl-4 col-12 aw-colleft', afficherstats ? 'aw-deckliststat' : '']">
+                <div :class="['col-lg-4 col-12 aw-colleft', afficherstats ? 'aw-deckliststat' : '']">
                     <div class="card card-outline card-info mb-1" v-if="!afficherstats && !imagePathFullsize">
                         <div class="card-header">
                             <h3 class="card-title">Factions</h3>
@@ -90,15 +90,12 @@
                     </div>
                     <DeckStats v-if="currentdeck && afficherstats && !imagePathFullsize" :currentDeck="currentdeck" />
                 </div>
-                <div class="col-xl-8 col-12" v-if="!currentdeck">
-                    <div class="col-12 d-flex flex-column align-items-center">
+                <div class="col-lg-8 col-12">
+                    <div class="col-12 d-flex flex-column align-items-center" v-if="!currentdeck">
                         <div class="fs-4">Sélectionnez un deck pour voir la decklist</div>
                         <img src="/src/assets/img/empty.png" alt="" class="mt-5" style="width: 300px" />
                     </div>
-                </div>
-                <div v-else class="col-xl-8 col-12">
-
-                    <div :class="['card aw-carddeck', getCurrentDeckCssClass()]">
+                    <div v-else :class="['card aw-carddeck', getCurrentDeckCssClass()]">
                         <div class="card-header">
                             <div class="ribbon-wrapper ribbon-lg">
                                 <div :class="['ribbon text-white', currentdeck.valide ? 'bg-success' : 'bg-danger']">
@@ -417,7 +414,8 @@ export default
             },
             getCurrentDeckCssClass()
             {
-                return "aw-currentdeck" + this.currentdeck.main_faction
+                alert('ici')
+                return this.currentdeck ? "aw-currentdeck" + this.currentdeck.main_faction : ''
             },
             getDeckCssClass(pdeck) {
                 var css = "aw-" + pdeck.main_faction
@@ -625,6 +623,10 @@ export default
         top: 10vw;
     } 
     .aw-decklistcard:first-child {
+        margin-top: 0 !important;
+    }
+    .aw-decklistcard:nth-child(2),
+    .aw-decklistcard:nth-child(3) {
         margin-top: 0 !important;
     }
     .aw-decklistcard {
