@@ -1,6 +1,6 @@
 <template>
   <div :class="getClassGrid()" v-if="!modeliste">
-    <div class="aw-carddeck">
+    <div class="aw-carddeck" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
       <img :src="getImageCardPublicUrl(card)" :title="card.name" class="img-fluid aw-alteredcard" />
       <div v-if="!g_isHero(card)" class="aw-quantiteindeck">
         {{ card.quantite }}

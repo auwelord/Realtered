@@ -9,7 +9,7 @@
   </div>
 
   <div :class="getGridClass()" v-else>
-    <div class="d-flex flex-column align-items-center aw-card" @mouseenter="mouseEnterCard(deckbuilder, card)" @mouseleave="mouseLeaveCard(deckbuilder, card)">
+    <div class="d-flex flex-column align-items-center aw-card" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
       <div>
         <img :src="g_getImageCardPublicUrl(card)" :title="card.name" class="img-fluid aw-alteredcard" />
         <div class="aw-collection" v-if="collection">{{ card.inMyCollection }}</div>
@@ -49,10 +49,10 @@ const removeCardFromDeck = (pcard) => {
 const onShowCardDetail = (pcard) => {
   emit('onshowcarddetail', pcard);
 }
-const mouseEnterCard = (pdeckbuilder, pcard) => {
+const mouseEnterCard = (pcard) => {
   emit('mouseentercard', pcard);
 }
-const mouseLeaveCard = (pdeckbuilder, pcard) => {
+const mouseLeaveCard = (pcard) => {
   emit('mouseleavecard', pcard);
 }
 </script>
