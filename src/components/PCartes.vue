@@ -10,7 +10,7 @@
               <img :src="imageRechPathFullsize" class="img-fluid aw-alteredcard" />
             </div>
           </div>
-          <div v-if="deckbuilder" class="card card-outline card-info mb-1">
+          <div v-if="deckbuilder && !imageRechPathFullsize" class="card card-outline card-info mb-1">
             <div class="card-header">
               <h3 class="card-title">Mes decks</h3>
               <div class="card-tools d-flex">
@@ -88,7 +88,7 @@
               </div>
             </div> <!-- /.card-body -->
           </div>
-          <div v-if="deckbuilder || !imagePathFullsize">
+          <div v-if="!imageRechPathFullsize">
             <div class="card card-outline card-warning">
               <div class="card-header" v-if="currentFaction != ''">
                 <div class="d-flex justify-content-end">
@@ -491,7 +491,7 @@
             <div v-else-if="currentDeck && deckbuilder && currentSelectedDeck != null">
               <DeckStats :currentDeck="currentDeck" v-if="renderStatComponent"/>
             </div>
-            <div v-if="!uiparams.afficherstats">
+            <div v-if="!uiparams.afficherstats && !imagePathFullsize">
               <div :class="['row aw-resultsearch', imagePathFullsize && deckbuilder ? 'aw-imageapon' : '']">
                 <Card v-for="card in fetchedCards" 
                   :key="card.id" 
@@ -2483,17 +2483,8 @@ export default {
   border-top: 1px solid #aa77087a;
 }
 
-
 .aw-herodeck {
   min-height: 210px;
-}
-
-.aw-resultsearch {
-  transition: opacity .5s ease-in;
-}
-
-.aw-resultsearch.aw-imageapon {
-  opacity: 0.1;
 }
 
 .aw-decklist .card-body {
