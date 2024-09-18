@@ -29,13 +29,8 @@ export default {
     {
         function hparams(withformdata)
         {
-            var token0 = null;
-            var token1 = null;
-            if(process.env.NODE_ENV === 'production')
-            {
-                token0 = Cookies.get('sb-fyqptmokmnymednlerpj-auth-token.0')
-                token1 = Cookies.get('sb-fyqptmokmnymednlerpj-auth-token.1')
-            }
+            var token0 = Cookies.get('sb-fyqptmokmnymednlerpj-auth-token.0')
+            var token1 = Cookies.get('sb-fyqptmokmnymednlerpj-auth-token.1')
 
             var params = {
                 withCredentials: true
@@ -46,6 +41,7 @@ export default {
             if(withformdata) params.headers['Content-Type'] = 'multipart/form-data'
 
             if(!token0 && !token1 && !withformdata) delete params.headers
+
             return params
         }
 
@@ -239,6 +235,13 @@ export default {
                 console.log(erreur);
                 return;
             }
+
+            for(let deck of decks)
+            {
+                deck.favori = deck.DeckFav.length > 0
+                delete deck.DeckFav
+            }
+
             if(params.withcards || params.withhero)
             {
                 for(let deck of decks)
@@ -274,9 +277,11 @@ export default {
         async function fetchDecks(params)
         {
             var select = '*';
-            if(params.withcards) select += ', CardsDeck(*), hero:Card(*)';
-            else if(params.withhero) select += ', hero:Card(*)';
-            
+            if(params.withcards) select += ', CardsDeck(*), hero:Card(*)'
+            else if(params.withhero) select += ', hero:Card(*)'
+
+            select += ', DeckFav' + (params.favonly ? '!inner' : '') + '(*)'
+
             var req = anonSupabase
                 .from('Deck')
                 .select(select)
@@ -285,36 +290,38 @@ export default {
             if(params.faction) req = req.eq('main_faction', params.faction)
             if(params.hero) req = req.eq('hero_id', params.hero)
 
+            const dataUser = await anonSupabase.auth.getUser()
+            const user = dataUser.data.user
+                
             if(params.myonly)
             {
-                retrieveUser(puser => 
+                if(!user)
                 {
-                    if(!puser)
-                    {
-                        if(params.callback) params.callback([])
-                        return
-                    }
-                    req = req.eq('userId', puser.id);
-                    runFetchDecks(req, [], params);
-                });
-                return;
+                    if(params.callback) params.callback([])
+                    return
+                }
+                req = req.eq('userId', user.id);
             }
-            
-            //on veut tous les decks
-            retrieveUser(puser => 
-            {
+            else
+            {            
+                //on veut tous les decks
                 //utilisateur non connecté : on recupere que les decks publics
-                if(!puser)
+                if(!user)
                 {
                     req = req.eq('public', true);
                 }
                 else
                 {
                     //utilisateur connecté : on recupere tous les decks publics + mes decks
-                    req = req.or('public.eq.TRUE,userId.eq.' + puser.id);
+                    req = req.or('public.eq.TRUE,userId.eq.' + user.id);
                 }
-                runFetchDecks(req, [], params);
-            });          
+            }
+
+            if(user)
+            {
+                req = req.eq('DeckFav.userId', user.id);
+            }
+            runFetchDecks(req, [], params);
         }
 
         app.config.globalProperties.g_fetchDecks = function(params)
@@ -327,19 +334,25 @@ export default {
             var req = anonSupabase.from('Deck');
             if(pwithcards)
             {
-                req = req.select('*, CardsDeck(*), hero:Card(*)')
+                req = req.select('*, CardsDeck(*), hero:Card(*), DeckFav(*)')
             }
+            req = req.eq('id', pid)
 
-            const { data: deck, erreurdeck } = await req.eq('id', pid);
+            const dataUser = await anonSupabase.auth.getUser()
+            if(dataUser.user) req = req.eq('DeckFav.userId', dataUser.user.id);
             
-            var found = deck && deck.length > 0;
+            const { data } = await req;
+
+            var found = data && data.length > 0;
             if(found)
             {
-                var zedeck = $.extend(deck[0], {cards: []});
+                var zedeck = $.extend(data[0], {cards: []});
 
-                if(pwithcards && deck[0].CardsDeck)
+                zedeck.favori = (zedeck.DeckFav.length > 0)
+
+                if(pwithcards && data[0].CardsDeck)
                 {
-                    var refs = deck[0].CardsDeck.map(card => card.cardRef);
+                    var refs = data[0].CardsDeck.map(card => card.cardRef);
                                         
                     req = await anonSupabase
                         .from('Card')
@@ -348,7 +361,7 @@ export default {
 
                     req.data.forEach(card => 
                     {
-                        var realcardeck = deck[0].CardsDeck.find(carddeck => carddeck.cardRef == card.reference)
+                        var realcardeck = data[0].CardsDeck.find(carddeck => carddeck.cardRef == card.reference)
                         zedeck.cards.push($.extend(card, {quantite: realcardeck.quantity}));
                     });
                 }
@@ -556,7 +569,7 @@ export default {
         async function deleteDeck(pdeck, pcallback)
         {
             try {
-                const { data, error } = await axios.get(API_BASEURL + '/deck/delete/' + pdeck.id, {}, hparams())
+                const { data, error } = await axios.get(API_BASEURL + '/deck/delete/' + pdeck.id, hparams())
 
                 if(error) console.error(error)
                 pcallback(error ? null : data);
@@ -777,7 +790,7 @@ export default {
         async function updateCardFromApi(preference, onUpdatedCard)
         {
             try {
-                const { data, error } = await axios.get(API_BASEURL + '/card/getfromapi/' + preference, {}, hparams())
+                const { data, error } = await axios.get(API_BASEURL + '/card/getfromapi/' + preference, hparams())
 
                 if(error) 
                 {
@@ -1230,7 +1243,7 @@ export default {
         {
             try 
             {
-                const { data, error } = await axios.get(API_BASEURL + '/deck/getfromapi/' + pid, {}, hparams())
+                const { data, error } = await axios.get(API_BASEURL + '/deck/getfromapi/' + pid, hparams())
                 
                 if(error) console.error(error)
                 pcallback(error ? null : data)
@@ -1241,6 +1254,27 @@ export default {
                 pcallback(null)
             }
             
+        }
+
+        async function toggleDeckFavori(pdeck, pcallback)
+        {
+            try 
+            {
+                const { data, error } = await axios.get(API_BASEURL + '/deck/favori/' + pdeck.id, hparams())
+                console.log(data)
+                if(error) console.error(error)
+                pcallback(!error && data.favori)
+            }
+            catch(error)
+            {
+                console.error(error)
+                pcallback(null)
+            }
+        }
+
+        app.config.globalProperties.g_toggleDeckFavori = function(pdeck, pcallback)
+        {
+            toggleDeckFavori(pdeck, pcallback)
         }
     }
 }

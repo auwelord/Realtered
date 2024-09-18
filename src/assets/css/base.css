@@ -146,6 +146,13 @@
   color: #fff;
 }
 
+.btn-white,
+.btn-white:hover
+{
+  background-color: white;
+  color: black;
+}
+
 .btn:disabled, .btn.disabled{
   background-color: grey;
   border-color: grey;

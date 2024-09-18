@@ -11,19 +11,6 @@
             <div class="row">
                 <div :class="['col-lg-4 col-12 aw-colleft', afficherstats ? 'aw-deckliststat' : '']">
                     <div class="card card-outline card-info mb-1" v-if="!afficherstats && !imagePathFullsize">
-                        <div class="card-header">
-                            <h3 class="card-title">Factions</h3>
-                            <div class="card-tools">
-                                <div v-if="user">
-                                    Mes decks uniquement
-                                    <label class="switch me-2">
-                                        <input type="checkbox" v-model="mesdecksonly">
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-
-                            </div>
-                        </div>
                         <div class="card-body">
                             <div class="card-group justify-content-between aw-factionsel">
                                 <a href="#" id="AX" :class="['mb-2 aw-axiom', isCurrentAxiom() ? 'aw-selected' : '']"
@@ -51,18 +38,21 @@
                                 :close-on-select="true" 
                                 :searchable="true"
                                 />
+
+                            <BFormCheckbox v-model="mesdecksonly" class="ms-1 mt-2">Mes decks uniquement</BFormCheckbox>
+                            <BFormCheckbox v-model="mesfavorisonly" class="ms-1">Mes favoris uniquement</BFormCheckbox>
+
                             <div :class="['mt-2 aw-decks', decks && decks.length > 0 ? '' : 'd-flex justify-content-center']">
                                 <img src="@/assets/img/empty.png" v-if="!decks || decks.length == 0"/>
                                 <BListGroup>
-                                    <BListGroupItem @click="onShowDeck(deck)" v-for="deck in decks"
-                                        :class="['aw-deck', getDeckCssClass(deck)]" :id="'deck' + deck.id">
+                                    <BListGroupItem @click="onShowDeck(deck)" v-for="deck in decks" class="aw-deck" :id="'deck' + deck.id">
                                         
                                         <div class="d-flex justify-content-between">
                                             <div class="d-flex justify-content-start align-items-center">
                                                 <img :src="getDeckFactionImage(deck)" class="aw-deckimg me-2" />
                                                 <div class="aw-deckname">{{ deck.name }}</div>
-                                                <font-awesome-icon :icon="['fas', 'lock']"
-                                                    class="d-none aw-privateico ms-2" />
+                                                <font-awesome-icon :icon="['fas', 'lock']" class="ms-2" v-if="!deck.public"/>
+                                                <font-awesome-icon :icon="['fas', 'heart']" class="ms-2" style="color: red" v-if="deck.favori" />
                                             </div>
                                             <div class="d-flex flex-column justify-content-end align-items-end">
                                                 <div><span v-if="deck.hero">{{ deck.hero.name }}</span><span :class="['ms-2 badge', deck.valide ? 'bg-success':'bg-danger']">{{(deck.valide ? '': 'Non ') + 'Légal'}}</span> </div>
@@ -129,6 +119,11 @@
                                     <BButton @click="onCopierLienDeck" variant="uniqued2" size="sm" title="Copier le lien" class="mt-2 ms-2">
                                         <font-awesome-icon :icon="['fab', 'threads']" class="me-2" />Copier le lien
                                     </BButton>
+
+                                    <BButton @click="onToggleFavoris" variant="white" size="sm" class="mt-2 ms-2" v-if="user">
+                                        <font-awesome-icon :icon="['fas', 'heart']" style="color: red" v-if="currentdeck.favori" />
+                                        <font-awesome-icon :icon="['fas', 'heart']" v-else />
+                                    </BButton>                                    
                                     </div>
 
                                     <div class="mt-2">
@@ -162,7 +157,7 @@
 <script setup>
 import { watch, onMounted, getCurrentInstance } from 'vue'
 import { useHead } from '@vueuse/head';
-import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import MarkdownIt from "markdown-it";
 
 const props = defineProps({
@@ -234,6 +229,7 @@ export default
                 currentFaction: null,
                 decks: null,
                 mesdecksonly: false,
+                mesfavorisonly: false,
                 currentdeck: null,
                 afficherstats: false,
                 ipp: 10,
@@ -267,6 +263,9 @@ export default
             mesdecksonly(newValue, oldValue) {
                 this.resetDecks();
             },
+            mesfavorisonly(newValue, oldValue) {
+                this.resetDecks();
+            },
             currenthero(newValue, oldValue) {
                 this.resetDecks();
             },
@@ -298,6 +297,17 @@ export default
                 this.mousetimeout = setTimeout(() => {
                     if(this.mousetimeout)this.imagePathFullsize = null
                 }, 200)
+            },
+            onToggleFavoris(){
+                this.g_toggleDeckFavori(this.currentdeck, pfavori => 
+                {
+                    this.currentdeck.favori = pfavori
+
+                    for(let deck of this.decks)
+                    {
+                        if(deck.id == this.currentdeck.id) deck.favori = this.currentdeck.favori
+                    }
+                })
             },
             onCopierLienDeck()
             {
@@ -414,13 +424,7 @@ export default
             },
             getCurrentDeckCssClass()
             {
-                alert('ici')
                 return this.currentdeck ? "aw-currentdeck" + this.currentdeck.main_faction : ''
-            },
-            getDeckCssClass(pdeck) {
-                var css = "aw-" + pdeck.main_faction
-                if (!pdeck.public) css += " aw-private"
-                return css
             },
             resetDecks()
             {
@@ -442,6 +446,7 @@ export default
                 //this.currentdeck = null
                 var params = {
                     myonly: this.mesdecksonly,
+                    favonly: this.mesfavorisonly,
                     faction: this.currentFaction,
                     hero: this.currenthero,
                     withhero: true,

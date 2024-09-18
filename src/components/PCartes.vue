@@ -141,7 +141,7 @@
                 </div>
                 <div class="input-group mt-4">
                   <div class="d-flex flex-column flex-fill align-items-center">
-                    <input type="text" class="form-control" placeholder="Nom de carte et/ou filtres..." 
+                    <input type="text" class="form-control" placeholder="Nom de carte..." 
                       v-model="currentName" 
                       @keyup.enter="searchCards(false, false, false)" />
                   </div>
