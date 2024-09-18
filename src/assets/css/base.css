@@ -798,7 +798,7 @@ input:checked+.slider:before {
   top: 0;
   bottom: 0;
   transition: .5s ease;
-  opacity: 1;
+  opacity: 0;
 }
 .aw-cardoptions:hover {
   opacity: 1;
