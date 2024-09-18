@@ -200,12 +200,6 @@ export default {
 {
   background-color: var(--c-commond1);
 }
-.aw-decklistpersos .aw-carddecklist:nth-child(2),
-.aw-decklistsorts .aw-carddecklist:nth-child(2),
-.aw-decklistpermas .aw-carddecklist:nth-child(2)
-{
-  /*margin-top: 15px;*/
-}
 
 .aw-carddeck {
   position: relative;
