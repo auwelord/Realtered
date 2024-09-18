@@ -882,7 +882,7 @@ export default {
     const storeduiparams = localStorage.getItem("uiparams");
     if(storeduiparams) this.uiparams = JSON.parse(storeduiparams);
     
-    this.database = localStorage.getItem('database') != null ? localStorage.getItem('database') : false
+    this.database = localStorage.getItem('database') != null ? localStorage.getItem('database') : true
     var filters = JSON.parse(localStorage.getItem("filters"));
     if (!filters) 
     {
