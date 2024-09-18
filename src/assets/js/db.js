@@ -56,7 +56,7 @@ export default {
                 if (error.response.status === 404) {
                   console.error('Resource not found.');
                 } else if (error.response.status === 500) {
-                  console.error('Server error.');
+                  console.error(error.response.statusText + ': ' + error.response.data.message);
                 }
               } else if (error.request) {
                 // No response received
@@ -597,7 +597,7 @@ export default {
          */
         async function importDeck(params, onImportedDeck)
         {
-            var deck = params.deck ? params.deck : {
+            var deck = params.deck ? $.extend({}, params.deck) : {
                 name: params.name,
                 public: true,
                 main_faction: '',
@@ -615,6 +615,8 @@ export default {
                 delete deck.hero
                 delete deck.createdAt
                 delete deck.modifiedAt
+                delete deck.DeckFav
+                delete deck.favori
             }
 
             var saveddeck;
@@ -1250,7 +1252,7 @@ export default {
             }
             catch(error)
             {
-                console.error(error)
+                handleApiError(error)
                 pcallback(null)
             }
             
@@ -1261,13 +1263,13 @@ export default {
             try 
             {
                 const { data, error } = await axios.get(API_BASEURL + '/deck/favori/' + pdeck.id, hparams())
-                console.log(data)
+                
                 if(error) console.error(error)
                 pcallback(!error && data.favori)
             }
             catch(error)
             {
-                console.error(error)
+                handleApiError(error)
                 pcallback(null)
             }
         }
