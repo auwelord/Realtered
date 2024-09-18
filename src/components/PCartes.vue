@@ -9,13 +9,16 @@
             <div class="card-header">
               <h3 class="card-title">Mes decks</h3>
               <div class="card-tools d-flex">
-                <BDropdown v-model="showDDCreateDeck" v-if="!creatingDeck && !proprietingdeck" size="sm" split variant="primary" class="me-2" @click="createDeck">
+                <BDropdown v-model="showDDCreateDeck" v-if="user && !creatingDeck && !proprietingdeck" size="sm" split variant="primary" class="me-2" @click="createDeck">
                   <template #button-content>
                     <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>Créer
                   </template>
-                  <BDropdownItem @click="importDeck" variant="infod2" v-if="!creatingDeck && user && !proprietingdeck">
-                    <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer
+                  <BDropdownItem @click="copierDeck">
+                    <font-awesome-icon :icon="['far', 'copy']" class="me-2" />Copier
                   </BDropdownItem>
+                  <BDropdownItem @click="importDeck">
+                    <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer
+                  </BDropdownItem>                  
                 </BDropdown>
                 <BDropdown v-model="showDeckoptions" start size="sm" variant="outline-secondary">
                   <template #button-content>
@@ -86,19 +89,10 @@
             </div>
           </div>
           <div v-if="deckbuilder || !imagePathFullsize">
-            <div v-if="!database && fetchedCards && g_isAdmin(user) && currentFaction != ''">
-                <BButton @click="updateDetailFromApi" variant="secondary" size="sm" class="me-2">
-                  <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Details <span v-if="updatingname">{{  updatingname }}</span>
-                </BButton>
-                <BButton @click="onClickDownloadImages" variant="secondary" size="sm" class="me-2">
-                  <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Images <span v-if="updatingname">{{  updatingname }}</span>
-                </BButton>
-            </div>
-
             <div class="card card-outline card-warning">
               <div class="card-header" v-if="currentFaction != ''">
                 <div class="d-flex justify-content-end">
-                  <div v-if="g_isAdmin(user) && currentFaction != ''">
+                  <div v-if="g_isAdmin(user) && currentFaction != ''" class="mt-2">
                     BDD
                     <label class="switch me-2">
                       <input type="checkbox" v-model="database">
@@ -116,6 +110,19 @@
                   </BButton>
                 </div>
               </div> <!-- /.card-header -->
+              <div class="card-header" v-if="g_isAdmin(user)">
+                <div v-if="!database && fetchedCards && currentFaction != ''">
+                  <BButton @click="updateDetailFromApi" variant="secondary" size="sm" class="me-2">
+                    <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Details <span v-if="updatingname">{{  updatingname }}</span>
+                  </BButton>
+                  <BButton @click="onClickDownloadImages" variant="secondary" size="sm" class="me-2">
+                    <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Images <span v-if="updatingname">{{  updatingname }}</span>
+                  </BButton>
+                </div>
+                <BButton @click="updateUniques" variant="secondary" size="sm" class="me-2" title="Mettre à jour les uniques" v-if="g_isAdmin(user) && database">
+                  <font-awesome-icon :icon="['fas', 'pen-clip']" class="me-2" />Update uniques {{  updatingname }}
+                </BButton>
+              </div>
               <div class="card-body">
                 <div class="card-group justify-content-between aw-factionsel">
                   <a href="#" id="AX" :class="['mb-2 aw-axiom', isCurrentAxiom() ? 'aw-selected' : '']"
@@ -137,31 +144,6 @@
                     <input type="text" class="form-control" placeholder="Nom de carte et/ou filtres..." 
                       v-model="currentName" 
                       @keyup.enter="searchCards(false, false, false)" />
-
-                      <!--
-                    <font-awesome-icon v-b-toggle.awid-aidecurrentname :icon="['fas', 'chevron-right']" class="aw-arrowcollapse mt-2" />
-
-                    <BCollapse id="awid-aidecurrentname">
-                      <BButton variant="light" size="xs" class="me-1" title="Rareté">
-                        Rareté (r:c,r,u)
-                      </BButton>
-                      <BButton variant="light" size="xs" class="me-1" title="Type">
-                        Type (t:c,s,p)
-                      </BButton>
-                      <BButton variant="light" size="xs" class="me-1" title="Sous-type">
-                        Sous-type (st)
-                      </BButton>
-                      <BButton variant="light" size="xs" class="me-1" title="Patate forêt">
-                        Patate forêt (pf:0,1,...)
-                      </BButton>
-                      <BButton variant="light" size="xs" class="me-1" title="Patate montagne">
-                        Patate montagne (pm:0,1,...)
-                      </BButton>
-                      <BButton variant="light" size="xs" class="me-1" title="Patate océan">
-                        Patate océan (po:0,1,2)
-                      </BButton>
-                    </BCollapse>
-                  -->
                   </div>
                 </div>
 
@@ -322,8 +304,7 @@
                       <div class="card-group justify-content-between align-items-center mt-2">
                         <div><i class="altered-water fs-5 me-2"></i><span class="fs-3">{{ water }}</span></div>
                         <div>
-                          <BFormCheckbox v-model="waterOrMore" value="ouplus" @change="onChangeWaterOrMore">ou plus
-                          </BFormCheckbox>
+                          <BFormCheckbox v-model="waterOrMore" value="ouplus" @change="onChangeWaterOrMore">ou plus</BFormCheckbox>
                         </div>
                         <div>
                           <BFormCheckbox v-model="waterOrMore" value="oumoins" @change="onChangeWaterOrMore">ou moins
@@ -344,7 +325,7 @@
                     <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechKeyword && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
-                    Mots-clés
+                    Mots-clés / Capacités
                   </div>
                   <font-awesome-icon v-b-toggle.awid-filtreskeyword :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
                 </div>
@@ -355,6 +336,80 @@
                     :searchable="false"
                     :options="keywords" 
                     @change="onChangeKeywords" />
+
+
+                  <BInputGroup class="mt-2 ms-5">
+                    <BFormCheckbox v-model="cbCapaStatic">Capacité statique non vide</BFormCheckbox>
+                  </BInputGroup>
+                  <BInputGroup>
+                    <template #prepend>
+                      <BInputGroupText><font-awesome-icon :icon="['fas', 'ban']" /></BInputGroupText>
+                    </template>
+                    <BFormInput placeholder="Texte inclu dans la capacité sans trigger"
+                        :disabled="cbCapaStatic"
+                        v-model="fCapaStatic"
+                        @keyup.enter="searchCards(false, false, false)" />
+                  </BInputGroup>
+                  <BInputGroup class="mt-2 ms-5">
+                    <BFormCheckbox v-model="cbCapaEtb">Capacité <i class="altered-etb"></i> non vide</BFormCheckbox>
+                  </BInputGroup>
+                  <BInputGroup>
+                    <template #prepend>
+                      <BInputGroupText><i class="altered-etb"></i></BInputGroupText>
+                    </template>
+                    <BFormInput placeholder="Texte inclu dans la capacité"
+                        :disabled="cbCapaEtb"
+                        v-model="fCapaEtb"
+                        @keyup.enter="searchCards(false, false, false)" />
+                  </BInputGroup>
+                  <BInputGroup class="mt-2 ms-5">
+                    <BFormCheckbox v-model="cbCapaHand">Capacité <i class="altered-hand"></i> non vide</BFormCheckbox>
+                  </BInputGroup>
+                  <BInputGroup>
+                    <template #prepend>
+                      <BInputGroupText>	<i class="altered-hand"></i></BInputGroupText>
+                    </template>
+                    <BFormInput placeholder="Texte inclu dans la capacité"
+                        :disabled="cbCapaHand"
+                        v-model="fCapaHand"
+                        @keyup.enter="searchCards(false, false, false)" />
+                  </BInputGroup>
+                  <BInputGroup class="mt-2 ms-5">
+                    <BFormCheckbox v-model="cbCapaReserve">Capacité <i class="altered-reserve"></i> non vide</BFormCheckbox>
+                  </BInputGroup>
+                  <BInputGroup>
+                    <template #prepend>
+                      <BInputGroupText><i class="altered-reserve"></i></BInputGroupText>
+                    </template>
+                    <BFormInput placeholder="Texte inclu dans la capacité"
+                        :disabled="cbCapaReserve"
+                        v-model="fCapaReserve"
+                        @keyup.enter="searchCards(false, false, false)" />
+                  </BInputGroup>
+                  <BInputGroup class="mt-2 ms-5">
+                    <BFormCheckbox v-model="cbCapaExhaust">Capacité <i class="altered-exhaust"></i> non vide</BFormCheckbox>
+                  </BInputGroup>
+                  <BInputGroup>
+                    <template #prepend>
+                      <BInputGroupText><i class="altered-exhaust"></i></BInputGroupText>
+                    </template>
+                    <BFormInput placeholder="Texte inclu dans la capacité"
+                        :disabled="cbCapaExhaust"
+                        v-model="fCapaExhaust"
+                        @keyup.enter="searchCards(false, false, false)" />
+                  </BInputGroup>
+                  <BInputGroup class="mt-2 ms-5">
+                    <BFormCheckbox v-model="cbCapaSupport">Capacité <i class="altered-support"></i> non vide</BFormCheckbox>
+                  </BInputGroup>
+                  <BInputGroup>
+                    <template #prepend>
+                      <BInputGroupText><i class="altered-support"></i></BInputGroupText>
+                    </template>
+                    <BFormInput placeholder="Texte inclu dans la capacité de support"
+                        :disabled="cbCapaSupport"
+                        v-model="fCapaSupport"
+                        @keyup.enter="searchCards(false, false, false)" />
+                  </BInputGroup>                  
                 </BCollapse>
 
                 <hr>
@@ -689,6 +744,13 @@ export default {
   name: 'Collection',
   data() {
     return {
+      cbTriggerCapa: null,
+      optTriggers: [
+        {value: 'etb', label: 'More space battles!', ico: 'altered-etb'},
+        {value: 'hand', label: 'PROFIT!', ico: 'altered-hand'},
+        {value: 'reserve', label: 'Discovering new species!', ico: 'altered-reserve'},
+        {value: 'exhaust', label: 'We need to go deeper!', ico: 'altered-exhaust'}
+      ],
       database: true,
       renderStatComponent: true,
       isSelected: true,
@@ -797,6 +859,18 @@ export default {
       timeoutRechEdition: null,
       showRechSort: false,
       timeoutRechSort: null,
+      cbCapaStatic: false,
+      fCapaStatic: null,
+      cbCapaEtb: false,
+      fCapaEtb: null,
+      cbCapaHand: false,
+      fCapaHand: null,
+      cbCapaReserve: false,
+      fCapaReserve: null,
+      cbCapaExhaust: false,
+      fCapaExhaust: null,
+      cbCapaSupport: false,
+      fCapaSupport: null,
     };
   },
   mounted() 
@@ -805,6 +879,7 @@ export default {
     const storeduiparams = localStorage.getItem("uiparams");
     if(storeduiparams) this.uiparams = JSON.parse(storeduiparams);
     
+    this.database = localStorage.getItem('database') != null ? localStorage.getItem('database') : false
     var filters = JSON.parse(localStorage.getItem("filters"));
     if (!filters) 
     {
@@ -834,9 +909,13 @@ export default {
     this.waterOrMore = filters.waterOrMore
     this.mountain = filters.mountain
     this.mountainOrMore = filters.mountainOrMore
-
-
-
+    this.cbCapaStatic = filters.cbCapaStatic
+    this.cbCapaEtb = filters.cbCapaEtb
+    this.cbCapaHand = filters.cbCapaHand
+    this.cbCapaReserve = filters.cbCapaReserve
+    this.cbCapaExhaust = filters.cbCapaExhaust
+    this.cbCapaSupport = filters.cbCapaSupport
+    
     this.loadDecks();
     //this.loadMore(); // Charger les premiers éléments
     //window.addEventListener('scroll', this.handleScroll); // Ajouter l'écouteur d'événements pour le scroll
@@ -850,6 +929,31 @@ export default {
 
           setTimeout(() => $('#awid-fdeckname').trigger('select')) //.trigger('focus'), 50)
         }
+    },
+    database(newValue, oldValue){localStorage.setItem('database', newValue)},
+    cbCapaStatic(newValue, oldValue){
+      if(newValue) this.fCapaStatic = ''
+      this.onChangeFilter()
+    },
+    cbCapaEtb(newValue, oldValue){
+      if(newValue) this.fCapaEtb = ''
+      this.onChangeFilter()
+    },
+    cbCapaHand(newValue, oldValue){
+      if(newValue) this.fCapaHand = ''
+      this.onChangeFilter()
+    },
+    cbCapaReserve(newValue, oldValue){
+      if(newValue) this.fCapaReserve = ''
+      this.onChangeFilter()
+    },
+    cbCapaExhaust(newValue, oldValue){
+      if(newValue) this.fCapaExhaust = ''
+      this.onChangeFilter()
+    },
+    cbCapaSupport(newValue, oldValue){
+      if(newValue) this.fCapaSupport = ''
+      this.onChangeFilter()
     },
   },
   inject: ['callShowWaitingScreen', 'callHideWaitingScreen'], // Injecter la méthode de App.vue
@@ -879,6 +983,18 @@ export default {
         waterOrMore: "ouplus",
         mountain: 0,
         mountainOrMore: "ouplus",
+        cbCapaStatic: false,
+        capaStatic: '',
+        cbCapaEtb: false,
+        capaEtb: '',
+        cbCapaHand: false,
+        capaHand: '',
+        cbCapaReserve: false,
+        capaReserve: '',
+        cbCapaExhaust: false,
+        capaExhaust: '',
+        cbCapaSupport: false,
+        capaSupport: '',        
       }
     },
     searchAlteredDeck()
@@ -944,6 +1060,15 @@ export default {
       window.open(route.href, '_blank');
 
       //this.$router.push('/decklists/' + this.currentDeck.id)
+    },
+    updateUniques()
+    {
+      this.g_updateCardsFromApi(this.fetchedCards,
+        //onUpdatingCard: 
+        pcard => this.updatingname = pcard.reference,
+        //onUpdatedCards: 
+        () => this.updatingname = null
+      )
     },
     updateDetailFromApi()
     {
@@ -1070,6 +1195,19 @@ export default {
       filters.isSelectedCommon = this.isSelectedCommon;
       filters.isSelectedRare = this.isSelectedRare;
       filters.isSelectedUnique = this.isSelectedUnique;
+      filters.cbCapaStatic = this.cbCapaStatic
+      filters.capaStatic = this.fCapaStatic
+      filters.cbCapaEtb = this.cbCapaEtb
+      filters.capaEtb = this.fCapaEtb
+      filters.cbCapaHand = this.cbCapaHand
+      filters.capaHand = this.fCapaHand
+      filters.cbCapaReserve = this.cbCapaReserve
+      filters.capaReserve = this.fCapaReserve
+      filters.cbCapaExhaust = this.cbCapaExhaust
+      filters.capaExhaust = this.fCapaExhaust
+      filters.cbCapaSupport = this.cbCapaSupport
+      filters.capaSupport = this.fCapaSupport      
+      
       localStorage.setItem("filters", JSON.stringify(filters));
     },
     getProba(pcard)
@@ -1111,6 +1249,18 @@ export default {
       this.waterOrMore = filters.waterOrMore
       this.mountain = filters.mountain
       this.mountainOrMore = filters.mountainOrMore
+      this.cbCapaStatic = filters.cbCapaStatic
+      this.fCapaStatic = filters.capaStatic
+      this.cbCapaEtb = filters.cbCapaEtb
+      this.fCapaEtb = filters.capaEtb
+      this.cbCapaHand = filters.cbCapaHand
+      this.fCapaHand = filters.capaHand
+      this.cbCapaReserve = filters.cbCapaReserve
+      this.fCapaReserve = filters.capaReserve
+      this.cbCapaSupport = filters.cbCapaSupport
+      this.fCapaSupport = filters.capaSupport
+      this.cbCapaExhaust = filters.cbCapaExhaust
+      this.fCapaExhaust = filters.capaExhaust      
 
       this.onChangeFilter()
     },
@@ -1671,6 +1821,18 @@ export default {
     {
       this.proprietingdeck = true
     },
+    copierDeck()
+    {
+      //NB: on n'enregistre pas en base le deck
+      const newdeck = $.extend({}, this.currentDeck);
+      newdeck.id = 0
+      newdeck.name += ' (copie)'
+
+      this.currentDeck = newdeck
+      this.saveCurrentDeckToLocalStorage()
+      this.loadDecks(0)
+      this.deckModified = true
+    },
     importDeck()
     {
       this.actionOriConfirmChangeDeck = "IMPORTER";
@@ -2089,6 +2251,18 @@ export default {
         currentSort: this.currentSort,
         currentPage: this.currentPage,
         itemsPerPage: this.itemsPerPage,
+        capaStaticNonVide: this.cbCapaStatic,
+        capaStatic: this.fCapaStatic,
+        capaEtbNonVide: this.cbCapaEtb,
+        capaEtb: this.fCapaEtb,
+        capaHandNonVide: this.cbCapaHand,
+        capaHand: this.fCapaHand,
+        capaReserveNonVide: this.cbCapaReserve,
+        capaReserve: this.fCapaReserve,
+        capaSupportNonVide: this.cbCapaSupport,
+        capaSupport: this.fCapaSupport,
+        capaExhaustNonVide: this.cbCapaExhaust,
+        capaExhaust: this.fCapaExhaust,
       }
 
       if(this.database) this.fetchCardsFromDatabase(calcparams)

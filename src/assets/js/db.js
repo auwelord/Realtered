@@ -149,6 +149,7 @@ export default {
         
         async function fetchCardsFromDatabase(params, pcallback)
         {
+            //verif de la syntaxe de params.currentName
             var req = anonSupabase
                 .from('Card')
                 .select()
@@ -164,6 +165,24 @@ export default {
             if (params.calculatedtype.length > 0) req = req.in("cardType", params.calculatedtype);
             if (params.currentEditions.length > 0) req = req.in("cardSet", params.currentEditions);
 
+            if(params.capaStaticNonVide) req = req.gt('static_effect', '');
+            else if(params.capaStatic) req = req.ilike('static_effect', '%' + params.capaStatic + '%');
+
+            if(params.capaEtbNonVide) req = req.gt('etb_effect', '');
+            else if(params.capaEtb) req = req.ilike('etb_effect', '%' + params.capaEtb + '%');
+
+            if(params.capaHandNonVide) req = req.gt('hand_effect', '');
+            else if(params.capaHand) req = req.ilike('hand_effect', '%' + params.capaHand + '%');
+
+            if(params.capaReserveNonVide) req = req.gt('reserve_effect', '');
+            else if(params.capaReserve) req = req.ilike('reserve_effect', '%' + params.capaReserve + '%');
+
+            if(params.capaExhaustNonVide) req = req.gt('exhaust_effect', '');
+            else  if(params.capaExhaust) req = req.ilike('exhaust_effect', '%' + params.capaExhaust + '%');
+
+            if(params.capaSupportNonVide) req = req.gt('echo_effect', '');
+            else if(params.capaSupport) req = req.ilike('echo_effect', '%' + params.capaSupport + '%');
+
             var streq = [];
             if (params.currentSoustypes.length > 0)
             {
@@ -177,7 +196,7 @@ export default {
                 keywords.push('main_effect.ilike.%' + label + '%,echo_effect.ilike.%' + label + '%');
             });
             if(keywords.length > 0) req = req.or(keywords.join(','));
-            
+
             params.currentSort.forEach(sortref => {
                 var tab = sortref.split(',');
                 req = req.order(tab[0] == 'translations.name' ? 'name' : tab[0], { ascending: tab.length == 1 })
@@ -831,7 +850,50 @@ export default {
                 main_effect: params.apicard.elements.MAIN_EFFECT,
                 echo_effect: params.apicard.elements.ECHO_EFFECT,
                 id: params.apicard.id,
-            };
+                etb_effect: '',
+                hand_effect: '',
+                reserve_effect: '',
+                static_effect: '',
+                exhaust_effect: '',
+            }
+
+            if(card.main_effect)
+            {
+                //extraction par type de trigger
+                var effects = card.main_effect
+                    .replaceAll('\#', '')
+                    .split('  ') //séparateur = double espace
+
+                for(let effect of effects)
+                {
+                    if(effect.startsWith('{J}'))
+                    {
+                        card.etb_effect += (card.etb_effect ? '  ' : '') + effect
+                    }
+                    else if(effect.startsWith('{H}'))
+                    {
+                        card.hand_effect += (card.hand_effect ? '  ' : '') + effect
+                    }
+                    else if(effect.startsWith('{R}'))
+                    {
+                        card.reserve_effect += (card.reserve_effect ? '  ' : '') + effect
+                    }
+                    else
+                    {
+                        //pour l'exhaust, il peut y avaoit un cout et le symbole n'est pas en première position
+                        if(effect.startsWith('{T}'))
+                            card.exhaust_effect += (card.exhaust_effect ? '  ' : '') + effect
+                        else
+                        {
+                            var tab = effect.split(':')
+                            if(tab.length > 1 && tab[0].includes('{T}'))
+                                card.exhaust_effect += (card.exhaust_effect ? '  ' : '') + effect
+                            else  
+                                card.static_effect +=  (card.static_effect ? '  ' : '') + effect
+                        }                        
+                    }
+                }
+            }
 
             if(params.detail) 
             {

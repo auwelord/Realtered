@@ -1,109 +1,73 @@
 [
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/9e9d56837ebde40f3498",
         "reference": "RESUPPLY",
         "name": "Ravitaillez"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/6685f91bcecf532115ba",
         "reference": "SEASONED",
         "name": "Aguerri"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/edcb058631155f6b70ca",
         "reference": "BOOSTED",
         "name": "Boosté"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/48446957e283e8b36957",
         "reference": "BRASSBUG",
         "name": "2/2/2 Scarabot"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/003e1cd9b6a6415bd31f",
         "reference": "SABOTAGE",
         "name": "Sabotez"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/83f3b8723138cffc37b2",
         "reference": "BOODA",
         "name": "2/2/2 Booda"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/4737539ce77badab9923",
         "reference": "ORDIS_RECRUIT",
         "name": "1/1/1 Recrue Ordis"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/535153f191c082728c21",
         "reference": "GIGANTIC",
         "name": "Gigantesque"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/18daacba99ea193d23ef",
         "reference": "TOUGH_1",
         "name": "Coriace 1"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/de7c4ffa43132d53557f",
         "reference": "TOUGH_2",
         "name": "Coriace 2"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/1c61521bb25c05c0e2ac",
         "reference": "TOUGH_X",
         "name": "Coriace X"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/67571b11001e2aff4861",
         "reference": "DEFENDER",
         "name": "Défenseur"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/0b0991afb4e3950fb8b5",
         "reference": "ETERNAL",
         "name": "Éternel"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/98ed2d236a110596266b",
         "reference": "AFTER_YOU",
         "name": "Après vous"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/a4502eec195157191648",
         "reference": "MAW",
         "name": "0/0/0 Maw"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/8f2308aacd6037c5542b",
         "reference": "ANCHORED",
         "name": "Ancré"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/00e5f47e77d719aa1cc7",
         "reference": "FLEETING",
         "name": "Fugace"
     },
     {
-        "@type": "CardKeyword",
-        "@id": "/.well-known/genid/5c345f05ca688b638157",
         "reference": "ASLEEP",
         "name": "Endormi"
     }

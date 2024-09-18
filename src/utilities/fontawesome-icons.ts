@@ -6,18 +6,19 @@ import {
     faPhone, faUser, faFlag, faMagnifyingGlass, faMask, faWandMagicSparkles, faHouse, faBuildingShield, 
     faPersonWalking, faMagnifyingGlassArrowRight, faCirclePlus, faCircleMinus, faCheck, faChartColumn, 
     faExpand, faFileImport, faLock, faLeftLong, faRightLong, faGear, faFileExport, faList, faFileArrowDown,
-    faCodeCompare, faChevronUp, faChevronRight, faEraser } 
+    faCodeCompare, faChevronUp, faChevronRight, faEraser, faPenClip, faBan } 
     from "@fortawesome/free-solid-svg-icons";
 import { faJs, faVuejs, faDiscord, faThreads } 
     from "@fortawesome/free-brands-svg-icons";
-import { faCircleDown, faEye, faFloppyDisk, faTrashCan, faImage} 
+import { faCircleDown, faEye, faFloppyDisk, faTrashCan, faImage, faCopy, faCircle} 
     from "@fortawesome/free-regular-svg-icons";
 
 library.add(faPhone, faUser, faFlag, faJs, faVuejs, faDiscord, faMagnifyingGlass, faCircleDown, 
     faMask, faWandMagicSparkles, faHouse, faBuildingShield, faPersonWalking, faFileExport, faList,
     faMagnifyingGlassArrowRight, faCirclePlus, faCircleMinus, faCheck, faEye, faFloppyDisk, 
     faTrashCan, faChartColumn, faExpand, faFileImport, faLock, faLeftLong, faRightLong, faGear,
-    faFileArrowDown, faImage, faCodeCompare, faChevronUp, faChevronRight, faThreads, faEraser
+    faFileArrowDown, faImage, faCodeCompare, faChevronUp, faChevronRight, faThreads, faEraser, faCopy,
+    faPenClip, faCircle, faBan
 );
 
 export default FontAwesomeIcon;

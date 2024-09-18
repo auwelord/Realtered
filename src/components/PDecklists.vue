@@ -163,7 +163,7 @@
 </template>
 
 <script setup>
-import { watch, defineProps, onMounted, getCurrentInstance } from 'vue'
+import { watch, onMounted, getCurrentInstance } from 'vue'
 import { useHead } from '@vueuse/head';
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
 import MarkdownIt from "markdown-it";

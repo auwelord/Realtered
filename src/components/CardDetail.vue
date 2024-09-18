@@ -67,16 +67,20 @@ export default {
 
     $("#awid-carddetail-label").html(this.card.name);
 
-    if (!this.g_isHero(this.card)) {
-      if (this.g_isCommon(this.card)) {
-        this.fetchDetailsRare();
+    if (!this.g_isHero(this.card))
+    {
+      if (this.g_isCommon(this.card)) 
+      {
+        this.fetchDetailsRare()
       }
-      else if (this.g_isRare(this.card)) {
-        this.fetchDetailsCommon();
+      else if (this.g_isRare(this.card)) 
+      {
+        this.fetchDetailsCommon()
       }
-      else if (this.g_isUnique(this.card)) {
-        this.fetchDetailsRare();
-        this.fetchDetailsCommon();
+      else if (this.g_isUnique(this.card)) 
+      {
+        this.fetchDetailsRare()
+        this.fetchDetailsCommon()
       }
     }
   },
