@@ -16,12 +16,12 @@
         <div class="aw-cardoptions ">
           <div class="d-flex align-items-center">
             <div class="d-flex flex-column align-items-center flex-fill">
-              <div class="d-flex justify-content-between aw-tools" v-if="!g_isOOF(card, currentDeck)">
-                <div class="aw-button d-flex align-items-center" v-if="deckbuilder" v-visible="card.quantite > 0" @click="removeCardFromDeck(card)">
+              <div class="d-flex justify-content-between aw-tools" v-if="deckbuilder && !g_isOOF(card, currentDeck)">
+                <div class="aw-button d-flex align-items-center" v-visible="card.quantite > 0" @click="removeCardFromDeck(card)">
                   <font-awesome-icon :icon="['fa', 'circle-minus']" class="fs-3" />
                 </div>
-                <div class="aw-quantite fs-4" v-if="deckbuilder">{{ card.quantite }}</div>              
-                <div class="aw-button d-flex align-items-center" v-if="deckbuilder" v-visible="g_canAddCardToDeck(card, currentDeck)" @click="addCardToDeck(card)">
+                <div class="aw-quantite fs-4">{{ card.quantite }}</div>              
+                <div class="aw-button d-flex align-items-center" v-visible="g_canAddCardToDeck(card, currentDeck)" @click="addCardToDeck(card)">
                   <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-3" />
                 </div>
               </div>
