@@ -303,9 +303,12 @@ export default
                 {
                     this.currentdeck.favori = pfavori
 
-                    for(let deck of this.decks)
+                    if(this.decks)
                     {
-                        if(deck.id == this.currentdeck.id) deck.favori = this.currentdeck.favori
+                        for(let deck of this.decks)
+                        {
+                            if(deck.id == this.currentdeck.id) deck.favori = this.currentdeck.favori
+                        }
                     }
                 })
             },
