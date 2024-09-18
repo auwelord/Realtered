@@ -83,7 +83,7 @@
                         </div>
                     </div>
 
-                    <div v-if="imagePathFullsize" class="aw-imgapercu">
+                    <div :class="['aw-imgapercu', imagePathFullsize ? 'aw-imageapon' : '']">
                         <div class="sticky">
                             <img :src="imagePathFullsize" alt="" class="img-fluid aw-alteredcard" />
                         </div>
@@ -600,8 +600,8 @@ export default
     position: absolute;
     z-index: 1;
     left: 0;
-    padding-right: calc(var(--bs-gutter-x)* 0.5);
-    padding-left: calc(var(--bs-gutter-x)* 0.5);
+    padding-right: 7.5px;
+    padding-left: 7.5px;
 }
 .aw-decklistcard img:nth-child(2) {
     top: 1.6vw;
@@ -665,7 +665,7 @@ export default
 }
 .aw-colleft.aw-imageapon .aw-imgapercu img {
     margin-top: 0;
-    width: calc(0.32 * 100vw);
+    width: calc(0.31 * 100vw);
 }
 
 @media (max-width: 1199px) {

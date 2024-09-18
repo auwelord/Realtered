@@ -44,10 +44,10 @@ const onShowCardDetail = (pcard) => {
   emit('onshowcarddetail', pcard);
 }
 const mouseEnterCard = (pdeckbuilder, pcard) => {
-  if(!pdeckbuilder) emit('mouseentercard', pcard);
+  emit('mouseentercard', pcard);
 }
 const mouseLeaveCard = (pdeckbuilder, pcard) => {
-  if(!pdeckbuilder) emit('mouseleavecard', pcard);
+  emit('mouseleavecard', pcard);
 }
 </script>
 

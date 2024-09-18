@@ -647,6 +647,9 @@ img.aw-alteredcard
   }
 }
 
+.aw-wrapper {
+  margin-top: 90px;
+}
 
 .aw-waitingscreen .modal-content
 {
@@ -654,4 +657,134 @@ img.aw-alteredcard
   color: white;
   font-size: 24px;
   cursor: progress;
+}
+
+.aw-arrowcollapse
+{
+  width: 23px;
+  cursor: pointer;
+  transform: rotateZ(270deg);
+  transition: all .3s;
+}
+.aw-arrowcollapse.collapsed
+{
+  transform: rotateZ(90deg);
+}
+
+.aw-imgapercu .sticky,
+.aw-imgapercurech .sticky{
+  margin-top: -1000px;
+}
+.aw-imgapercu.aw-imageapon .sticky,
+.aw-imgapercurech.aw-imageapon .sticky
+ {
+  margin-top: 0;
+}
+.aw-imgapercu img {
+  width: calc(0.31 * 100vw);
+}
+.aw-imgapercurech img {
+  width: calc(0.25 * 100vw);
+}
+
+.aw-noresult {
+  font-size: 50px;
+  text-align: end;
+}
+
+.aw-noresult img {
+  max-width: 500px;
+}
+
+.aw-noresult {
+  background-image: url(/src/assets/img/bgshape2.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+img.aw-fond {
+  width: 360px;
+  position: absolute;
+  z-index: -1;
+}
+
+img.aw-faction {
+  width: 35px;
+}
+
+/***********************
+SWITCH
+************************ */
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 56px;
+  height: 27px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked+.slider {
+  background-color: #2196F3;
+}
+
+input:focus+.slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked+.slider:before {
+  -webkit-transform: translateX(29px);
+  -ms-transform: translateX(29px);
+  transform: translateX(29px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.aw-modalecarddet .modal-body
+{
+  background-image: url("https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/fond1.png");
+  background-size: cover;
+}
+.aw-modalecarddet .modal-header
+{
+  background-color: var(--c-ordis);
+  color: white;  
 }

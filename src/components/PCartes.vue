@@ -5,6 +5,11 @@
     <div class="container-fluid pt-2"> <!--begin::Row-->
       <div class="row">
         <div class="col-12 col-xl-3">
+          <div :class="['aw-imgapercurech', imageRechPathFullsize ? 'aw-imageapon' : '']">
+            <div class="sticky">
+              <img :src="imageRechPathFullsize" class="img-fluid aw-alteredcard" />
+            </div>
+          </div>
           <div v-if="deckbuilder" class="card card-outline card-info mb-1">
             <div class="card-header">
               <h3 class="card-title">Mes decks</h3>
@@ -82,11 +87,6 @@
                 </div>
               </div>
             </div> <!-- /.card-body -->
-          </div>
-          <div v-if="!deckbuilder" :class="['aw-imgapercu', imagePathFullsize ? 'aw-imageapon' : '']">
-            <div class="sticky">
-              <img :src="imagePathFullsize" class="img-fluid aw-alteredcard" />
-            </div>
           </div>
           <div v-if="deckbuilder || !imagePathFullsize">
             <div class="card card-outline card-warning">
@@ -504,8 +504,8 @@
                   @addcard="addCard" 
                   @removecard="removeCard"
                   @onshowcarddetail="onshowcarddetail" 
-                  @mouseentercard="mouseenterCard" 
-                  @mouseleavecard="mouseleaveCard" />
+                  @mouseentercard="mouseenterCardRech" 
+                  @mouseleavecard="mouseleaveCardRech" />
               </div>
               <div class="row d-flex p-2">
                 <BButton v-if="hasMore && currentPage > 1 && !loading" @click="fetchCards" variant="unique" size="sm">
@@ -796,6 +796,7 @@ export default {
         filtrePower: true
       },
       imagePathFullsize: null,
+      imageRechPathFullsize: null,
       afficherDetails: false,
       oldAfficherStats: false,
       sortingTypes: [
@@ -836,6 +837,7 @@ export default {
       proprietingdeck: false,
       taDescDeck: null,
       mousetimeout: null,
+      mouserechtimeout: null,
       showDeckoptions: false,
       showDecklistoptions: false,
       showDDCreateDeck: false,
@@ -1466,6 +1468,19 @@ export default {
     },
     saveCurrentDeckToLocalStorage() {
       localStorage.setItem("currentDeck", JSON.stringify(this.currentDeck));
+    },
+    mouseenterCardRech(card) 
+    {
+      console.log('enter')
+      if(this.mouserechtimeout) clearTimeout(this.mouserechtimeout)
+      this.imageRechPathFullsize = this.g_getImageCardPublicUrl(card);  //"/src/assets/img/altered_kojo.png",
+    },
+    mouseleaveCardRech(card)
+    {
+      this.mouserechtimeout = setTimeout(() => 
+      {
+        this.imageRechPathFullsize = null
+      }, 200);
     },
     mouseenterCard(card) {
       if(this.deckbuilder) 
@@ -2329,7 +2344,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .aw-HERO .aw-herodelete
 {
   color: white;
@@ -2445,17 +2460,6 @@ export default {
 {
   max-width: 500px !important;
 }
-.aw-arrowcollapse
-{
-  width: 23px;
-  cursor: pointer;
-  transform: rotateZ(270deg);
-  transition: all .3s;
-}
-.aw-arrowcollapse.collapsed
-{
-  transform: rotateZ(90deg);
-}
 .aw-imgimportunique
 {
   display: flex;
@@ -2478,27 +2482,10 @@ export default {
 {
   border-top: 1px solid #aa77087a;
 }
-.aw-modalecarddet .modal-body
-{
-  background-image: url("https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/fond1.png");
-  background-size: cover;
-}
-.aw-modalecarddet .modal-header
-{
-  background-color: var(--c-ordis);
-  color: white;  
-}
+
 
 .aw-herodeck {
   min-height: 210px;
-}
-
-.aw-imgapercu img {
-  margin-top: 0;
-  width: calc(0.25 * 100vw);
-}
-.aw-deckbuilder .aw-imgapercu img {
-  width: calc(0.31 * 100vw);
 }
 
 .aw-resultsearch {
@@ -2513,35 +2500,6 @@ export default {
   min-height: 130px;
   background-image: url(/src/assets/img/bgarch.png);
   background-repeat: repeat;
-}
-
-.aw-noresult {
-  font-size: 50px;
-  text-align: end;
-}
-
-.aw-noresult img {
-  max-width: 500px;
-}
-
-.aw-noresult {
-  background-image: url(/src/assets/img/bgshape2.png);
-  background-repeat: no-repeat;
-  background-size: contain;
-}
-
-img.aw-fond {
-  width: 360px;
-  position: absolute;
-  z-index: -1;
-}
-
-img.aw-faction {
-  width: 35px;
-}
-
-.aw-wrapper {
-  margin-top: 90px;
 }
 
 .aw-raritysel img {
@@ -2627,7 +2585,6 @@ a.aw-unique::after {
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
   .aw-slider input[type=range] {
     overflow: hidden;
-    height: 25px;
     -webkit-appearance: none;
     appearance: none;
     background-color: #ddd;
@@ -2764,71 +2721,5 @@ a.aw-unique::after {
   border-bottom-width: 5px;
   border-bottom-style: solid;
   bottom: -8px;
-}
-
-/***********************
-SWITCH
-************************ */
-/* The switch - the box around the slider */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 56px;
-  height: 27px;
-}
-
-/* Hide default HTML checkbox */
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-/* The slider */
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 22px;
-  width: 22px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-input:checked+.slider {
-  background-color: #2196F3;
-}
-
-input:focus+.slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked+.slider:before {
-  -webkit-transform: translateX(29px);
-  -ms-transform: translateX(29px);
-  transform: translateX(29px);
-}
-
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
 }
 </style>
