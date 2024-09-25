@@ -339,7 +339,7 @@
                     Mots-clés / Capacités
                   </div>
                   <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtreskeyword>
-                    <font-awesome-icon v-b-toggle.awid-filtreskeyword :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
                   </div>
                 </div>
                 <BCollapse id="awid-filtreskeyword" v-model="uiparams.filtreKeyword" @hide="storeUiparams" @show="storeUiparams">
@@ -434,7 +434,7 @@
                     Sous-types
                   </div>
                   <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtressubtype>
-                    <font-awesome-icon v-b-toggle.awid-filtressubtype :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
                   </div>
                 </div>
                 <BCollapse id="awid-filtressubtype" v-model="uiparams.filtreSubtype" @hide="storeUiparams" @show="storeUiparams">
@@ -455,7 +455,7 @@
                     Editions
                   </div>
                   <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtresedition>
-                    <font-awesome-icon v-b-toggle.awid-filtresedition :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
                   </div>
                 </div>
                 <BCollapse id="awid-filtresedition" v-model="uiparams.filtreEdition" @hide="storeUiparams" @show="storeUiparams"> 
@@ -475,7 +475,7 @@
                     Trier par 
                   </div>
                   <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrestri>
-                    <font-awesome-icon v-b-toggle.awid-filtrestri :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
                   </div>
                 </div>
                 <BCollapse id="awid-filtrestri" v-model="uiparams.filtreSort" @hide="storeUiparams" @show="storeUiparams">              
