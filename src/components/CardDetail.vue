@@ -137,7 +137,17 @@ export default {
         return;
       }
       
-      this.g_fetchCard(preference, pcard => this.addCardDetail(pcard));
+      this.g_fetchCard(preference, pcard => 
+      {
+        if(pcard.mainFaction != this.currentDeck.main_faction && this.g_isRare(pcard))
+        {
+          //récupérer la rare dans la bonne faction
+          var tab = pcard.reference.split('_');
+          var idcard = tab[0] + '_' + tab[1] + '_' + tab[2] + '_' + tab[3] + '_' + tab[4] + '_R2';
+          this.fetchDetails(idcard)
+        }
+        else this.addCardDetail(pcard)
+      })
     }
   }
 };
