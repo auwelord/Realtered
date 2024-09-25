@@ -18,7 +18,7 @@
                   <template #button-content>
                     <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>Créer
                   </template>
-                  <BDropdownItem @click="copierDeck">
+                  <BDropdownItem @click="copierDeck" v-if="currentSelectedDeck">
                     <font-awesome-icon :icon="['far', 'copy']" class="me-2" />Copier
                   </BDropdownItem>
                   <BDropdownItem @click="importDeck">
@@ -35,11 +35,11 @@
                   <BDropdownItem @click="exporterCurrentDeck()" v-if="user && currentDeck">
                     <font-awesome-icon :icon="['fas', 'file-export']" class="me-2"/>Exporter
                   </BDropdownItem>
-                  <BDropdownItem @click="onCopierLienDecklist()" v-if="user && currentDeck">
+                  <BDropdownItem @click="onCopierLienDecklist()" v-if="user && currentDeck && currentSelectedDeck > 0">
                     <font-awesome-icon :icon="['fab', 'threads']" class="me-2"/>Copier le lien de la decklist
                   </BDropdownItem>             
                   <BDropdownDivider />  
-                  <BDropdownItem  @click="showModalDeleteDeck()" variant="danger" v-if="user && currentDeck">
+                  <BDropdownItem  @click="e_showModalDeleteDeck()" variant="danger" v-if="user && currentDeck">
                       <font-awesome-icon :icon="['far', 'trash-can']" class="me-2" />Supprimer
                   </BDropdownItem>
                 </BDropdown>
@@ -50,6 +50,7 @@
                 :close-on-select="true" 
                 :options="decks"
                 :searchable="true"
+                :canDeselect="false"
                 @select="onSelectCurrentDeck" 
                 @clear="onClearCurrentDeck" />
               <div v-else>
@@ -532,12 +533,38 @@
                   <div class="fs-7">Cartes: {{ g_getTotalCardsInDeck({deck: currentDeck}) }}</div>
                 </div>
                 <div class="d-flex align-items-end">
-                    <div>
-                      <BButton @click="saveDeck()" variant="primary" size="sm" class="me-2" v-if="user">
-                        <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" />Enregistrer
-                      </BButton>
-                    </div>                    
-                    <BDropdown v-model="showDecklistoptions" start size="sm" variant="outline-secondary">
+                  <div class="me-2">
+                      <div class="input-group" v-if="user && currentSelectedDeck > 0">
+                        <Multiselect class="m-0 me-2 aw-selectversion"
+                          v-model="currentVersion" 
+                          :close-on-select="true" 
+                          :options="versions"
+                          :canClear="false"
+                          :canDeselect="false"
+                          />
+                        <span class="input-group-append">
+                          
+                          <BDropdown v-model="showVersionsOptions" start  variant="outline-secondary">
+                            <template #button-content>
+                              <font-awesome-icon :icon="['fas', 'code-branch']" />
+                            </template>
+                            
+                            <BDropdownItem @click="e_onCreateVersion()">
+                              <font-awesome-icon :icon="['far', 'square-plus']" class="me-2" />Créer une version
+                            </BDropdownItem>
+                            <BDropdownItem @click="e_onDeleteVersion()" variant="danger" v-if="versions.length > 1 && currentVersion > 1">
+                              <font-awesome-icon :icon="['far', 'fa-trash-can']" class="me-2" />Supprimer la version
+                            </BDropdownItem>
+                          </BDropdown>
+                        </span>
+                      </div>
+                    </div>
+                    <BButton @click="saveDeck()" variant="primary"  class="me-2" v-if="user">
+                      <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" /><span>Enregistrer</span>
+                    </BButton>
+                    
+                                        
+                    <BDropdown v-model="showDecklistoptions" start  variant="outline-secondary">
                       <template #button-content>
                         <font-awesome-icon :icon="['fas', 'gear']" />
                       </template>
@@ -545,8 +572,8 @@
                         <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer une carte Unique
                       </BDropdownItem>
                       <BDropdownDivider />
-                      <BDropdownItem @click="redirectToDecklist()">
-                        <font-awesome-icon :icon="['far', 'eye']" class="me-2" v-if="user" />Afficher la DeckList
+                      <BDropdownItem @click="redirectToDecklist()" v-if="user && currentSelectedDeck > 0" >
+                        <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Afficher la DeckList
                       </BDropdownItem>
                       <BDropdownItem @click="changeModeListe()">
                         <span v-if="uiparams.modeliste">
@@ -561,7 +588,7 @@
                           <span v-if="!uiparams.afficherstats">Afficher les stats</span>
                           <span v-else>Cacher les stats</span>
                       </BDropdownItem>
-                    </BDropdown>               
+                    </BDropdown>
                 </div>
               </div>
             </div> <!-- /.card-header -->
@@ -660,9 +687,14 @@
     </div>
   </div>
 
-  <BModal v-model="modalDeleteDeck" @ok="deleteDeck" centered cancel-title="Annuler" ok-title="Supprimer"
+  <BModal v-model="modalDeleteDeck" @ok="e_confirmDeleteDeck" centered cancel-title="Annuler" ok-title="Supprimer"
     ok-variant="danger" title="Supprimer un deck">
     Etes-vous sûr de vouloir supprimer le deck ?
+  </BModal>
+
+  <BModal v-model="showModalDeleteVersion" @ok="e_confirmDeleteVersion" centered cancel-title="Annuler" ok-title="Supprimer"
+    ok-variant="danger" title="Supprimer une version">
+    <span v-if="currentDeck">Etes-vous sûr de vouloir supprimer la version {{ currentDeck.version }} du deck {{ currentDeck.name }} ?</span>
   </BModal>
 
   <BModal v-model="afficherDetails" size="fullscreen" hide-footer id="awid-carddetail" @hidden="onHideModalDetail" class="aw-modalecarddet">
@@ -824,6 +856,9 @@ export default {
         { value: 'COREKS', label: 'Au-delà des portes - KS' },
         { value: 'CORE', label: 'Au-delà des portes' },
       ],
+      versions :[
+        { value: '1', label: 'Version 1' },
+      ],
       soustypes : this.g_getSubtypesOptions(),
       qtesuccessproba: null,
       showModalImportUnique: false,
@@ -874,6 +909,9 @@ export default {
       cbCapaSupport: false,
       fCapaSupport: null,
       starting: true,
+      currentVersion: undefined,
+      showVersionsOptions: false,
+      showModalDeleteVersion: false,
     };
   },
   mounted() 
@@ -965,6 +1003,15 @@ export default {
       this.onChangeFilter()
       if(!this.starting) this.setTimeoutRechKeyword()
     },
+    currentVersion(newValue, oldValue){
+      if(!oldValue) return //chargement de la page
+      if(!this.canTestChangeVersion)
+      {
+        this.canTestChangeVersion = true
+        return
+      }
+      this.m_setCurrentDeck(newValue)
+    }
   },
   inject: ['callShowWaitingScreen', 'callHideWaitingScreen'], // Injecter la méthode de App.vue
   methods: {
@@ -1102,7 +1149,7 @@ export default {
     },
     dontChangeDeck()
     {
-      this.currentSelectedDeck = this.currentDeck.id; 
+      this.currentSelectedDeck = this.currentDeck.refid > 0 ? this.currentDeck.refid : this.currentDeck.id; 
       this.actionOriConfirmChangeDeck = null;
     },
     addUniqueToDeck()
@@ -1326,7 +1373,7 @@ export default {
       this.uiparams.modeliste = !this.uiparams.modeliste
       this.storeUiparams();
     },
-    showModalDeleteDeck() {
+    e_showModalDeleteDeck() {
       this.modalDeleteDeck = true;
     },
     onAfficherStats() {
@@ -1373,10 +1420,24 @@ export default {
         var storedDeck = this.decks.find(deck => deck.id = pidDft);
         if(storedDeck)
         {
-          this.g_fetchDeck(storedDeck.id, true, deck => 
+          const params = {
+            id: storedDeck.id, 
+            withcards:true, 
+            withfavs: false,
+          }
+
+          this.g_fetchDeck(params, deck => 
           {
             this.currentSelectedDeck = deck.id;
             this.currentDeck = deck;
+            this.versions = deck.versions.map(version => {
+              return {
+                  value: version,
+                  label: "Version " + version,
+              }
+            })
+            this.currentVersion = this.currentDeck.version
+
             this.saveCurrentDeckToLocalStorage();
             if (this.currentDeck.main_faction) 
             {
@@ -1388,16 +1449,28 @@ export default {
       else
       {        
         //on pre-charge avec le deck courant
-        var storedDeck = JSON.parse(localStorage.getItem("currentDeck"));
+        var storedDeck = JSON.parse(localStorage.getItem("currentDeck"))
 
+        console.log(storedDeck)
         if (storedDeck) 
         {          
           if (!pdecks.some(zedeck => zedeck.id == storedDeck.id)) 
           {
-            this.decks.push({ value: storedDeck.id, label: storedDeck.name });
+            this.decks.push({ value: storedDeck.id, label: storedDeck.name })
           }
-          this.currentSelectedDeck = storedDeck.id;
-          this.currentDeck = storedDeck;
+          this.currentSelectedDeck = storedDeck.refid > 0 ? storedDeck.refid : storedDeck.id
+          this.currentDeck = storedDeck
+
+          if(!storedDeck.versions) storedDeck.versions = [1]
+
+          this.versions = storedDeck.versions.map(version => {
+            return {
+                value: version,
+                label: "Version " + version,
+            }
+          })
+          this.canTestChangeVersion = false
+          this.currentVersion = this.currentDeck.version
 
           if (this.currentDeck.main_faction) {
             this.setCurrentFaction($("#" + this.currentDeck.main_faction));
@@ -1405,7 +1478,8 @@ export default {
           // si un héro est présent dans le deck, on récupère sa faction pour préselectionner le filtre faction
         }
         else {
-          this.currentSelectedDeck = null;
+          this.currentDeck = null
+          this.currentSelectedDeck = null
         }
       }
     },
@@ -1425,6 +1499,7 @@ export default {
       }
 
       this.g_fetchDecks({
+        mainonly: true,
         myonly: true,
         withhero: true,
         callback : pdecks => this.onFetchedDecks(pdecks, pidDft)
@@ -1434,8 +1509,8 @@ export default {
     {
       if(pdeck)
       {
-        $.extend(this.currentDeck, pdeck); //récup du created, userId, et id
-        this.saveCurrentDeckToLocalStorage();
+        $.extend(this.currentDeck, pdeck) //récup du created, userId, et id
+        this.saveCurrentDeckToLocalStorage()
       }
     },
     saveDeck() 
@@ -1451,67 +1526,72 @@ export default {
         else toast("Une erreur s'est produite lors de la sauvegarde du deck", { type: TYPE.ERROR })
       });  
     },
-    deleteDeck() 
+    e_confirmDeleteDeck() 
     {
-      if(this.currentDeck.id > 0)
+      if(this.currentSelectedDeck > 0)
       {
-        this.g_deleteDeck(this.currentDeck, (presponse) => 
+        this.g_deleteDeck(this.currentSelectedDeck, presponse => 
         {
-          localStorage.removeItem("currentDeck"); //le deck supprimé est forcément le current
-          this.loadDecks();
+          localStorage.removeItem("currentDeck") //le deck supprimé est forcément le current
+          this.loadDecks()
+          toast("Le deck a été supprimé", { type: TYPE.SUCCESS })
         }); 
       }
-      else{
-        localStorage.removeItem("currentDeck"); //le deck supprimé est forcément le current
-        this.loadDecks();
+      else
+      {
+        localStorage.removeItem("currentDeck") //le deck supprimé est forcément le current
+        this.loadDecks()
+        toast("Le deck a été supprimé", { type: TYPE.SUCCESS })
       }
     },
-    saveCurrentDeckToLocalStorage() {
-      localStorage.setItem("currentDeck", JSON.stringify(this.currentDeck));
+    saveCurrentDeckToLocalStorage() 
+    {
+      localStorage.setItem("currentDeck", JSON.stringify(this.currentDeck))
     },
     mouseenterCardRech(card) 
     {
-      console.log('enter')
       if(this.mouserechtimeout) clearTimeout(this.mouserechtimeout)
-      this.imageRechPathFullsize = this.g_getImageCardPublicUrl(card);  //"/src/assets/img/altered_kojo.png",
+      this.imageRechPathFullsize = this.g_getImageCardPublicUrl(card)  //"/src/assets/img/altered_kojo.png",
     },
     mouseleaveCardRech(card)
     {
       this.mouserechtimeout = setTimeout(() => 
       {
         this.imageRechPathFullsize = null
-      }, 200);
+      }, 200)
     },
-    mouseenterCard(card) {
+    mouseenterCard(card) 
+    {
       if(this.deckbuilder) 
       {
-        if(this.uiparams.afficherstats != null) this.oldAfficherStats = this.uiparams.afficherstats;
-        this.uiparams.afficherstats = null;
+        if(this.uiparams.afficherstats != null) this.oldAfficherStats = this.uiparams.afficherstats
+        this.uiparams.afficherstats = null
       }
       if(this.mousetimeout) clearTimeout(this.mousetimeout)
       this.imagePathFullsize = this.g_getImageCardPublicUrl(card);  //"/src/assets/img/altered_kojo.png",
     },
-    mouseleaveCard(card) {
-      
+    mouseleaveCard(card)
+    {      
       this.mousetimeout = setTimeout(() => 
       {
         if(this.deckbuilder) this.uiparams.afficherstats = this.oldAfficherStats;
         this.imagePathFullsize = null
-      }, 200);
+      }, 200)
     },
-    onshowcarddetail(card) {
-      this.currentCardDetail = card;
-      this.afficherDetails = true;
+    onshowcarddetail(card) 
+    {
+      this.currentCardDetail = card
+      this.afficherDetails = true
     },
     removeCard(card) 
     {
-      var indice = 0;
+      var indice = 0
       for (var pcard of this.currentDeck.cards) 
       {
         if (pcard.reference == card.reference) 
         {
-          this.deckModified = true;
-          pcard.quantite--;
+          this.deckModified = true
+          pcard.quantite--
 
           if(this.g_isHero(card))
           {
@@ -1524,12 +1604,13 @@ export default {
             this.currentDeck.cards.splice(indice, 1);
           }
           this.onChangedDeck()
-          return;
+          return
         }
-        indice++;
+        indice++
       }      
     },
-    getXXXsCurrentDeck(ptype) {
+    getXXXsCurrentDeck(ptype) 
+    {
       if (!this.currentDeck) return [];
 
       const persos = [];
@@ -1636,6 +1717,32 @@ export default {
     },
     onSelectCurrentDeck() 
     {
+      this.m_setCurrentDeck(0)
+    },
+    e_onDeleteVersion()
+    {
+      this.showModalDeleteVersion = true
+    },
+    e_confirmDeleteVersion()
+    {
+      this.callShowWaitingScreen(500)
+      this.g_deleteVersion(this.currentDeck, plastversion => 
+      {
+        this.m_setCurrentDeck(plastversion) //repositionnement sur la dernière version ?
+        this.callHideWaitingScreen()
+      })
+    },
+    e_onCreateVersion()
+    {
+      this.callShowWaitingScreen(500)
+      this.g_createVersion(this.currentDeck, pdeck => 
+      {
+        this.m_setCurrentDeck(pdeck.version)
+        this.callHideWaitingScreen()
+      })
+    },
+    m_setCurrentDeck(pversion) 
+    {
       if(this.deckModified && !this.showModalConfirmChangeDeck)
       {
         this.showModalConfirmChangeDeck = true
@@ -1653,7 +1760,17 @@ export default {
       }
 
       this.deckModified = false;
-      this.g_fetchDeck(this.currentSelectedDeck, true, deck => 
+
+      const params = {
+        id: this.currentSelectedDeck, 
+        version: pversion,
+        withcards: true, 
+        withversions: true,
+        lastversion: pversion == 0, //la sélection du currentdeck par la combo est forcément positionné sur la version 1
+        withfavs: false,
+      }
+
+      this.g_fetchDeck(params, deck => 
       {
         if(deck)
         {
@@ -1666,7 +1783,16 @@ export default {
 
         if(this.currentDeck)
         {
-          this.currentSelectedDeck = this.currentDeck.id;
+          this.currentSelectedDeck = this.currentDeck.refid > 0 ? this.currentDeck.refid : this.currentDeck.id;
+          
+          //on reinit la combo car on peut venir de la creation de version
+          this.versions = this.currentDeck.versions.map(version => {
+            return {
+                value: version,
+                label: "Version " + version,
+            }
+          })
+          this.currentVersion = this.currentDeck.version
           
           var factionDeck = this.currentDeck.main_faction;
           if(!factionDeck)
@@ -1796,8 +1922,7 @@ export default {
         return;
       }
 
-
-      this.decks.push({ value: 0, label: this.newDeckName });
+      this.decks.unshift({ value: 0, label: this.newDeckName });
 
       this.initEmptyNewDeck(this.newDeckName);
     },
@@ -1849,7 +1974,10 @@ export default {
       //NB: on n'enregistre pas en base le deck
       const newdeck = $.extend({}, this.currentDeck);
       newdeck.id = 0
+      newdeck.refid = 0
       newdeck.name += ' (copie)'
+      newdeck.versions = [1]
+      newdeck.version = 1
 
       this.currentDeck = newdeck
       this.saveCurrentDeckToLocalStorage()
@@ -2344,7 +2472,22 @@ export default {
 }
 </script>
 
+<style>
+.multiselect.aw-selectversion .multiselect-wrapper
+{
+  min-height: auto;
+}
+</style>
+
 <style scoped>
+.multiselect.aw-selectversion
+{
+  width: 160px;
+  min-height: auto;
+}
+
+
+
 .aw-HERO .aw-herodelete
 {
   color: white;

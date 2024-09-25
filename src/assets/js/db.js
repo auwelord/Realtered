@@ -94,8 +94,9 @@ export default {
 
             puser.admin = false
 
-            try {
-                const { data, error: erreur } = await axios.get(API_BASEURL + '/user/admin/' + puser.id, hparams())
+            try 
+            {
+                const { data, error: erreur } = await axios.get(API_BASEURL + '/user/admin', hparams())
                 puser.admin = data && data.isadmin
             } 
             catch (error) 
@@ -277,8 +278,8 @@ export default {
         async function fetchDecks(params)
         {
             var select = '*';
-            if(params.withcards) select += ', CardsDeck(*), hero:Card(*)'
-            else if(params.withhero) select += ', hero:Card(*)'
+            if(params.withcards) select += ', CardsDeck(*), hero:Card!Deck_hero_id_fkey(*)'
+            else if(params.withhero) select += ', hero:Card!Deck_hero_id_fkey(*)'
 
             select += ', DeckFav' + (params.favonly ? '!inner' : '') + '(*)'
 
@@ -289,6 +290,7 @@ export default {
 
             if(params.faction) req = req.eq('main_faction', params.faction)
             if(params.hero) req = req.eq('hero_id', params.hero)
+            if(params.mainonly) req = req.eq('refid', 0)
 
             const dataUser = await anonSupabase.auth.getUser()
             const user = dataUser.data.user
@@ -329,17 +331,57 @@ export default {
             fetchDecks(params)
         }
 
-        async function fetchDeck(pid, pwithcards, pcallback)
+        async function fetchDeck(params, pcallback)
         {
-            var req = anonSupabase.from('Deck');
-            if(pwithcards)
+            const versions = []
+            
+            if(params.withversions)
             {
-                req = req.select('*, CardsDeck(*), hero:Card(*), DeckFav(*)')
-            }
-            req = req.eq('id', pid)
+                //récup de la dernière version du deck
+                const {data, error} = await anonSupabase
+                    .from('Deck')
+                    .select()
+                    .eq('id', params.id)
+                if(data.length > 0)
+                {
+                    const prefid = data[0].refid > 0 ? data[0].refid : data[0].id
 
-            const dataUser = await anonSupabase.auth.getUser()
-            if(dataUser.user) req = req.eq('DeckFav.userId', dataUser.user.id);
+                    const {data: vrsdecks, error} = await anonSupabase
+                        .from('Deck')
+                        .select()
+                        .eq('refid', prefid)
+                        .order('version', { ascending: false })
+
+                    if(vrsdecks.length > 0)
+                    {
+                        //on change l'id à récupérer pour la dernière version
+                        if(params.lastversion) params.id = vrsdecks[0].id
+                        else if (params.version > 1)
+                        {
+                            params.id = vrsdecks.find(vrsdeck => vrsdeck.version == params.version).id
+                        }
+
+                        vrsdecks.forEach(vrsdeck => versions.push(vrsdeck.version))
+                    }
+                }
+            }
+            versions.push(1)
+            
+            var req = anonSupabase.from('Deck');
+            if(params.withcards)
+            {
+                var select = '*, CardsDeck(*), hero:Card!Deck_hero_id_fkey(*)'
+                if(params.withfavs) select += ', DeckFav(*)'
+
+                req = req.select(select)
+            }
+            req = req.eq('id', params.id)
+
+            if(params.withfavs)
+            {
+                const dataUser = await anonSupabase.auth.getUser()
+                if(dataUser.user) req = req.eq('DeckFav.userId', dataUser.user.id);
+            }
             
             const { data } = await req;
 
@@ -348,9 +390,15 @@ export default {
             {
                 var zedeck = $.extend(data[0], {cards: []});
 
-                zedeck.favori = (zedeck.DeckFav.length > 0)
+                if(params.withversions) zedeck.versions = versions
+                
+                if(params.withfavs) 
+                {
+                    zedeck.favori = (zedeck.DeckFav.length > 0)
+                    delete zedeck.DeckFav
+                }
 
-                if(pwithcards && data[0].CardsDeck)
+                if(params.withcards && data[0].CardsDeck)
                 {
                     var refs = data[0].CardsDeck.map(card => card.cardRef);
                                         
@@ -366,16 +414,16 @@ export default {
                     });
                 }
                 
-                if(pwithcards) delete zedeck.CardsDeck
+                if(params.withcards) delete zedeck.CardsDeck
 
                 pcallback(zedeck);                
             }
             else pcallback(null);
         }
 
-        app.config.globalProperties.g_fetchDeck = function(pid, pwithcards, pcallback)
+        app.config.globalProperties.g_fetchDeck = function(params, pcallback)
         {
-            fetchDeck(pid, pwithcards, pcallback)
+            fetchDeck(params, pcallback)
         }
 
         async function isOwerDeck(params)
@@ -566,10 +614,10 @@ export default {
             fetchCard(preference, onFetchedCard)
         }
 
-        async function deleteDeck(pdeck, pcallback)
+        async function deleteDeck(pdeckid, pcallback)
         {
             try {
-                const { data, error } = await axios.get(API_BASEURL + '/deck/delete/' + pdeck.id, hparams())
+                const { data, error } = await axios.get(API_BASEURL + '/deck/delete/' + pdeckid, hparams())
 
                 if(error) console.error(error)
                 pcallback(error ? null : data);
@@ -581,9 +629,9 @@ export default {
             }
         }
 
-        app.config.globalProperties.g_deleteDeck = function(pdeck, pcallback)
+        app.config.globalProperties.g_deleteDeck = function(pdeckid, pcallback)
         {
-            deleteDeck(pdeck, pcallback)
+            deleteDeck(pdeckid, pcallback)
         }   
 
         /**
@@ -1278,5 +1326,48 @@ export default {
         {
             toggleDeckFavori(pdeck, pcallback)
         }
+
+        async function createVersion(pdeck, pcallback)
+        {
+            try 
+            {
+                const { data, error } = await axios.post(API_BASEURL + '/deck/newversion', pdeck ,hparams())
+                
+                if(error) console.error(error)
+                pcallback(data)
+            }
+            catch(error)
+            {
+                handleApiError(error)
+                pcallback(null)
+            }
+        }
+
+        app.config.globalProperties.g_createVersion = function(pdeck, pcallback)
+        {
+            createVersion(pdeck, pcallback)
+        }
+
+        async function deleteVersion(pdeck, pcallback)
+        {
+            try 
+            {
+                const { data, error } = await axios.post(API_BASEURL + '/deck/deleteversion', pdeck ,hparams())
+                
+                if(error) console.error(error)
+                pcallback(error ? 1 : data)
+            }
+            catch(error)
+            {
+                handleApiError(error)
+                pcallback(1)
+            }
+        }
+
+        app.config.globalProperties.g_deleteVersion = function(pdeck, pcallback)
+        {
+            deleteVersion(pdeck, pcallback)
+        }
+        
     }
 }

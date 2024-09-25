@@ -45,14 +45,19 @@
                             <div :class="['mt-2 aw-decks', decks && decks.length > 0 ? '' : 'd-flex justify-content-center']">
                                 <img src="@/assets/img/empty.png" v-if="!decks || decks.length == 0"/>
                                 <BListGroup>
-                                    <BListGroupItem @click="onShowDeck(deck)" v-for="deck in decks" class="aw-deck" :id="'deck' + deck.id">
+                                    <BListGroupItem @click="onShowDeck(deck)" v-for="deck in decks" :class="['aw-deck', getClassDeck(deck)]" :id="'deck' + deck.id">
                                         
                                         <div class="d-flex justify-content-between">
                                             <div class="d-flex justify-content-start align-items-center">
                                                 <img :src="getDeckFactionImage(deck)" class="aw-deckimg me-2" />
-                                                <div class="aw-deckname">{{ deck.name }}</div>
-                                                <font-awesome-icon :icon="['fas', 'lock']" class="ms-2" v-if="!deck.public"/>
-                                                <font-awesome-icon :icon="['fas', 'heart']" class="ms-2" style="color: red" v-if="deck.favori" />
+                                                <div>
+                                                    <div class="d-flex justify-content-start align-items-center">                                                    
+                                                        <div class="aw-deckname">{{ deck.name }}</div>
+                                                        <font-awesome-icon :icon="['fas', 'lock']" class="ms-2" v-if="!deck.public"/>
+                                                        <font-awesome-icon :icon="['fas', 'heart']" class="ms-2" style="color: red" v-if="deck.favori" />
+                                                    </div>
+                                                    <div class="fs-8">(version {{ deck.version }})</div>
+                                                </div>
                                             </div>
                                             <div class="d-flex flex-column justify-content-end align-items-end">
                                                 <div><span v-if="deck.hero">{{ deck.hero.name }}</span><span :class="['ms-2 badge', deck.valide ? 'bg-success':'bg-danger']">{{(deck.valide ? '': 'Non ') + 'Légal'}}</span> </div>
@@ -95,32 +100,45 @@
                             <div class="d-flex justify-content-between">
                                 <div class="d-flex flex-column justify-content-between">
                                     <div>
-                                        <div class="aw-titledeck fs-3">{{currentdeck.name}} </div>
+                                        <div class="aw-titledeck">
+                                            <span class="fs-3">{{currentdeck.name}} </span><span class="fs-7 ms-3">(v{{currentdeck.version}})</span>
+                                        </div>
                                         <br>
                                         <div class="aw-titlehero fs-7">{{currentdeck.hero.name}} </div>
-                                        <br>
-                                        <div class="fs-6">Personnages : {{ g_getTotalPersosInDeck({deck: currentdeck}) }} </div>
-                                        <div class="fs-6">Sorts : {{ g_getTotalSortsInDeck({deck: currentdeck}) }} </div>
-                                        <div class="fs-6">Permanents : {{ g_getTotalPermasInDeck({deck: currentdeck}) }} </div>
+                                        
+                                        <div class="d-flex mt-2">
+                                            <div class="d-flex flex-column align-items-center me-4">
+                                                {{ g_getTotalPersosInDeck({deck: currentdeck}) }}
+                                                <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-6" />
+                                            </div>
+                                            <div class="d-flex flex-column align-items-center me-4">
+                                                {{ g_getTotalSortsInDeck({deck: currentdeck}) }}
+                                                <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-6" />
+                                            </div>
+                                            <div class="d-flex flex-column align-items-center">
+                                                {{ g_getTotalPermasInDeck({deck: currentdeck}) }}
+                                                <font-awesome-icon :icon="['fas', 'building-shield']" class="fs-6" />
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div v-if="!deckid" class="mt-2">
+                                    <div v-if="!deckid" class="mt-4">
                                         <label class="switch me-2">
                                             <input type="checkbox" v-model="afficherstats">
                                             <span class="slider round"></span>
                                         </label> Voir les statistiques
                                     </div>
                                     
-                                    <div class="d-flex">
-                                    <BButton @click="onImporterDeck" variant="unique" size="sm" title="importer le deck" class="mt-2">
+                                    <div class="mt-2">
+                                    <BButton @click="onImporterDeck" variant="unique" size="sm" title="importer le deck">
                                         <font-awesome-icon :icon="['fas', 'right-long']" class="me-2"/>Importer
                                     </BButton>
 
-                                    <BButton @click="onCopierLienDeck" variant="uniqued2" size="sm" title="Copier le lien" class="mt-2 ms-2">
+                                    <BButton @click="onCopierLienDeck" variant="uniqued2" size="sm" title="Copier le lien" class="ms-2">
                                         <font-awesome-icon :icon="['fab', 'threads']" class="me-2" />Copier le lien
                                     </BButton>
 
-                                    <BButton @click="onToggleFavoris" variant="white" size="sm" class="mt-2 ms-2" v-if="user">
+                                    <BButton @click="onToggleFavoris" variant="white" size="sm" class="ms-2" v-if="user">
                                         <font-awesome-icon :icon="['fas', 'heart']" style="color: red" v-if="currentdeck.favori" />
                                         <font-awesome-icon :icon="['fas', 'heart']" v-else />
                                     </BButton>                                    
@@ -282,6 +300,10 @@ export default
         },
         methods:
         {
+            getClassDeck(pdeck)
+            {
+                return this.currentdeck && this.currentdeck.id == pdeck.id ? 'active' : ''
+            },
             getFormattedDescriptionCurrentDeck()
             {
                 const markdown = new MarkdownIt();
@@ -372,10 +394,12 @@ export default
             {
                 var zedeckid = pdeck ? pdeck.id : this.deckid
 
-                $(".aw-deck").removeClass('active');
-                $("#deck" + zedeckid).addClass('active');
-
-                this.g_fetchDeck(zedeckid, true, pdeck => 
+                var params = {
+                    id: zedeckid,
+                    withcards: true,
+                    withfavs: true,
+                }
+                this.g_fetchDeck(params, pdeck => 
                 {
                     if(this.deckid && !pdeck) this.erreurdeckid = true
                     else if(!this.deckid || !pdeck || pdeck.public) 
@@ -445,7 +469,6 @@ export default
                 this.loadDecks()
             },
             loadDecks() {
-                $(".aw-deck").removeClass('active');
                 //this.currentdeck = null
                 var params = {
                     myonly: this.mesdecksonly,
@@ -458,8 +481,6 @@ export default
                     callback: pdecks => {
                         this.decks = pdecks
                         this.hasnextdeck = params.hasnext
-
-                        if(this.currentdeck) setTimeout(() => $("#deck" + this.currentdeck.id).addClass('active'), 10);
                     }
                 }
                 this.g_fetchDecks(params)
