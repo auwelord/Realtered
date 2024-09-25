@@ -171,18 +171,6 @@ export default {
                 chartOptions: {
                     responsive: true,
                     indexAxis: 'y',
-                    scales: {
-                        x: {
-                            display: true,
-                            title: {
-                                display: false,
-                                text: 'Coût en mana',
-                            }
-                        },
-                        y: {
-                            display: false                            
-                        }
-                    },
                     plugins: {
                         title: {
                             display: true,
@@ -257,15 +245,17 @@ export default {
     methods: {
         getCoutTotalMain(){
             var cout = 0;
-            this.currentDeck.cards.forEach(card => {
-                if (!this.g_isHero(card)) cout += card.mainCost;
+            this.currentDeck.cards.forEach(card => 
+            {
+                if (!this.g_isHero(card)) cout += (card.mainCost * card.quantite);
             });
             return cout;
         },
         getCoutTotalReserve(){
             var cout = 0;
-            this.currentDeck.cards.forEach(card => {
-                if (!this.g_isHero(card)) cout += card.recallCost;
+            this.currentDeck.cards.forEach(card => 
+            {
+                if (!this.g_isHero(card)) cout += (card.recallCost * card.quantite);
             });
             return cout;
         },
@@ -350,7 +340,7 @@ export default {
             var total = 0;
             this.currentDeck.cards.forEach(card => 
             {
-                if (this.g_isPersonnage(card)) total += card.forestPower;
+                if (this.g_isPersonnage(card)) total += (card.forestPower * card.quantite);
             });
             return total;
         },
@@ -359,7 +349,7 @@ export default {
             var total = 0;
             this.currentDeck.cards.forEach(card => 
             {
-                if (this.g_isPersonnage(card)) total += card.mountainPower;
+                if (this.g_isPersonnage(card)) total += (card.mountainPower * card.quantite);
             });
             return total;
         },
@@ -368,7 +358,7 @@ export default {
             var total = 0;
             this.currentDeck.cards.forEach(card => 
             {
-                if (this.g_isPersonnage(card)) total += card.oceanPower;
+                if (this.g_isPersonnage(card)) total += (card.oceanPower * card.quantite);
             });
             return total;
         }
