@@ -533,7 +533,7 @@
                   <div class="fs-7">Cartes: {{ g_getTotalCardsInDeck({deck: currentDeck}) }}</div>
                 </div>
                 <div class="d-flex align-items-end">
-                  <div class="me-2">
+                  <div class="me-2" v-if="!showVersionsEvol">
                       <div class="input-group" v-if="user && currentSelectedDeck > 0">
                         <Multiselect class="m-0 me-2 aw-selectversion"
                           v-model="currentVersion" 
@@ -552,6 +552,10 @@
                             <BDropdownItem @click="e_onCreateVersion()">
                               <font-awesome-icon :icon="['far', 'square-plus']" class="me-2" />Créer une version
                             </BDropdownItem>
+                            <BDropdownItem @click="e_onShowEvolVersion()" v-if="versions.length > 1">
+                              <font-awesome-icon :icon="['fas', 'shuffle']" class="me-2" />Voir les évolutions
+                            </BDropdownItem>
+                            <BDropdownDivider v-if="versions.length > 1 && currentVersion > 1" />
                             <BDropdownItem @click="e_onDeleteVersion()" variant="danger" v-if="versions.length > 1 && currentVersion > 1">
                               <font-awesome-icon :icon="['far', 'fa-trash-can']" class="me-2" />Supprimer la version
                             </BDropdownItem>
@@ -559,12 +563,12 @@
                         </span>
                       </div>
                     </div>
-                    <BButton @click="saveDeck()" variant="primary"  class="me-2" v-if="user">
+                    <BButton @click="saveDeck()" variant="primary"  class="me-2" v-if="user && !showVersionsEvol">
                       <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" /><span>Enregistrer</span>
                     </BButton>
                     
                                         
-                    <BDropdown v-model="showDecklistoptions" start  variant="outline-secondary">
+                    <BDropdown v-model="showDecklistoptions" start  variant="outline-secondary" v-if="!showVersionsEvol">
                       <template #button-content>
                         <font-awesome-icon :icon="['fas', 'gear']" />
                       </template>
@@ -589,96 +593,126 @@
                           <span v-else>Cacher les stats</span>
                       </BDropdownItem>
                     </BDropdown>
+                    <BButton @click="e_hideVersionsEvol" variant="secondary" class="me-2" title="Retour à la decklist" v-if="showVersionsEvol">
+                      <font-awesome-icon :icon="['far', 'square-caret-left']" class="me-2"/>Retour
+                    </BButton>
                 </div>
               </div>
             </div> <!-- /.card-header -->
             <div class="card-body position-relative">
-              <div class="ribbon-wrapper ribbon-lg">
-                <div :class="['ribbon text-white', currentDeck.valide ? 'bg-success' : 'bg-danger']">
-                {{ currentDeck.valide ? 'Légal' : 'Non Légal'}}
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-12">
-                  <div class="aw-herodeck d-flex flex-column justify-content-start">
-                    <div class="d-flex mb-2 ps-1 pe-1">
-                      <div class="d-flex flex-column align-items-center">
-                        {{ g_getTotalCommunesInDeck({deck: currentDeck}) }}
-                        <img src="/src/assets/img/altered/rarities/common.png" width="40px"/>
-                      </div>
-                      <div class="d-flex flex-column align-items-center">
-                        {{ g_getTotalRaresInDeck({deck: currentDeck}) }}
-                        <img src="/src/assets/img/altered/rarities/rare.png" width="40px"/>
-                      </div>
-                      <div class="d-flex flex-column align-items-center">
-                        {{ g_getTotalUniquesInDeck({deck: currentDeck}) }}
-                        <img src="/src/assets/img/altered/rarities/unique.png" width="40px"/>
-                      </div>
+              <div v-if="showVersionsEvol">
+                <div class="row">
+                  <div class="col-12" v-for="(diffs, index) in versionsDiffs">
+                    <hr v-if="index > 0">
+                    <div class="d-flex justify-content-center mb-1 mt-2">
+                      Version {{diffs.vrsprev }} <i class="altered-etb mt-1 ms-2 me-2"></i> Version {{diffs.vrsnext }}
                     </div>
-                    <div class="d-flex mb-2 ps-3 pe-3">
-                      <div class="d-flex flex-column align-items-center me-4">
-                        {{ g_getTotalPersosInDeck({deck: currentDeck}) }}
-                        <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-6" />
-                      </div>
-                      <div class="d-flex flex-column align-items-center me-4">
-                        {{ g_getTotalSortsInDeck({deck: currentDeck}) }}
-                        <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-6" />
-                      </div>
-                      <div class="d-flex flex-column align-items-center">
-                        {{ g_getTotalPermasInDeck({deck: currentDeck}) }}
-                        <font-awesome-icon :icon="['fas', 'building-shield']" class="fs-6" />
-                      </div>
-                    </div>
-                    <div class="col-12 d-flex flex-column justify-content-between">
-                      <!--
-                      <div>
-                        Proba en main de départ
-                        <Multiselect v-model="qtesuccessproba" :close-on-select="true" :options="[1,2,3]" />
-                      </div>
-                    -->
-                      <div class="d-flex justify-content-end">
-                        Description <font-awesome-icon v-b-toggle.awid-descdeck :icon="['fas', 'chevron-right']" class="aw-arrowcollapse mt-1" />
-                      </div>
-                      <BCollapse id="awid-descdeck">
-                        <div class="col-12 mt-4" v-html="getFormattedDescriptionCurrentDeck()"></div>
-                      </BCollapse>
-                    </div>
-                    <div v-if="currentDeck && currentDeck.hero" :class="['d-flex flex-column justify-content-between aw-HERO', 'aw-' + g_getHeroName(currentDeck.hero)]">
-                        <div class="aw-heroname">{{ currentDeck.hero.name }}</div>
-                        
-                        <div class="aw-herodelete">
-                          <font-awesome-icon :icon="['far', 'trash-can']" class="fs-5" @click="removeCard(currentDeck.hero)" title="Supprimer le héro/la héroïne"/>
+                    <div class="row">
+                      <div class="col-2" v-for="diff in diffs.cards" v-if="diffs.cards.length > 0">
+                        <div class="position-relative">
+                          <div class="aw-quantitediff position-absolute w-100 h-25 fs-4 d-flex justify-content-center align-items-center">
+                            {{ diff.quantite }}
+                          </div>                            
+                          <img :src="g_getImageCardPublicUrl(diff.card)" :title="diff.card.name" class="img-fluid aw-alteredcard" />
                         </div>
+                      </div>
+                      <div v-else class="d-flex justify-content-center">
+                        Aucune différence
+                      </div>
                     </div>
-                    <!--
-                    <CardDecklist v-for="card in getHeroCurrentDeck()" :card="card" @addcard="addCard"
-                      @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard" @onshowcarddetail="onshowcarddetail"
-                      :modeliste="uiparams.modeliste" :currentDeck="currentDeck"/>
-                  -->
                   </div>
                 </div>
-                
               </div>
-              <div class="row mt-2 pb-2 aw-decklistpersos">
-                <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Personnages</div>
-                <CardDecklist v-for="card in getPersosCurrentDeck()" :card="card" @addcard="addCard"
-                  @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
-                  @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
-                  :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
-              </div>
-              <div class="row mt-2 pb-2 aw-decklistsorts">
-                <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Sorts</div>
-                <CardDecklist v-for="card in getSortsCurrentDeck()" :card="card" @addcard="addCard"
-                  @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
-                  @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
-                  :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
-              </div>
-              <div class="row mt-2 pb-2 aw-decklistpermas">
-                <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Permanents</div>
-                <CardDecklist v-for="card in getPermanentsCurrentDeck()" :card="card" @addcard="addCard"
-                  @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
-                  @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
-                  :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
+              <div v-else>
+                <div class="ribbon-wrapper ribbon-lg">
+                  <div :class="['ribbon text-white', currentDeck.valide ? 'bg-success' : 'bg-danger']">
+                  {{ currentDeck.valide ? 'Légal' : 'Non Légal'}}
+                  </div>
+                </div>
+                <div>
+                  <div class="row">
+                    <div class="col-12">
+                      <div class="aw-herodeck d-flex flex-column justify-content-start">
+                        <div class="d-flex mb-2 ps-1 pe-1">
+                          <div class="d-flex flex-column align-items-center">
+                            {{ g_getTotalCommunesInDeck({deck: currentDeck}) }}
+                            <img src="/src/assets/img/altered/rarities/common.png" width="40px"/>
+                          </div>
+                          <div class="d-flex flex-column align-items-center">
+                            {{ g_getTotalRaresInDeck({deck: currentDeck}) }}
+                            <img src="/src/assets/img/altered/rarities/rare.png" width="40px"/>
+                          </div>
+                          <div class="d-flex flex-column align-items-center">
+                            {{ g_getTotalUniquesInDeck({deck: currentDeck}) }}
+                            <img src="/src/assets/img/altered/rarities/unique.png" width="40px"/>
+                          </div>
+                        </div>
+                        <div class="d-flex mb-2 ps-3 pe-3">
+                          <div class="d-flex flex-column align-items-center me-4">
+                            {{ g_getTotalPersosInDeck({deck: currentDeck}) }}
+                            <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-6" />
+                          </div>
+                          <div class="d-flex flex-column align-items-center me-4">
+                            {{ g_getTotalSortsInDeck({deck: currentDeck}) }}
+                            <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-6" />
+                          </div>
+                          <div class="d-flex flex-column align-items-center">
+                            {{ g_getTotalPermasInDeck({deck: currentDeck}) }}
+                            <font-awesome-icon :icon="['fas', 'building-shield']" class="fs-6" />
+                          </div>
+                        </div>
+                        <div class="col-12 d-flex flex-column justify-content-between">
+                          <!--
+                          <div>
+                            Proba en main de départ
+                            <Multiselect v-model="qtesuccessproba" :close-on-select="true" :options="[1,2,3]" />
+                          </div>
+                        -->
+                          <div class="d-flex justify-content-end">
+                            Description <font-awesome-icon v-b-toggle.awid-descdeck :icon="['fas', 'chevron-right']" class="aw-arrowcollapse mt-1" />
+                          </div>
+                          <BCollapse id="awid-descdeck">
+                            <div class="col-12 mt-4" v-html="getFormattedDescriptionCurrentDeck()"></div>
+                          </BCollapse>
+                        </div>
+                        <div v-if="currentDeck && currentDeck.hero" :class="['d-flex flex-column justify-content-between aw-HERO', 'aw-' + g_getHeroName(currentDeck.hero)]">
+                            <div class="aw-heroname">{{ currentDeck.hero.name }}</div>
+                            
+                            <div class="aw-herodelete">
+                              <font-awesome-icon :icon="['far', 'trash-can']" class="fs-5" @click="removeCard(currentDeck.hero)" title="Supprimer le héro/la héroïne"/>
+                            </div>
+                        </div>
+                        <!--
+                        <CardDecklist v-for="card in getHeroCurrentDeck()" :card="card" @addcard="addCard"
+                          @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard" @onshowcarddetail="onshowcarddetail"
+                          :modeliste="uiparams.modeliste" :currentDeck="currentDeck"/>
+                      -->
+                      </div>
+                    </div>
+                    
+                  </div>
+                  <div class="row mt-2 pb-2 aw-decklistpersos">
+                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Personnages</div>
+                    <CardDecklist v-for="card in getPersosCurrentDeck()" :card="card" @addcard="addCard"
+                      @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
+                      @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
+                      :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
+                  </div>
+                  <div class="row mt-2 pb-2 aw-decklistsorts">
+                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Sorts</div>
+                    <CardDecklist v-for="card in getSortsCurrentDeck()" :card="card" @addcard="addCard"
+                      @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
+                      @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
+                      :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
+                  </div>
+                  <div class="row mt-2 pb-2 aw-decklistpermas">
+                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Permanents</div>
+                    <CardDecklist v-for="card in getPermanentsCurrentDeck()" :card="card" @addcard="addCard"
+                      @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
+                      @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
+                      :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -912,6 +946,8 @@ export default {
       currentVersion: undefined,
       showVersionsOptions: false,
       showModalDeleteVersion: false,
+      showVersionsEvol: false,
+      versionsDiffs: null,
     };
   },
   mounted() 
@@ -1451,7 +1487,6 @@ export default {
         //on pre-charge avec le deck courant
         var storedDeck = JSON.parse(localStorage.getItem("currentDeck"))
 
-        console.log(storedDeck)
         if (storedDeck) 
         {          
           if (!pdecks.some(zedeck => zedeck.id == storedDeck.id)) 
@@ -1502,6 +1537,7 @@ export default {
         mainonly: true,
         myonly: true,
         withhero: true,
+        withfavs: false,
         callback : pdecks => this.onFetchedDecks(pdecks, pidDft)
       });
     },
@@ -1731,6 +1767,83 @@ export default {
         this.m_setCurrentDeck(plastversion) //repositionnement sur la dernière version ?
         this.callHideWaitingScreen()
       })
+    },
+    e_hideVersionsEvol()
+    {
+      this.versionsDiffs = null
+      this.showVersionsEvol = false
+    },
+    e_onShowEvolVersion()
+    {
+      this.callShowWaitingScreen(500)
+      this.g_fetchVersionnedDeck(this.currentSelectedDeck, pdecks => 
+      {
+        //replacement de l'un des deck par le current deck 
+        const decks = []
+        pdecks.forEach(deck => 
+        {
+          if (deck.version == this.currentVersion) decks.push(this.currentDeck)
+          else decks.push(deck)
+        })
+
+        this.versionsDiffs = []
+        for(let index = decks.length - 1; index > 0; index--)
+        {
+          //comparaison decks[index] VS decks[index + 1]
+          var deckNext = decks[index - 1]
+          var deckPrev = decks[index]
+
+          var compare = {
+            vrsprev: deckPrev.version,
+            vrsnext: deckNext.version,
+            cards: []
+          }
+
+          //carte ajoutées
+          deckNext.cards.forEach(cardNext => 
+          {
+            var card = deckPrev.cards.find(cardPrev => cardPrev.id == cardNext.id)
+            if(!card)
+            {
+              //nouvelle carte ajoutée 
+              compare.cards.push({
+                card: cardNext,
+                quantite: cardNext.quantite
+              })
+            }
+            else if(card.quantite != cardNext.quantite)
+            {
+              //carte avec quantité modifiée
+              compare.cards.push({
+                card: cardNext,
+                quantite: cardNext.quantite - card.quantite
+              })
+            }
+          })
+
+          //cartes retirées
+          deckPrev.cards.forEach(cardPrev => 
+          {
+            var card = deckNext.cards.find(cardNext => cardPrev.id == cardNext.id)
+            if(!card)
+            {
+              compare.cards.push({
+                card: cardPrev,
+                quantite: cardPrev.quantite * -1
+              })
+            }
+          })
+
+          compare.cards.sort((cardA, cardB) => {
+            if(cardA.quantite != cardB.quantite) return cardA.quantite - cardB.quantite
+            return cardA.card.name.localeCompare(cardB.card.name)
+          })
+          this.versionsDiffs.unshift(compare)
+        }
+
+        this.showVersionsEvol = true
+        this.callHideWaitingScreen()
+      })      
     },
     e_onCreateVersion()
     {
@@ -2486,7 +2599,12 @@ export default {
   min-height: auto;
 }
 
-
+.aw-quantitediff
+{
+  background-color: #00000096;
+  color: white;
+  bottom: 0;
+}
 
 .aw-HERO .aw-herodelete
 {

@@ -478,6 +478,7 @@ export default
                     withhero: true,
                     page: this.currentpage,
                     ipp: this.ipp,
+                    withfavs: true,
                     callback: pdecks => {
                         this.decks = pdecks
                         this.hasnextdeck = params.hasnext

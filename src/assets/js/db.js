@@ -237,10 +237,12 @@ export default {
                 return;
             }
 
-            for(let deck of decks)
-            {
-                deck.favori = deck.DeckFav.length > 0
-                delete deck.DeckFav
+            if(params.withfavs) {
+                for(let deck of decks)
+                {
+                    deck.favori = deck.DeckFav.length > 0
+                    delete deck.DeckFav
+                }
             }
 
             if(params.withcards || params.withhero)
@@ -281,7 +283,7 @@ export default {
             if(params.withcards) select += ', CardsDeck(*), hero:Card!Deck_hero_id_fkey(*)'
             else if(params.withhero) select += ', hero:Card!Deck_hero_id_fkey(*)'
 
-            select += ', DeckFav' + (params.favonly ? '!inner' : '') + '(*)'
+            if(params.withfavs) select += ', DeckFav' + (params.favonly ? '!inner' : '') + '(*)'
 
             var req = anonSupabase
                 .from('Deck')
@@ -319,7 +321,12 @@ export default {
                 }
             }
 
-            if(user)
+            if(params.refid)
+            {
+                req = req.or('id.eq.' + params.refid + ',refid.eq.' + params.refid);
+            }
+
+            if(user && params.withfavs)
             {
                 req = req.eq('DeckFav.userId', user.id);
             }
@@ -425,6 +432,24 @@ export default {
         {
             fetchDeck(params, pcallback)
         }
+
+        async function fetchVersionnedDeck(prefdeckid, pcallback)
+        {
+            const params = {
+                callback: pcallback,
+                withcards: true,
+                withfavs: false,
+                mainonly: false,
+                refid: prefdeckid,
+            }
+            
+            fetchDecks(params)
+        }
+
+        app.config.globalProperties.g_fetchVersionnedDeck = function(prefdeckid, pcallback)
+        {
+            fetchVersionnedDeck(prefdeckid, pcallback)
+        }      
 
         async function isOwerDeck(params)
         {
@@ -1367,7 +1392,6 @@ export default {
         app.config.globalProperties.g_deleteVersion = function(pdeck, pcallback)
         {
             deleteVersion(pdeck, pcallback)
-        }
-        
+        }  
     }
 }
