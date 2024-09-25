@@ -145,23 +145,23 @@ export default {
             },
             chartTotalStat: {
                 chartData: {
-                    labels: ["Coût total"],
+                    labels: [""],
                     datasets: [
                         {
-                            label: "Patates en forêt",
+                            label: "Patate totale en forêt",
                             data: [this.getStatTotalForest()],
                             borderColor: "white",
                             backgroundColor: this.g_colorForest(),
                         },
                         {
-                            label: "Patates en montagne",
+                            label: "Patate totale en montagne",
                             data: [this.getStatTotalMountain()],
                             borderColor: "white",
                             backgroundColor: this.g_colorMountain(),
                         }
                         ,
                         {
-                            label: "Patates en océan",
+                            label: "Patate totale en océan",
                             data: [this.getStatTotalOcean()],
                             borderColor: "white",
                             backgroundColor: this.g_colorWater(),
