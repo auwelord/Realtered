@@ -735,14 +735,18 @@ img.aw-alteredcard
   cursor: progress;
 }
 
-.aw-arrowcollapse
+.aw-collapsible
+{
+  cursor: pointer;
+}
+.aw-collapsible .aw-arrowcollapse
 {
   width: 23px;
-  cursor: pointer;
+  
   transform: rotateZ(270deg);
   transition: all .3s;
 }
-.aw-arrowcollapse.collapsed
+.aw-collapsible.collapsed .aw-arrowcollapse
 {
   transform: rotateZ(90deg);
 }

@@ -156,7 +156,9 @@
                     </BButton>
                     Rareté
                   </div>
-                  <font-awesome-icon v-b-toggle.awid-filtresrarity :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtresrarity>
+                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  </div>
                 </div>
                 <BCollapse id="awid-filtresrarity" v-model="uiparams.filtreRarity" @hide="storeUiparams" @show="storeUiparams">
                   <div class="d-flex justify-content-evenly aw-raritysel mt-2">
@@ -177,7 +179,9 @@
                     </BButton>
                     Type
                   </div>
-                  <font-awesome-icon v-b-toggle.awid-filtrestype :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrestype>
+                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  </div>
                 </div>
                 <BCollapse id="awid-filtrestype" v-model="uiparams.filtreType" @hide="storeUiparams" @show="storeUiparams">
                   <div class="card-group justify-content-evenly aw-type mt-2">
@@ -207,7 +211,9 @@
                     </BButton>
                     Coût de main
                   </div>
-                  <font-awesome-icon v-b-toggle.awid-filtrescoutmain :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrescoutmain>
+                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  </div>
                 </div>
                 <BCollapse id="awid-filtrescoutmain" v-model="uiparams.filtreMainCost" @hide="storeUiparams" @show="storeUiparams">
                 <div class="d-flex flex-column ">
@@ -237,7 +243,9 @@
                     </BButton>
                     Coût de réserve
                   </div>
-                  <font-awesome-icon v-b-toggle.awid-filtrescoutreserve :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrescoutreserve>
+                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  </div>
                 </div>
                 <BCollapse id="awid-filtrescoutreserve" v-model="uiparams.filtreRecallCost" @hide="storeUiparams" @show="storeUiparams">
                   <div class="d-flex flex-column ">
@@ -268,7 +276,9 @@
                       </BButton>
                       Patates
                     </div>
-                    <font-awesome-icon v-b-toggle.awid-filtrespower :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                    <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrespower>
+                      <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                    </div>
                   </div>
                   <BCollapse id="awid-filtrespower" v-model="uiparams.filtrePower" @hide="storeUiparams" @show="storeUiparams">
                     <div class="d-flex flex-column aw-stats">
@@ -328,7 +338,9 @@
                     </BButton>
                     Mots-clés / Capacités
                   </div>
-                  <font-awesome-icon v-b-toggle.awid-filtreskeyword :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtreskeyword>
+                    <font-awesome-icon v-b-toggle.awid-filtreskeyword :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  </div>
                 </div>
                 <BCollapse id="awid-filtreskeyword" v-model="uiparams.filtreKeyword" @hide="storeUiparams" @show="storeUiparams">
                   <Multiselect v-model="currentKeywords" mode="tags" class="mb-2"
@@ -421,7 +433,9 @@
                     </BButton>
                     Sous-types
                   </div>
-                  <font-awesome-icon v-b-toggle.awid-filtressubtype :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtressubtype>
+                    <font-awesome-icon v-b-toggle.awid-filtressubtype :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  </div>
                 </div>
                 <BCollapse id="awid-filtressubtype" v-model="uiparams.filtreSubtype" @hide="storeUiparams" @show="storeUiparams">
                 <Multiselect v-model="currentSoustypes" mode="tags" class="mb-2"
@@ -440,7 +454,9 @@
                     </BButton>
                     Editions
                   </div>
-                  <font-awesome-icon v-b-toggle.awid-filtresedition :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtresedition>
+                    <font-awesome-icon v-b-toggle.awid-filtresedition :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  </div>
                 </div>
                 <BCollapse id="awid-filtresedition" v-model="uiparams.filtreEdition" @hide="storeUiparams" @show="storeUiparams"> 
                 <Multiselect v-model="currentEditions" mode="tags" class="mb-2"
@@ -458,7 +474,9 @@
                     </BButton>
                     Trier par 
                   </div>
-                  <font-awesome-icon v-b-toggle.awid-filtrestri :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrestri>
+                    <font-awesome-icon v-b-toggle.awid-filtrestri :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+                  </div>
                 </div>
                 <BCollapse id="awid-filtrestri" v-model="uiparams.filtreSort" @hide="storeUiparams" @show="storeUiparams">              
                   <Multiselect v-model="currentSort" mode="tags" :close-on-select="true" :create-option="true"
@@ -662,17 +680,82 @@
                           </div>
                         </div>
                         <div class="col-12 d-flex flex-column justify-content-between">
-                          <!--
-                          <div>
-                            Proba en main de départ
-                            <Multiselect v-model="qtesuccessproba" :close-on-select="true" :options="[1,2,3]" />
-                          </div>
-                        -->
                           <div class="d-flex justify-content-end">
-                            Description <font-awesome-icon v-b-toggle.awid-descdeck :icon="['fas', 'chevron-right']" class="aw-arrowcollapse mt-1" />
+                            <div v-b-toggle.awid-descdeck class="aw-collapsible">Description <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse mt-1" /></div>
+                            <div v-b-toggle.awid-probadeck class="aw-collapsible ms-3">Probas <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse mt-1" /></div>
                           </div>
                           <BCollapse id="awid-descdeck">
                             <div class="col-12 mt-4" v-html="getFormattedDescriptionCurrentDeck()"></div>
+                          </BCollapse>
+                          <BCollapse id="awid-probadeck">
+                            <div class="col-12 mt-4 mb-3">
+                              <div class="fs-7">
+                                <div class="d-flex justify-content-center fs-6 mb-2 font-weight-bold">
+                                  Probabilités en main de départ
+                                </div>
+                                <div class="row">
+                                  <div class="col-4 ">
+                                    <div class="font-weight-bold">Personnages</div>
+                                    <br>
+                                    <div>>= 1 : {{ getProbaPersos(1)[2] }}</div>
+                                    <div>>= 2 : {{ getProbaPersos(2)[2] }}</div>
+                                    <div>>= 3 : {{ getProbaPersos(3)[2] }}</div>
+                                  </div>
+                                  <div class="col-4 ">
+                                    <div class="font-weight-bold">Sorts</div>
+                                    <br>
+                                    <div>>= 1 : {{ getProbaSorts(1)[2] }}</div>
+                                    <div>>= 2 : {{ getProbaSorts(2)[2] }}</div>
+                                    <div>>= 3 : {{ getProbaSorts(3)[2] }}</div>
+                                  </div>
+                                  <div class="col-4 ">
+                                    <div class="font-weight-bold">Permanents</div>
+                                    <br>
+                                    <div>>= 1 : {{ getProbaPermas(1)[2] }}</div>
+                                    <div>>= 2 : {{ getProbaPermas(2)[2] }}</div>
+                                    <div>>= 3 : {{ getProbaPermas(3)[2] }}</div>
+                                  </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                  <div class="col-4 ">
+                                    <div class="font-weight-bold">Carte en x3</div>
+                                    <br>
+                                    <div>0 : {{ getProba(1, 3)[3] }}</div>
+                                    <hr>
+                                    <div>>= 1 : {{ getProba(1, 3)[2] }}</div>
+                                    <div>= 1 : {{ getProba(1, 3)[1] }}</div>
+                                    <div><= 1 : {{ getProba(1, 3)[0] }}</div>                                
+                                    <hr>
+                                    <div>>= 2 : {{ getProba(2, 3)[2] }}</div>
+                                    <div>= 2 : {{ getProba(2, 3)[1] }}</div>
+                                    <div><= 2 : {{ getProba(2, 3)[0] }}</div>                                
+                                    <hr>
+                                    <div>= 3 : {{ getProba(3, 3)[1] }}</div>
+                                  </div>
+                                  <div class="col-4">
+                                    <div class="font-weight-bold">Carte en x2</div>
+                                    <br>
+                                    <div>0 : {{ getProba(1, 2)[3] }}</div>
+                                    <hr>
+                                    <div>>= 1 : {{ getProba(1, 2)[2] }}</div>
+                                    <div>= 1 : {{ getProba(1, 2)[1] }}</div>
+                                    <div><= 1 : {{ getProba(1, 2)[0] }}</div>                                
+                                    <hr>
+                                    <div>>= 2 : {{ getProba(2, 2)[2] }}</div>
+                                    <div>= 2 : {{ getProba(2, 2)[1] }}</div>                                
+                                  </div>
+                                  <div class="col-4">
+                                    <div class="font-weight-bold">Carte en x1</div>
+                                    <br>
+                                    <div>0 : {{ getProba(1, 1)[3] }}</div>
+                                    <hr>
+                                    <div>>= 1 : {{ getProba(1, 1)[2] }}</div>
+                                    <div>= 1 : {{ getProba(1, 1)[1] }}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </BCollapse>
                         </div>
                         <div v-if="currentDeck && currentDeck.hero" :class="['d-flex flex-column justify-content-between aw-HERO', 'aw-' + g_getHeroName(currentDeck.hero)]">
@@ -696,21 +779,21 @@
                     <CardDecklist v-for="card in getPersosCurrentDeck()" :card="card" @addcard="addCard"
                       @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
                       @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
-                      :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
+                      :currentDeck="currentDeck" />
                   </div>
                   <div class="row mt-2 pb-2 aw-decklistsorts">
                     <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Sorts</div>
                     <CardDecklist v-for="card in getSortsCurrentDeck()" :card="card" @addcard="addCard"
                       @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
                       @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
-                      :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
+                      :currentDeck="currentDeck"/>
                   </div>
                   <div class="row mt-2 pb-2 aw-decklistpermas">
                     <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Permanents</div>
                     <CardDecklist v-for="card in getPermanentsCurrentDeck()" :card="card" @addcard="addCard"
                       @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
                       @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
-                      :currentDeck="currentDeck" :qtesuccessproba="qtesuccessproba" :proba="getProba(card)"/>
+                      :currentDeck="currentDeck"/>
                   </div>
                 </div>
               </div>
@@ -1303,9 +1386,24 @@ export default {
       
       localStorage.setItem("filters", JSON.stringify(filters));
     },
-    getProba(pcard)
+    getProba(pqtedesiree, pqtesuccess)
     {
-      return this.g_getProbaMainDeDepart(this.qtesuccessproba, pcard, this.currentDeck)
+      return this.g_getProbaMainDeDepart(pqtedesiree, pqtesuccess, this.currentDeck)
+    },
+    getProbaPersos(pqtedesiree)
+    {
+      const qtepersos = this.g_getTotalPersosInDeck({deck: this.currentDeck})
+      return this.g_getProbaMainDeDepart(pqtedesiree, qtepersos, this.currentDeck)
+    },
+    getProbaSorts(pqtedesiree)
+    {
+      const qtesorts = this.g_getTotalSortsInDeck({deck: this.currentDeck})
+      return this.g_getProbaMainDeDepart(pqtedesiree, qtesorts, this.currentDeck)
+    },
+    getProbaPermas(pqtedesiree)
+    {
+      const qtepermas = this.g_getTotalPermasInDeck({deck: this.currentDeck})
+      return this.g_getProbaMainDeDepart(pqtedesiree, qtepermas, this.currentDeck)
     },
     async refreshStatComponent()
     {

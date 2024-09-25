@@ -144,8 +144,8 @@
                                     </BButton>                                    
                                     </div>
 
-                                    <div class="mt-2">
-                                        Description <font-awesome-icon v-b-toggle.awid-descdeck :icon="['fas', 'chevron-right']" class="text-white aw-arrowcollapse" /> 
+                                    <div class="aw-collapsible mt-2" v-b-toggle.awid-descdeck>
+                                        Description <font-awesome-icon :icon="['fas', 'chevron-right']" class="text-white aw-arrowcollapse" /> 
                                     </div>
 
                                 </div>

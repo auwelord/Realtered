@@ -24,12 +24,6 @@
         </div>
       </div>
     </div>
-    <div class="d-flex flex-column fs-7" v-if="!g_isHero(card) && qtesuccessproba != null">
-      <div>>= {{ qtesuccessproba }} : {{ proba[2] }}</div>
-      <div>= {{ qtesuccessproba }} : {{ proba[1] }}</div>
-      <div><= {{ qtesuccessproba }} : {{ proba[0] }}</div>
-      <div>0 : {{ proba[3] }}</div>
-    </div>
   </div>
   <div v-else-if="!g_isHero(card)" class="col-12 col-xxxl-6 aw-carddecklist">
         <div class="d-flex justify-content-between">
@@ -85,11 +79,6 @@ export default {
       required: true
     },
     modeliste: Boolean,
-    qtesuccessproba: 0,
-    proba: {
-      type: Object,
-      required: false
-    },
   },
   data() {
     return {    

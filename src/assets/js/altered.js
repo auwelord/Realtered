@@ -59,12 +59,12 @@ export default {
             deconnectUser(pcallback);
         }
 
-        app.config.globalProperties.g_getProbaMainDeDepart = function(k, pcard, pdeck)
+        app.config.globalProperties.g_getProbaMainDeDepart = function(k, pquantite, pdeck)
         {
             const hero = this.g_getCardsOfTypeHero(pdeck);
 
             const N = this.g_getNombreTotalCartes(pdeck, false); // Taille de la population
-            const K = pcard.quantite; // Nombre d'éléments de succès
+            const K = pquantite; // Nombre d'éléments de succès
             const n = 6;  // Taille de l'échantillon : main de départ
 
             let probaNombreExacte = distributionHypergeometrique(N, K, n, k);
