@@ -1876,6 +1876,8 @@ export default {
       this.callShowWaitingScreen(500)
       this.g_fetchVersionnedDeck(this.currentSelectedDeck, pdecks => 
       {
+        pdecks.sort((deckA, deckB) => deckB.version - deckA.version)
+
         //replacement de l'un des deck par le current deck 
         const decks = []
         pdecks.forEach(deck => 
@@ -1884,6 +1886,8 @@ export default {
           else decks.push(deck)
         })
 
+
+        console.log(decks)
         this.versionsDiffs = []
         for(let index = decks.length - 1; index > 0; index--)
         {
