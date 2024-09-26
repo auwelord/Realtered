@@ -552,7 +552,7 @@
                 </div>
                 <div class="d-flex align-items-end">
                   <div class="me-2" v-if="!showVersionsEvol">
-                      <div class="input-group" v-if="user && currentSelectedDeck > 0">
+                      <div class="input-group flex-nowrap" v-if="user && currentSelectedDeck > 0">
                         <Multiselect class="m-0 me-2 aw-selectversion"
                           v-model="currentVersion" 
                           :close-on-select="true" 
@@ -581,8 +581,8 @@
                         </span>
                       </div>
                     </div>
-                    <BButton @click="saveDeck()" variant="primary"  class="me-2" v-if="user && !showVersionsEvol">
-                      <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" /><span>Enregistrer</span>
+                    <BButton @click="saveDeck()" variant="primary"  class="me-2 text-nowrap" v-if="user && !showVersionsEvol">
+                      <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" />Enregistrer
                     </BButton>
                     
                                         
