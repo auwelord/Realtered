@@ -154,6 +154,7 @@
                         </div>
                         <div class="card-body">
                             <BCollapse id="awid-descdeck">
+                                <div class="col-12 mt-4" v-if="!currentdeck.description"><i class="fs-7"><font-awesome-icon :icon="['fas', 'ban']" class="me-2"/>Ce deck ne possède pas de description</i></div>
                                 <div class="col-12 mt-4" v-html="getFormattedDescriptionCurrentDeck()"></div>
                             </BCollapse>                        
                             <div class="row">
