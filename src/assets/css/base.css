@@ -958,3 +958,7 @@ a.aw-rare::after {
 a.aw-unique::after {
   border-bottom-color: var(--c-unique);
 }
+
+.aw-cursor-notallowed{
+  cursor: not-allowed
+}

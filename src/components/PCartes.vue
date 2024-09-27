@@ -166,9 +166,13 @@
                       @click="selectCommon"><img src="@/assets/img/altered/rarities/common.png" class="aw-rarity" /></a>
                     <a href="javascript:" id="RARE" :class="['aw-rare', isSelectedRare ? 'aw-selected' : '']"
                       @click="selectRare"><img src="@/assets/img/altered/rarities/rare.png" class="aw-rarity" /></a>
-                    <a href="javascript:" id="UNIQUE" :class="['aw-unique', isSelectedUnique ? 'aw-selected' : '']"
+
+                    <a href="javascript:" id="UNIQUE" v-if="user"
+                      :class="['aw-unique', isSelectedUnique ? 'aw-selected' : '']" 
                       @click="selectUnique"><img src="@/assets/img/altered/rarities/unique.png" class="aw-rarity" /></a>
+                    <img v-else class="aw-cursor-notallowed" src="@/assets/img/altered/rarities/unique.png" title="Connectez-vous pour rechercher vos uniques ajoutées à vos favoris"/>
                   </div>
+
                 </BCollapse>
 
                 <hr>
@@ -186,20 +190,27 @@
                 <BCollapse id="awid-filtrestype" v-model="uiparams.filtreType" @hide="storeUiparams" @show="storeUiparams">
                   <div class="card-group justify-content-evenly aw-type mt-2">
                     <a href="javascript:" id="CHARACTER"
-                      :class="['aw-character d-flex flex-column align-items-center mb-3', isSelectedCharacter ? 'aw-selected' : '']"
-                      @click="selectCharacter"><font-awesome-icon :icon="['fas', 'person-walking']"
-                        class="fs-3" /><span>Personnages</span></a>
+                        :class="['aw-character d-flex flex-column align-items-center mb-3', isSelectedCharacter ? 'aw-selected' : '']"
+                        @click="selectCharacter">
+                        <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-3" /><span>Personnages</span>
+                    </a>
                     <a href="javascript:" id="SPELL"
-                      :class="['aw-spell d-flex flex-column align-items-center mb-3', isSelectedSpell ? 'aw-selected' : '']"
-                      @click="selectSpell"><font-awesome-icon :icon="['fas', 'wand-magic-sparkles']"
-                        class="fs-3" /><span>Sorts</span></a>
+                        v-visible="!deckbuilder || !isSelectedUnique"
+                        :class="['aw-spell d-flex flex-column align-items-center mb-3', isSelectedSpell ? 'aw-selected' : '']"
+                        @click="selectSpell">
+                        <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-3" /><span>Sorts</span>
+                    </a>
                     <a href="javascript:" id="PERMANENT"
-                      :class="['aw-permanent d-flex flex-column align-items-center mb-3', isSelectedPermanent ? 'aw-selected' : '']"
-                      @click="selectPermanent"><font-awesome-icon :icon="['fas', 'building-shield']"
-                        class="fs-3" /><span>Permanents</span></a>
+                        v-visible="!deckbuilder || !isSelectedUnique"
+                        :class="['aw-permanent d-flex flex-column align-items-center mb-3', isSelectedPermanent ? 'aw-selected' : '']"
+                        @click="selectPermanent"><font-awesome-icon :icon="['fas', 'building-shield']" class="fs-3" /><span>Permanents</span>
+                    </a>
                     <a href="javascript:" id="HERO"
-                      :class="['aw-hero d-flex flex-column align-items-center mb-3', isSelectedHero ? 'aw-selected' : '']"
-                      @click="selectHero"><font-awesome-icon :icon="['fas', 'mask']" class="fs-3" /><span>Héros</span></a>
+                        v-visible="!deckbuilder || !isSelectedUnique"
+                        :class="['aw-hero d-flex flex-column align-items-center mb-3', isSelectedHero ? 'aw-selected' : '']"
+                        @click="selectHero">
+                        <font-awesome-icon :icon="['fas', 'mask']" class="fs-3" /><span>Héros</span>
+                    </a>
                   </div>
                 </BCollapse>
                 
@@ -518,6 +529,7 @@
                   :arrayview="arrayview"
                   :emptyplayset="emptyplayset" 
                   :deckbuilder="deckbuilder && currentSelectedDeck != null"
+                  :user="user"
                   :collection="g_isBearer()" 
                   :currentDeck="currentDeck" 
                   @addcard="addCard" 
@@ -794,7 +806,7 @@ import '@/assets/css/animate.css';
 
 const props = defineProps({
   user: { type: Object},
-  deckbuilder: false,
+  deckbuilder: { type: Boolean, required: false, default: false },
 });
 
 useHead({
@@ -973,15 +985,15 @@ export default {
   mounted() 
   { 
     this.router = useRouter();
-    const storeduiparams = localStorage.getItem("uiparams");
+    const storeduiparams = localStorage.getItem('uiparams');
     if(storeduiparams) this.uiparams = JSON.parse(storeduiparams);
     
     this.database = localStorage.getItem('database') != null ? localStorage.getItem('database') : true
-    var filters = JSON.parse(localStorage.getItem("filters"));
+    var filters = JSON.parse(localStorage.getItem('filters.db' + this.deckbuilder));
     if (!filters) 
     {
       filters = this.getInitialFilters()
-      localStorage.setItem("filters", JSON.stringify(filters));
+      localStorage.setItem('filters.db' + this.deckbuilder, JSON.stringify(filters));
     }
 
     this.currentName = filters.currentName
@@ -1286,7 +1298,7 @@ export default {
       this.showModalImportUnique = true;
     },
     onChangeFilter() {
-      var filters = JSON.parse(localStorage.getItem("filters"));
+      var filters = JSON.parse(localStorage.getItem('filters.db' + this.deckbuilder));
       filters.water = this.water;
       filters.mountain = this.mountain;
       filters.forest = this.forest;
@@ -1321,7 +1333,7 @@ export default {
       filters.cbCapaSupport = this.cbCapaSupport
       filters.capaSupport = this.fCapaSupport      
       
-      localStorage.setItem("filters", JSON.stringify(filters));
+      localStorage.setItem('filters.db' + this.deckbuilder, JSON.stringify(filters));
     },
     async refreshStatComponent()
     {
@@ -1375,7 +1387,7 @@ export default {
     },
     storeUiparams()
     {
-      var uiparams = JSON.parse(localStorage.getItem("uiparams"));
+      var uiparams = JSON.parse(localStorage.getItem('uiparams'));
       if(!uiparams) uiparams = this.uiparams;
 
       uiparams.modeliste = this.uiparams.modeliste;
@@ -1390,7 +1402,7 @@ export default {
       uiparams.filtreType = this.uiparams.filtreType;
       uiparams.filtrePower = this.uiparams.filtrePower;
 
-      localStorage.setItem("uiparams", JSON.stringify(uiparams));
+      localStorage.setItem('uiparams', JSON.stringify(uiparams));
     },
     changeModeStats(){
       this.uiparams.afficherstats = !this.uiparams.afficherstats
@@ -2205,20 +2217,20 @@ export default {
     },
     selectCharacter() 
     {
-      this.setTimeoutRechType()
       this.isSelectedCharacter = !this.isSelectedCharacter;
+      this.setTimeoutRechType()
       this.onChangeFilter();
     },
     selectSpell() 
     {
-      this.setTimeoutRechType()
       this.isSelectedSpell = !this.isSelectedSpell;
+      this.setTimeoutRechType()      
       this.onChangeFilter();
     },
     selectPermanent() 
     {
-      this.setTimeoutRechType()
       this.isSelectedPermanent = !this.isSelectedPermanent;
+      this.setTimeoutRechType()      
       this.onChangeFilter();
     },
     selectHero() 
@@ -2283,20 +2295,38 @@ export default {
     },
     selectCommon() 
     {
-      this.setTimeoutRechRarete()
       this.isSelectedCommon = !this.isSelectedCommon
+      if(this.deckbuilder)
+      {
+        this.isSelectedUnique = false
+      }
+      this.setTimeoutRechRarete()
       this.onChangeFilter()
     },
     selectRare() 
     {
-      this.setTimeoutRechRarete()
       this.isSelectedRare = !this.isSelectedRare
+      if(this.deckbuilder)
+      {
+        this.isSelectedUnique = false
+      }
+      this.setTimeoutRechRarete()
       this.onChangeFilter()
     },
     selectUnique() 
     {
-      this.setTimeoutRechRarete()
       this.isSelectedUnique = !this.isSelectedUnique
+      if(this.deckbuilder && this.isSelectedUnique)
+      {
+        this.isSelectedCharacter = true;
+        this.isSelectedSpell = false;
+        this.isSelectedPermanent = false;
+        this.isSelectedHero = false;
+
+        this.isSelectedRare = false
+        this.isSelectedCommon = false
+      }
+      this.setTimeoutRechRarete()
       this.onChangeFilter()
     },
     setTimeoutRechRarete()
@@ -2524,6 +2554,7 @@ export default {
       if (!this.currentSort || this.currentSort.length == 0) this.currentSort = [database ? 'name' : 'translations.name'];
 
       var calcparams = {
+        deckbuilder: this.deckbuilder,
         currentFaction: this.currentFaction,
         currentName: this.currentName,
         calculatedrarity: this.calcRarities(),
@@ -2559,26 +2590,31 @@ export default {
     fetchCardsFromDatabase(calcparams)
     {
       this.g_fetchCardsFromDatabase(calcparams, pcards => 
+      {
+        if(pcards)
         {
           this.currentPage++;
           this.hasMore = pcards.length > this.itemsPerPage;
-          if(this.hasMore) pcards.pop(); //on vire le dernier élément qui ne sert qy'à savoir si il y a d'autres cartes à fetch
+          if(this.hasMore) pcards.pop(); //on vire le dernier élément qui ne sert qu'à savoir si il y a d'autres cartes à fetch
           
           pcards.forEach(card => 
           {
               if (!this.emptyplayset || (this.emptyplayset && card.inMyCollection < 3)) 
               {
-              var zecard = this.deckbuilder ? this.g_getCardInDeck(card.reference, this.currentDeck) : card;
-              if (zecard) this.fetchedCards.push(zecard);
-              else 
-              {
-                  card.quantite = 0;
-                  this.fetchedCards.push(card);
-              }
+                var zecard = this.deckbuilder ? this.g_getCardInDeck(card.reference, this.currentDeck) : card;
+                if (zecard) this.fetchedCards.push(zecard);
+                else 
+                {
+                    card.quantite = 0;
+                    this.fetchedCards.push(card);
+                }
               }
           });
-          this.loading = false;
-        })
+        }
+        else toast("Une erreur s'est produite lors de la recherche de cartes", { type: TYPE.ERROR })    
+
+        this.loading = false;
+      })
     },
     fetchCardsFromApi(calcparams)
     {

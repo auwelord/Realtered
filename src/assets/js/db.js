@@ -146,68 +146,91 @@ export default {
         
         async function fetchCardsFromDatabase(params, pcallback)
         {
+            const { data } = await anonSupabase.auth.getUser()
+
+            //dans le deckbuiler, la recherche d'unique ne peut être combinée avec les autres recherches
+            const innerFav = params.deckbuilder && params.calculatedrarity.length == 1 && params.calculatedrarity[0] == 'UNIQUE'
+
+            const recupFav = ((!params.deckbuilder || innerFav) && data.user !== undefined)
+            
             //verif de la syntaxe de params.currentName
             var req = anonSupabase
                 .from('Card')
-                .select()
-                .eq('mainFaction', params.currentFaction);
+                .select('*' + (recupFav ? ', UniqueFav' + (innerFav ? '!inner' : '') + '(*)' : ''))
+                .eq('mainFaction', params.currentFaction)
 
-            if (params.currentName) req = req.ilike('name', '%' + params.currentName + '%');
-            if (params.calculatedrarity.length > 0) req = req.in("rarity", params.calculatedrarity);
-            if (params.calculatedmaincost.length > 0) req = req.in("mainCost", params.calculatedmaincost);
-            if (params.calculatedrecallcost.length > 0) req = req.in("recallCost", params.calculatedrecallcost);
-            if (params.calculatedforest.length > 0) req = req.in("forestPower", params.calculatedforest);
-            if (params.calculatedmountain.length > 0) req = req.in("mountainPower", params.calculatedmountain);
-            if (params.calculatedwater.length > 0) req = req.in("oceanPower", params.calculatedwater);
-            if (params.calculatedtype.length > 0) req = req.in("cardType", params.calculatedtype);
-            if (params.currentEditions.length > 0) req = req.in("cardSet", params.currentEditions);
+            if(recupFav)
+            {                
+                req = req.eq('UniqueFav.userId', data.user.id)
+            }
 
-            if(params.capaStaticNonVide) req = req.gt('static_effect', '');
-            else if(params.capaStatic) req = req.ilike('static_effect', '%' + params.capaStatic + '%');
+            if (params.currentName) req = req.ilike('name', '%' + params.currentName + '%')
+            if (params.calculatedrarity.length > 0) req = req.in("rarity", params.calculatedrarity)
+            if (params.calculatedmaincost.length > 0) req = req.in("mainCost", params.calculatedmaincost)
+            if (params.calculatedrecallcost.length > 0) req = req.in("recallCost", params.calculatedrecallcost)
+            if (params.calculatedforest.length > 0) req = req.in("forestPower", params.calculatedforest)
+            if (params.calculatedmountain.length > 0) req = req.in("mountainPower", params.calculatedmountain)
+            if (params.calculatedwater.length > 0) req = req.in("oceanPower", params.calculatedwater)
+            if (params.calculatedtype.length > 0) req = req.in("cardType", params.calculatedtype)
+            if (params.currentEditions.length > 0) req = req.in("cardSet", params.currentEditions)
 
-            if(params.capaEtbNonVide) req = req.gt('etb_effect', '');
-            else if(params.capaEtb) req = req.ilike('etb_effect', '%' + params.capaEtb + '%');
+            if(params.capaStaticNonVide) req = req.gt('static_effect', '')
+            else if(params.capaStatic) req = req.ilike('static_effect', '%' + params.capaStatic + '%')
 
-            if(params.capaHandNonVide) req = req.gt('hand_effect', '');
-            else if(params.capaHand) req = req.ilike('hand_effect', '%' + params.capaHand + '%');
+            if(params.capaEtbNonVide) req = req.gt('etb_effect', '')
+            else if(params.capaEtb) req = req.ilike('etb_effect', '%' + params.capaEtb + '%')
 
-            if(params.capaReserveNonVide) req = req.gt('reserve_effect', '');
-            else if(params.capaReserve) req = req.ilike('reserve_effect', '%' + params.capaReserve + '%');
+            if(params.capaHandNonVide) req = req.gt('hand_effect', '')
+            else if(params.capaHand) req = req.ilike('hand_effect', '%' + params.capaHand + '%')
 
-            if(params.capaExhaustNonVide) req = req.gt('exhaust_effect', '');
-            else  if(params.capaExhaust) req = req.ilike('exhaust_effect', '%' + params.capaExhaust + '%');
+            if(params.capaReserveNonVide) req = req.gt('reserve_effect', '')
+            else if(params.capaReserve) req = req.ilike('reserve_effect', '%' + params.capaReserve + '%')
 
-            if(params.capaSupportNonVide) req = req.gt('echo_effect', '');
-            else if(params.capaSupport) req = req.ilike('echo_effect', '%' + params.capaSupport + '%');
+            if(params.capaExhaustNonVide) req = req.gt('exhaust_effect', '')
+            else  if(params.capaExhaust) req = req.ilike('exhaust_effect', '%' + params.capaExhaust + '%')
 
-            var streq = [];
+            if(params.capaSupportNonVide) req = req.gt('echo_effect', '')
+            else if(params.capaSupport) req = req.ilike('echo_effect', '%' + params.capaSupport + '%')
+
+            var streq = []
             if (params.currentSoustypes.length > 0)
             {
-                params.currentSoustypes.forEach(st => streq.push('cardSubtypes.cs.\{' + st + '\}'));
+                params.currentSoustypes.forEach(st => streq.push('cardSubtypes.cs.\{' + st + '\}'))
             }
-            if(streq.length > 0) req = req.or(streq.join(','));
+            if(streq.length > 0) req = req.or(streq.join(','))
 
-            var keywords = [];
+            var keywords = []
             params.currentKeywords.forEach(kw => {
                 var label = app.config.globalProperties.g_getKeywordLabel(kw);
-                keywords.push('main_effect.ilike.%' + label + '%,echo_effect.ilike.%' + label + '%');
+                keywords.push('main_effect.ilike.%' + label + '%,echo_effect.ilike.%' + label + '%')
             });
-            if(keywords.length > 0) req = req.or(keywords.join(','));
+            if(keywords.length > 0) req = req.or(keywords.join(','))
 
             params.currentSort.forEach(sortref => {
-                var tab = sortref.split(',');
+                var tab = sortref.split(',')
                 req = req.order(tab[0] == 'translations.name' ? 'name' : tab[0], { ascending: tab.length == 1 })
             });      
             
-            req = req.range((params.currentPage - 1) * params.itemsPerPage, (params.currentPage * params.itemsPerPage) );
+            req = req.range((params.currentPage - 1) * params.itemsPerPage, (params.currentPage * params.itemsPerPage) )
 
             try {
-                const { data: cards, error } = await req;
+                const { data: cards, error } = await req
 
+                if(!error && recupFav)
+                {
+                    cards.forEach(card => 
+                    {
+                        card.favori = app.config.globalProperties.g_isUnique(card) && card.UniqueFav.length > 0
+                        delete card.UniqueFav
+                    })
+                }
+
+                if(error) console.error(error)
                 pcallback(cards)
             }
             catch(error)
             {
+                console.error(error)
                 pcallback([])
             }
         }
@@ -1393,5 +1416,28 @@ export default {
         {
             deleteVersion(pdeck, pcallback)
         }  
+
+        async function toggleCardFavori(pcard, pcallback)
+        {
+            try 
+            {
+                const { data, error } = await axios.get(API_BASEURL + '/card/favori/' + pcard.reference, hparams())
+                
+                if(error) console.error(error)
+                else pcard.favori = data.favori
+
+                pcallback(pcard, error)
+            }
+            catch(error)
+            {
+                handleApiError(error)
+                pcallback(pcard, error)
+            }
+        }
+
+        app.config.globalProperties.g_toggleCardFavori = function(pcard, pcallback)
+        {
+            toggleCardFavori(pcard, pcallback)
+        }
     }
 }

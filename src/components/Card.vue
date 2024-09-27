@@ -28,6 +28,10 @@
               <div class="mt-2 aw-tools aw-raritycompare d-flex flex-column align-items-center" @click="onShowCardDetail(card)" title="Comparer les raretés">
                 <font-awesome-icon :icon="['fas', 'code-compare']" class="fs-6" />
               </div>
+              <div class="mt-2 aw-tools aw-raritycompare d-flex flex-column align-items-center" @click="e_onToggleFavori(card)" title="Ajouter / retirer l'unique des favoris pour la rendre disponible ou non dans le deckbuilder" v-if="user && !deckbuilder && g_isUnique(card)">
+                <font-awesome-icon :icon="['fas', 'heart']" style="color: red" v-if="card.favori" />
+                <font-awesome-icon :icon="['fas', 'heart']" v-else />
+              </div>
             </div>
           </div>
         </div>
@@ -37,7 +41,6 @@
 </template>
 
 <script setup>
-
 const emit = defineEmits(['addcard', 'onshowcarddetail', 'removecard', 'mouseentercard', 'mouseleavecard']);
 
 const addCardToDeck = (pcard) => {
@@ -58,8 +61,15 @@ const mouseLeaveCard = (pcard) => {
 </script>
 
 <script>
+import { useToast, TYPE } from "vue-toastification"
+const toast = useToast()
+
 export default {
   props: {
+    user: {
+      type: Object,
+      required: true
+    },
     card: {
       type: Object,
       required: true
@@ -78,6 +88,17 @@ export default {
       if (this.deckbuilder)
         return "col-12 col-xl-6 col-xxl-4 mb-3";
       return "col-12 col-md-6 col-lg-4 col-xxl-2 mb-3";
+    },
+    e_onToggleFavori(pcard)
+    {
+      this.g_toggleCardFavori(pcard, (card, perror) => 
+      {
+        if(perror) toast("Une erreur s'est produite lors de la gestion du favori", { type: TYPE.ERROR })
+        else
+        {
+          toast('La carte a été ' + (card.favori ? 'ajoutée aux favoris' :  'retirée des favoris'), { type: TYPE.SUCCESS })
+        }
+      })
     }
   }
 };
