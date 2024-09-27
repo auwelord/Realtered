@@ -14,32 +14,32 @@
             <div class="card-header">
               <h3 class="card-title">Mes decks</h3>
               <div class="card-tools d-flex">
-                <BDropdown v-model="showDDCreateDeck" v-if="user && !creatingDeck && !proprietingdeck" size="sm" split variant="primary" class="me-2" @click="createDeck">
+                <BDropdown v-model="showDDCreateDeck" v-if="!creatingDeck && !proprietingdeck" size="sm" split variant="primary" class="me-2" @click="createDeck">
                   <template #button-content>
                     <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>Créer
                   </template>
-                  <BDropdownItem @click="copierDeck" v-if="currentSelectedDeck">
+                  <BDropdownItem @click="copierDeck" v-if="user && currentSelectedDeck">
                     <font-awesome-icon :icon="['far', 'copy']" class="me-2" />Copier
                   </BDropdownItem>
                   <BDropdownItem @click="importDeck">
                     <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer
                   </BDropdownItem>                  
                 </BDropdown>
-                <BDropdown v-model="showDeckoptions" start size="sm" variant="outline-secondary">
+                <BDropdown v-model="showDeckoptions" start size="sm" variant="outline-secondary" v-if="currentDeck">
                   <template #button-content>
                     <font-awesome-icon :icon="['fas', 'gear']" />
                   </template>
-                  <BDropdownItem @click="onShowProprietesDeck" v-if="!creatingDeck && user && currentSelectedDeck && !proprietingdeck">
+                  <BDropdownItem @click="onShowProprietesDeck" v-if="!creatingDeck && user && currentSelectedDeck > 0 && !proprietingdeck">
                     <font-awesome-icon :icon="['fas', 'gear']" class="me-2" />Propriétés
                   </BDropdownItem>
-                  <BDropdownItem @click="exporterCurrentDeck()" v-if="user && currentDeck">
+                  <BDropdownItem @click="exporterCurrentDeck()">
                     <font-awesome-icon :icon="['fas', 'file-export']" class="me-2"/>Exporter
                   </BDropdownItem>
-                  <BDropdownItem @click="onCopierLienDecklist()" v-if="user && currentDeck && currentSelectedDeck > 0">
+                  <BDropdownItem @click="onCopierLienDecklist()" v-if="user && currentSelectedDeck > 0">
                     <font-awesome-icon :icon="['fab', 'threads']" class="me-2"/>Copier le lien de la decklist
                   </BDropdownItem>             
                   <BDropdownDivider />  
-                  <BDropdownItem  @click="e_showModalDeleteDeck()" variant="danger" v-if="user && currentDeck">
+                  <BDropdownItem  @click="e_showModalDeleteDeck()" variant="danger">
                       <font-awesome-icon :icon="['far', 'trash-can']" class="me-2" />Supprimer
                   </BDropdownItem>
                 </BDropdown>
@@ -602,10 +602,12 @@
                       <template #button-content>
                         <font-awesome-icon :icon="['fas', 'gear']" />
                       </template>
-                      <BDropdownItem @click="affModalImportUnique()" variant="unique">
-                        <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer une carte Unique
-                      </BDropdownItem>
-                      <BDropdownDivider />
+                      <div v-if="user">
+                        <BDropdownItem @click="affModalImportUnique()" variant="unique">
+                          <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer une carte Unique
+                        </BDropdownItem>
+                        <BDropdownDivider />
+                      </div>
                       <BDropdownItem @click="redirectToDecklist()" v-if="user && currentSelectedDeck > 0" >
                         <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Afficher la DeckList
                       </BDropdownItem>
@@ -1247,7 +1249,7 @@ export default {
         }
         else 
         {
-          this.g_updateCardFromApi(this.codeImportUnique, 
+          this.g_updateCardFromApi(this.codeImportUnique, true,
             //onUpdatedCard: 
             ppcard => 
             {

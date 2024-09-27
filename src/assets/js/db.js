@@ -654,7 +654,7 @@ export default {
                 //si la carte a ete trouvé => ras
                 if(!pcard)
                 {
-                    updateCardFromApi(preference, onUpdatedCard)
+                    updateCardFromApi(preference, false, onUpdatedCard)
                 }
                 else onUpdatedCard(pcard, true)
             }
@@ -843,9 +843,9 @@ export default {
          * 
          * onUpdatedCard(card) : callback de card mise à jour
          */
-        app.config.globalProperties.g_updateCardFromApi = function(preference, onUpdatedCard)
+        app.config.globalProperties.g_updateCardFromApi = function(preference, paddfavorite, onUpdatedCard)
         {
-            updateCardFromApi(preference, onUpdatedCard)
+            updateCardFromApi(preference, paddfavorite, onUpdatedCard)
         }
 
         /**
@@ -861,7 +861,7 @@ export default {
             {
                 if(onUpdatingCard) onUpdatingCard(card)
 
-                updateCardFromApi(card.reference, onUpdatedCard);
+                updateCardFromApi(card.reference, false, onUpdatedCard);
 
                 if(pcards.length > 3) await sleep(300)
             }
@@ -885,7 +885,7 @@ export default {
          * 
          * onUpdatedCard(card) : callback de card mise à jour
          */
-        async function updateCardFromApi(preference, onUpdatedCard)
+        async function updateCardFromApi(preference, paddfavorite, onUpdatedCard)
         {
             try {
                 const { data, error } = await axios.get(API_BASEURL + '/card/getfromapi/' + preference, hparams())
@@ -900,7 +900,8 @@ export default {
                     var params = {
                         apicard: data,
                         detail: true,
-                        forceupdate: true
+                        forceupdate: true,
+                        addfavorite: paddfavorite,
                     }
                     upsertCard(params, onUpdatedCard)
                 }
