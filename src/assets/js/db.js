@@ -1042,6 +1042,10 @@ export default {
                 const { data, error } = await axios.post(API_BASEURL + '/card/update', card, hparams())
 
                 if(error) console.error(error)
+                else if(params.addfavorite && app.config.globalProperties.g_isUnique(card))
+                {
+                    addCardFavori(card)
+                }
                 if(onUpdatedCard) onUpdatedCard(error ? null : data)
             }
             catch (error) 
@@ -1439,6 +1443,21 @@ export default {
         app.config.globalProperties.g_toggleCardFavori = function(pcard, pcallback)
         {
             toggleCardFavori(pcard, pcallback)
+        }
+
+        async function addCardFavori(pcard)
+        {
+            try 
+            {
+                const { data, error } = await axios.get(API_BASEURL + '/card/addfavori/' + pcard.reference, hparams())
+                
+                if(error) console.error(error)
+                pcard.favori = error === undefined && data.favori
+            }
+            catch(error)
+            {
+                handleApiError(error)
+            }
         }
     }
 }
