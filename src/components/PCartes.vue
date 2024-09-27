@@ -18,10 +18,12 @@
                   <template #button-content>
                     <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>Créer
                   </template>
-                  <BDropdownItem @click="copierDeck" v-if="user && currentSelectedDeck">
+                  <BDropdownItem v-if="!user" @click="g_connectUser($route.path)">Connectez-vous pour importer un deck</BDropdownItem>
+
+                  <BDropdownItem @click="copierDeck" v-if="user && currentSelectedDeck > 0">
                     <font-awesome-icon :icon="['far', 'copy']" class="me-2" />Copier
                   </BDropdownItem>
-                  <BDropdownItem @click="importDeck">
+                  <BDropdownItem @click="importDeck" v-if="user">
                     <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer
                   </BDropdownItem>                  
                 </BDropdown>
@@ -1490,6 +1492,7 @@ export default {
             id: storedDeck.id, 
             withcards:true, 
             withfavs: false,
+            withversions: true,
           }
 
           this.g_fetchDeck(params, deck => 
