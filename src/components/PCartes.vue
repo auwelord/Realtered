@@ -685,7 +685,8 @@
                             <div v-b-toggle.awid-probadeck class="aw-collapsible ms-3">Probas <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse mt-1" /></div>
                           </div>
                           <BCollapse id="awid-descdeck">
-                            <div class="col-12 mt-4" v-html="getFormattedDescriptionCurrentDeck()"></div>
+                            <div class="col-12 mt-4 mb-2" v-if="!currentDeck.description"><i class="fs-7"><font-awesome-icon :icon="['fas', 'ban']" class="me-2"/>Ce deck ne possède pas de description</i></div>
+                            <div class="col-12 mt-4" v-else v-html="getFormattedDescriptionCurrentDeck()"></div>
                           </BCollapse>
                           <BCollapse id="awid-probadeck">
                             <div class="col-12 mt-4 mb-3">
