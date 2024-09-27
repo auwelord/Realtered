@@ -125,7 +125,7 @@
                 </BButton>
               </div>
               <div class="card-body">
-                <div class="card-group justify-content-between aw-factionsel" v-show="!deckbuilder || !currentDeck || !currentDeck.hero_id ">
+                <div class="card-group justify-content-between aw-factionsel mb-4" v-show="!deckbuilder || !currentDeck || !currentDeck.hero_id ">
                   <a href="#" id="AX" :class="['mb-2 aw-axiom', isCurrentAxiom() ? 'aw-selected' : '']"
                     @click="changeFaction"><img src="@/assets/img/altered/factions/axiom.webp" class="aw-faction" /></a>
                   <a href="#" id="BR" :class="['mb-2 aw-bravos', isCurrentBravos() ? 'aw-selected' : '']"
@@ -140,7 +140,7 @@
                   <a href="#" id="YZ" :class="['mb-2 aw-yzmir', isCurrentYzmir() ? 'aw-selected' : '']"
                     @click="changeFaction"><img src="@/assets/img/altered/factions/yzmir.webp" class="aw-faction" /></a>
                 </div>
-                <div class="input-group mt-4">
+                <div class="input-group">
                   <div class="d-flex flex-column flex-fill align-items-center">
                     <input type="text" class="form-control" placeholder="Nom de carte..." 
                       v-model="currentName" 
@@ -2791,53 +2791,6 @@ export default {
   position: absolute;
   border-bottom-width: 5px;
   border-bottom-style: solid;
-}
-
-.aw-factionsel a:hover::after,
-.aw-factionsel .aw-selected::after {
-  content: '';
-  width: 37px;
-  display: block;
-  margin: 0 auto;
-  position: absolute;
-  border-bottom-width: 5px;
-  border-bottom-style: solid;
-}
-
-.aw-factionsel a.aw-axiom::after {
-  border-bottom-color: var(--c-axiom);
-}
-
-a.aw-bravos::after {
-  border-bottom-color: var(--c-bravos);
-}
-
-a.aw-lyra::after {
-  border-bottom-color: var(--c-lyra);
-}
-
-a.aw-muna::after {
-  border-bottom-color: var(--c-muna);
-}
-
-a.aw-ordis::after {
-  border-bottom-color: var(--c-ordis);
-}
-
-a.aw-yzmir::after {
-  border-bottom-color: var(--c-yzmir);
-}
-
-a.aw-common::after {
-  border-bottom-color: var(--c-common);
-}
-
-a.aw-rare::after {
-  border-bottom-color: var(--c-rare);
-}
-
-a.aw-unique::after {
-  border-bottom-color: var(--c-unique);
 }
 
 

@@ -911,3 +911,50 @@ input:checked+.slider:before {
 {
   color: var(--c-unique);
 }
+
+.aw-factionsel a:hover::after,
+.aw-factionsel .aw-selected::after {
+  content: '';
+  width: 37px;
+  display: block;
+  margin: 0 auto;
+  position: absolute;
+  border-bottom-width: 5px;
+  border-bottom-style: solid;
+}
+
+.aw-factionsel a.aw-axiom::after {
+  border-bottom-color: var(--c-axiom);
+}
+
+a.aw-bravos::after {
+  border-bottom-color: var(--c-bravos);
+}
+
+a.aw-lyra::after {
+  border-bottom-color: var(--c-lyra);
+}
+
+a.aw-muna::after {
+  border-bottom-color: var(--c-muna);
+}
+
+a.aw-ordis::after {
+  border-bottom-color: var(--c-ordis);
+}
+
+a.aw-yzmir::after {
+  border-bottom-color: var(--c-yzmir);
+}
+
+a.aw-common::after {
+  border-bottom-color: var(--c-common);
+}
+
+a.aw-rare::after {
+  border-bottom-color: var(--c-rare);
+}
+
+a.aw-unique::after {
+  border-bottom-color: var(--c-unique);
+}
