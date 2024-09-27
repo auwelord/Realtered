@@ -613,11 +613,11 @@ export default {
          * onDownloadedImages() : callback de fin de traitement
          * onUpdatedImageS3(card) : callback de fin de mise à jour de la base
         */
-        function importerUniques(preferences, onDownloadingImage, onDownloadedImages, onUpdatedImageS)
+        function importerUniques(preferences, paddfavorite, onDownloadingImage, onDownloadedImages, onUpdatedImageS)
         {
             for(let ref of preferences)
             {
-                importerUnique(ref, onDownloadingImage, onDownloadedImages, onUpdatedImageS)
+                importerUnique(ref, paddfavorite, onDownloadingImage, onDownloadedImages, onUpdatedImageS)
             }
         }
 
@@ -628,7 +628,7 @@ export default {
          * onDownloadedImages() : callback de fin de traitement
          * onUpdatedImageS3(card) : callback de fin de mise à jour de la base
         */
-        function importerUnique(preference, onDownloadingImage, onDownloadedImages, onUpdatedImageS3)
+        function importerUnique(preference, paddfavorite, onDownloadingImage, onDownloadedImages, onUpdatedImageS3)
         {
             if(!preference)
             {
@@ -654,7 +654,7 @@ export default {
                 //si la carte a ete trouvé => ras
                 if(!pcard)
                 {
-                    updateCardFromApi(preference, false, onUpdatedCard)
+                    updateCardFromApi(preference, paddfavorite, onUpdatedCard)
                 }
                 else onUpdatedCard(pcard, true)
             }
@@ -800,7 +800,7 @@ export default {
                 {
                     importingUniques = true
                     var cptUniques = 0
-                    importerUniques(uniques,
+                    importerUniques(uniques, true,
                         //onDownloadingImage
                         ppcard => console.log("Téléchargement de " + ppcard.imagePath),
                         //onDownloadedImage
