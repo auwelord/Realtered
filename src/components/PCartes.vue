@@ -197,18 +197,18 @@
                         <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-3" /><span>Personnages</span>
                     </a>
                     <a href="javascript:" id="SPELL"
-                        v-visible="!deckbuilder || !isSelectedUnique"
+                        v-if="!deckbuilder || !isSelectedUnique"
                         :class="['aw-spell d-flex flex-column align-items-center mb-3', isSelectedSpell ? 'aw-selected' : '']"
                         @click="selectSpell">
                         <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-3" /><span>Sorts</span>
                     </a>
                     <a href="javascript:" id="PERMANENT"
-                        v-visible="!deckbuilder || !isSelectedUnique"
+                        v-if="!deckbuilder || !isSelectedUnique"
                         :class="['aw-permanent d-flex flex-column align-items-center mb-3', isSelectedPermanent ? 'aw-selected' : '']"
                         @click="selectPermanent"><font-awesome-icon :icon="['fas', 'building-shield']" class="fs-3" /><span>Permanents</span>
                     </a>
                     <a href="javascript:" id="HERO"
-                        v-visible="!deckbuilder || !isSelectedUnique"
+                        v-if="!deckbuilder || !isSelectedUnique"
                         :class="['aw-hero d-flex flex-column align-items-center mb-3', isSelectedHero ? 'aw-selected' : '']"
                         @click="selectHero">
                         <font-awesome-icon :icon="['fas', 'mask']" class="fs-3" /><span>Héros</span>
