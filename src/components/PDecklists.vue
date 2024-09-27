@@ -144,8 +144,13 @@
                                     </BButton>                                    
                                     </div>
 
-                                    <div class="aw-collapsible mt-2" v-b-toggle.awid-descdeck>
-                                        Description <font-awesome-icon :icon="['fas', 'chevron-right']" class="text-white aw-arrowcollapse" /> 
+                                    <div class="d-flex mt-2">
+                                        <div v-b-toggle.awid-descdeck class="aw-collapsible" >
+                                            Description <font-awesome-icon :icon="['fas', 'chevron-right']" class="text-white aw-arrowcollapse" /> 
+                                        </div>
+                                        <div v-b-toggle.awid-probadeck class="aw-collapsible ms-3">
+                                            Probas <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse mt-1" />
+                                        </div>
                                     </div>
 
                                 </div>
@@ -156,7 +161,10 @@
                             <BCollapse id="awid-descdeck">
                                 <div class="col-12 mt-4" v-if="!currentdeck.description"><i class="fs-7"><font-awesome-icon :icon="['fas', 'ban']" class="me-2"/>Ce deck ne possède pas de description</i></div>
                                 <div class="col-12 mt-4" v-html="getFormattedDescriptionCurrentDeck()"></div>
-                            </BCollapse>                        
+                            </BCollapse>   
+                            <BCollapse id="awid-probadeck">
+                                <DeckProba :deck="currentdeck"/>                     
+                            </BCollapse>
                             <div class="row">
                                 <template v-for="card in currentdeck.cards">
                                     <div class="col-12 col-lg-4 col-xl-3 col-xxl-2 aw-decklistcard" v-if="!g_isHero(card)" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">

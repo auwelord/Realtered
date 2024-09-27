@@ -24,6 +24,7 @@ declare module 'vue' {
     Card: typeof import('./src/components/Card.vue')['default']
     CardDecklist: typeof import('./src/components/CardDecklist.vue')['default']
     CardDetail: typeof import('./src/components/CardDetail.vue')['default']
+    DeckProba: typeof import('./src/components/DeckProba.vue')['default']
     DeckStats: typeof import('./src/components/DeckStats.vue')['default']
     Loader: typeof import('./src/components/icons/Loader.vue')['default']
     Logo: typeof import('./src/components/icons/Logo.vue')['default']

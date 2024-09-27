@@ -690,72 +690,7 @@
                           </BCollapse>
                           <BCollapse id="awid-probadeck">
                             <div class="col-12 mt-4 mb-3">
-                              <div class="fs-7">
-                                <div class="d-flex justify-content-center fs-6 mb-2 font-weight-bold">
-                                  Probabilités en main de départ
-                                </div>
-                                <div class="row">
-                                  <div class="col-4 ">
-                                    <div class="font-weight-bold">Personnages</div>
-                                    <br>
-                                    <div>>= 1 : {{ getProbaPersos(1)[2] }}</div>
-                                    <div>>= 2 : {{ getProbaPersos(2)[2] }}</div>
-                                    <div>>= 3 : {{ getProbaPersos(3)[2] }}</div>
-                                  </div>
-                                  <div class="col-4 ">
-                                    <div class="font-weight-bold">Sorts</div>
-                                    <br>
-                                    <div>>= 1 : {{ getProbaSorts(1)[2] }}</div>
-                                    <div>>= 2 : {{ getProbaSorts(2)[2] }}</div>
-                                    <div>>= 3 : {{ getProbaSorts(3)[2] }}</div>
-                                  </div>
-                                  <div class="col-4 ">
-                                    <div class="font-weight-bold">Permanents</div>
-                                    <br>
-                                    <div>>= 1 : {{ getProbaPermas(1)[2] }}</div>
-                                    <div>>= 2 : {{ getProbaPermas(2)[2] }}</div>
-                                    <div>>= 3 : {{ getProbaPermas(3)[2] }}</div>
-                                  </div>
-                                </div>
-                                <hr>
-                                <div class="row">
-                                  <div class="col-4 ">
-                                    <div class="font-weight-bold">Carte en x3</div>
-                                    <br>
-                                    <div>0 : {{ getProba(1, 3)[3] }}</div>
-                                    <hr>
-                                    <div>>= 1 : {{ getProba(1, 3)[2] }}</div>
-                                    <div>= 1 : {{ getProba(1, 3)[1] }}</div>
-                                    <div><= 1 : {{ getProba(1, 3)[0] }}</div>                                
-                                    <hr>
-                                    <div>>= 2 : {{ getProba(2, 3)[2] }}</div>
-                                    <div>= 2 : {{ getProba(2, 3)[1] }}</div>
-                                    <div><= 2 : {{ getProba(2, 3)[0] }}</div>                                
-                                    <hr>
-                                    <div>= 3 : {{ getProba(3, 3)[1] }}</div>
-                                  </div>
-                                  <div class="col-4">
-                                    <div class="font-weight-bold">Carte en x2</div>
-                                    <br>
-                                    <div>0 : {{ getProba(1, 2)[3] }}</div>
-                                    <hr>
-                                    <div>>= 1 : {{ getProba(1, 2)[2] }}</div>
-                                    <div>= 1 : {{ getProba(1, 2)[1] }}</div>
-                                    <div><= 1 : {{ getProba(1, 2)[0] }}</div>                                
-                                    <hr>
-                                    <div>>= 2 : {{ getProba(2, 2)[2] }}</div>
-                                    <div>= 2 : {{ getProba(2, 2)[1] }}</div>                                
-                                  </div>
-                                  <div class="col-4">
-                                    <div class="font-weight-bold">Carte en x1</div>
-                                    <br>
-                                    <div>0 : {{ getProba(1, 1)[3] }}</div>
-                                    <hr>
-                                    <div>>= 1 : {{ getProba(1, 1)[2] }}</div>
-                                    <div>= 1 : {{ getProba(1, 1)[1] }}</div>
-                                  </div>
-                                </div>
-                              </div>
+                              <DeckProba :deck="currentDeck"/>
                             </div>
                           </BCollapse>
                         </div>
@@ -1387,25 +1322,6 @@ export default {
       filters.capaSupport = this.fCapaSupport      
       
       localStorage.setItem("filters", JSON.stringify(filters));
-    },
-    getProba(pqtedesiree, pqtesuccess)
-    {
-      return this.g_getProbaMainDeDepart(pqtedesiree, pqtesuccess, this.currentDeck)
-    },
-    getProbaPersos(pqtedesiree)
-    {
-      const qtepersos = this.g_getTotalPersosInDeck({deck: this.currentDeck})
-      return this.g_getProbaMainDeDepart(pqtedesiree, qtepersos, this.currentDeck)
-    },
-    getProbaSorts(pqtedesiree)
-    {
-      const qtesorts = this.g_getTotalSortsInDeck({deck: this.currentDeck})
-      return this.g_getProbaMainDeDepart(pqtedesiree, qtesorts, this.currentDeck)
-    },
-    getProbaPermas(pqtedesiree)
-    {
-      const qtepermas = this.g_getTotalPermasInDeck({deck: this.currentDeck})
-      return this.g_getProbaMainDeDepart(pqtedesiree, qtepermas, this.currentDeck)
     },
     async refreshStatComponent()
     {

@@ -59,6 +59,23 @@ export default {
             deconnectUser(pcallback);
         }
 
+        app.config.globalProperties.g_getProbaPersos = function(pqtedesiree, pdeck)
+        {
+            const qtepersos = this.g_getTotalPersosInDeck({deck: pdeck})
+            return this.g_getProbaMainDeDepart(pqtedesiree, qtepersos, pdeck)
+        }
+
+        app.config.globalProperties.g_getProbaSorts = function(pqtedesiree, pdeck)
+        {
+            const qtesorts = this.g_getTotalSortsInDeck({deck: pdeck})
+            return this.g_getProbaMainDeDepart(pqtedesiree, qtesorts, pdeck)
+        }
+        app.config.globalProperties.g_getProbaPermas = function(pqtedesiree, pdeck)
+        {
+            const qtepermas = this.g_getTotalPermasInDeck({deck: pdeck})
+            return this.g_getProbaMainDeDepart(pqtedesiree, qtepermas, pdeck)
+        }
+
         app.config.globalProperties.g_getProbaMainDeDepart = function(k, pquantite, pdeck)
         {
             const hero = this.g_getCardsOfTypeHero(pdeck);
