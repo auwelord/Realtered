@@ -838,11 +838,12 @@
     </div>
   </BModal>
 
-  <BModal v-model="showModalConfirmChangeDeck" @ok="confirmChangeDeck" @cancel="dontChangeDeck" centered cancel-title="Annuler" ok-title="Continuer"
+  <BModal v-if="currentDeck" v-model="showModalConfirmChangeDeck" @ok="confirmChangeDeck" @cancel="dontChangeDeck" centered cancel-title="Annuler" ok-title="Continuer"
     ok-variant="primary" title="Modifications en cours">
-    Attention ! Le deck contient des modifications qui n'ont pas été enregistrées.
+    <div v-if="currentDeck.id == 0">Attention ! Le deck actuel est un deck temporaire, et va être supprimé. </div>
+    <div v-else>Attention ! Le deck contient des modifications qui n'ont pas été enregistrées.</div>
     <br />
-    Si vous continuez, les changements apportés seront perdus. 
+    Si vous continuez, les changements seront perdus. 
     <br />
     Voulez-vous continuer ?
   </BModal>
@@ -1589,7 +1590,7 @@ export default {
         {          
           if (!pdecks.some(zedeck => zedeck.id == storedDeck.id)) 
           {
-            this.decks.push({ value: storedDeck.id, label: storedDeck.name })
+            this.decks.unshift({ value: storedDeck.id, label: storedDeck.name })
           }
           this.currentSelectedDeck = storedDeck.refid > 0 ? storedDeck.refid : storedDeck.id
           this.currentDeck = storedDeck
@@ -1886,8 +1887,6 @@ export default {
           else decks.push(deck)
         })
 
-
-        console.log(decks)
         this.versionsDiffs = []
         for(let index = decks.length - 1; index > 0; index--)
         {
@@ -2165,6 +2164,12 @@ export default {
     },
     confirmChangeDeck()
     {
+      //si le deck actuel est temporaire, on le supprime de la liste déroulante
+      if(this.currentDeck.id == 0)
+      {
+        this.decks = this.decks.filter(option => option.value != 0)
+      }
+
       if(this.isCreatingDeck() || this.isImporting())
       {
         this.createDeck();
