@@ -125,7 +125,7 @@
                 </BButton>
               </div>
               <div class="card-body">
-                <div class="card-group justify-content-between aw-factionsel">
+                <div class="card-group justify-content-between aw-factionsel" v-show="!deckbuilder || !currentDeck || !currentDeck.hero_id ">
                   <a href="#" id="AX" :class="['mb-2 aw-axiom', isCurrentAxiom() ? 'aw-selected' : '']"
                     @click="changeFaction"><img src="@/assets/img/altered/factions/axiom.webp" class="aw-faction" /></a>
                   <a href="#" id="BR" :class="['mb-2 aw-bravos', isCurrentBravos() ? 'aw-selected' : '']"
