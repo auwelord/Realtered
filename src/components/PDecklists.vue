@@ -130,15 +130,15 @@
                                     </div>
                                     
                                     <div class="mt-2">
-                                    <BButton @click="onImporterDeck" variant="unique" size="sm" title="importer le deck">
+                                    <BButton @click="onImporterDeck" variant="unique" size="sm" title="importer le deck" class="me-2" v-if="user">
                                         <font-awesome-icon :icon="['fas', 'right-long']" class="me-2"/>Importer
                                     </BButton>
 
-                                    <BButton @click="onCopierLienDeck" variant="uniqued2" size="sm" title="Copier le lien" class="ms-2">
+                                    <BButton @click="onCopierLienDeck" variant="uniqued2" size="sm" title="Copier le lien" class="me-2">
                                         <font-awesome-icon :icon="['fab', 'threads']" class="me-2" />Copier le lien
                                     </BButton>
 
-                                    <BButton @click="onToggleFavoris" variant="white" size="sm" class="ms-2" v-if="user">
+                                    <BButton @click="onToggleFavoris" variant="white" size="sm" class="me-2" v-if="user">
                                         <font-awesome-icon :icon="['fas', 'heart']" style="color: red" v-if="currentdeck.favori" />
                                         <font-awesome-icon :icon="['fas', 'heart']" v-else />
                                     </BButton>                                    
