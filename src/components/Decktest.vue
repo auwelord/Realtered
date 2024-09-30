@@ -142,6 +142,9 @@
                     <div class="d-flex flex-column">
                         <div class="text-center">&nbsp;</div>
                         <div class="m-1 d-flex flex-column">
+                            <BButton @click="e_fen" variant="light" size="sm" class="mb-1" title="Piocher / Mettre en mana / ravitailler" v-if="deck.length >= 3 && isDeckFen()">
+                                <img src="https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/icons/lyra.png" class="me-2" style="width: 15px "> Fen
+                            </BButton>
                             <BButton @click="e_draw" variant="uniqued2" size="sm" class="mb-1" title="Piocher" v-if="deck.length > 0">
                                 <i class="altered-hand me-2"></i>Piocher
                             </BButton>
@@ -254,6 +257,10 @@ export default
         e_reinit(){
             this.initTest()
         },
+        isDeckFen()
+        {
+            return this.currentdeck && this.currentdeck.hero.name.startsWith('Fen')
+        },
         initTest()
         {
             const tmpdeck = this.currentdeck.cards.filter(card => !this.g_isHero(card));
@@ -284,6 +291,16 @@ export default
             {
                 this.hand.push(this.deck.shift())
             }
+        },
+        e_fen()
+        {
+            this.fen()
+        },
+        fen()
+        {
+            this.draw()
+            this.mana.push(this.deck.shift())
+            this.ravitailler()
         },
         e_draw()
         {
