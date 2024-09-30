@@ -274,6 +274,26 @@ export default {
                     return "#FFF";
             }
         }; 
+
+        app.config.globalProperties.g_isCodeAxiom = function (pcode) {
+            return pcode == "AX"
+        };
+        app.config.globalProperties.g_isCodeBravos = function (pcode) {
+            return pcode == "BR"
+        };
+        app.config.globalProperties.g_isCodeLyra = function (pcode) {
+            return pcode == "LY"
+        };
+        app.config.globalProperties.g_isCodeMuna = function (pcode) {
+            return pcode == "MU"
+        };
+        app.config.globalProperties.g_isCodeOrdis = function (pcode) {
+            return pcode == "OR"
+        };
+        app.config.globalProperties.g_isCodeYzmir = function (pcode) {
+            return pcode == "YZ"
+        };
+
         app.config.globalProperties.g_getFactionName = function (pfaction, plc)
         {
             var name = factions[pfaction].fr;

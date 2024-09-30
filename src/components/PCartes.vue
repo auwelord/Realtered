@@ -610,6 +610,9 @@
                         </BDropdownItem>
                         <BDropdownDivider />
                       </div>
+                      <BDropdownItem @click="e_testerDeck()" v-if="user && currentSelectedDeck > 0" >
+                        <font-awesome-icon :icon="['fas', 'vial']"  class="me-2" />Tester le deck
+                      </BDropdownItem>
                       <BDropdownItem @click="redirectToDecklist()" v-if="user && currentSelectedDeck > 0" >
                         <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Afficher la DeckList
                       </BDropdownItem>
@@ -1180,6 +1183,13 @@ export default {
           toast("Une erreur s'est produite", { type: TYPE.ERROR });
           console.error('Failed to copy: ', err);
         });
+    },
+    e_testerDeck()
+    {
+        const route = this.$router.resolve('/decktest/' + this.currentDeck.id);
+
+        // Open the route in a new tab
+        window.open(route.href, '_blank');
     },
     redirectToDecklist()
     {

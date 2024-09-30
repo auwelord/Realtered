@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 import PAccueil from '../components/PAccueil.vue';
 import PDeckBuilder from '../components/PDeckBuilder.vue';
 import PCartes from '../components/PCartes.vue';
-import PDecklists from '../components/PDecklists.vue';
+import PDecks from '../components/PDecks.vue';
+import PDecktest from '../components/PDecktest.vue';
 import Test from '../components/Test.vue';
 
 const routes = [
@@ -36,17 +37,32 @@ const routes = [
     {
         path: '/decklists/:deckid',
         name: 'Decks',
-        component: PDecklists,
+        component: PDecks,
         history: true,
         props: route => ({ deckid: convertIntegerParam(route.params.deckid)})
     },
     {
         path: '/decklists',
         name: 'DeckList',
-        component: PDecklists,
+        component: PDecks,
         history: true,
         props: true
     },
+    {
+        path: '/decktest/:deckid',
+        name: 'DeckTest',
+        component: PDecktest,
+        history: true,
+        props: route => ({ deckid: convertIntegerParam(route.params.deckid)})
+    },
+    {
+        path: '/decktest',
+        name: 'Tests',
+        component: PDecktest,
+        history: true,
+        props: true
+    },
+
     {
         path: '/test',
         name: 'Test',

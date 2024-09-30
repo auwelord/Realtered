@@ -7,7 +7,7 @@ import {
     faPersonWalking, faMagnifyingGlassArrowRight, faCirclePlus, faCircleMinus, faCheck, faChartColumn, 
     faExpand, faFileImport, faLock, faLeftLong, faRightLong, faGear, faFileExport, faList, faFileArrowDown,
     faCodeCompare, faChevronUp, faChevronRight, faEraser, faPenClip, faBan, faHeartCirclePlus, faHeartCircleMinus,
-    faHeart, faCodeBranch, faShuffle } 
+    faHeart, faCodeBranch, faShuffle, faRotateLeft, faVial } 
     from "@fortawesome/free-solid-svg-icons";
 import { faJs, faVuejs, faDiscord, faThreads } 
     from "@fortawesome/free-brands-svg-icons";
@@ -22,7 +22,7 @@ library.add(faPhone, faUser, faFlag, faJs, faVuejs, faDiscord, faMagnifyingGlass
     faTrashCan, faChartColumn, faExpand, faFileImport, faLock, faLeftLong, faRightLong, faGear,
     faFileArrowDown, faImage, faCodeCompare, faChevronUp, faChevronRight, faThreads, faEraser, faCopy,
     faPenClip, faCircle, faBan, faHeartCirclePlus, faHeartCircleMinus, faHeart, faSquarePlus, faCodeBranch,
-    faShuffle, faRectangleXmark, faSquareCaretLeft
+    faShuffle, faRectangleXmark, faSquareCaretLeft, faRotateLeft, faVial
 );
 
 export default FontAwesomeIcon;

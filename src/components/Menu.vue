@@ -28,6 +28,9 @@
                                         <router-link to="/decklists" class="page-scroll" href="#">Decks</router-link>
                                     </li>
                                     <li class="nav-item">
+                                        <router-link to="/decktest" class="page-scroll" href="#">Test</router-link>
+                                    </li>
+                                    <li class="nav-item">
                                         <router-link to="/deckbuilder" class="page-scroll" href="#">Deckbuilder</router-link>
                                     </li>
                                     <li class="nav-item">
