@@ -143,7 +143,10 @@
                         <div class="text-center">&nbsp;</div>
                         <div class="m-1 d-flex flex-column">
                             <BButton @click="e_draw" variant="uniqued2" size="sm" class="mb-1" title="Piocher" v-if="deck.length > 0">
-                                <font-awesome-icon :icon="['fas', 'rotate-left']" class="me-2" />Piocher
+                                <i class="altered-hand me-2"></i>Piocher
+                            </BButton>
+                            <BButton @click="e_ravitailler" variant="uniqued2" size="sm" class="mb-1" title="Ravitailler" v-if="deck.length > 0">
+                                <i class="altered-reserve me-2"></i>Ravitailler
                             </BButton>
                             <BButton @click="e_reinit" variant="uniqued2" size="sm" title="Réinitialiser">
                                 <font-awesome-icon :icon="['fas', 'rotate-left']" class="me-2" />Réinitialiser
@@ -289,6 +292,14 @@ export default
         draw()
         {
             this.hand.push(this.deck.shift())
+        },
+        e_ravitailler()
+        {
+            this.ravitailler()
+        },
+        ravitailler()
+        {
+            this.reserve.push(this.deck.shift())
         },
         shuffleDeck() 
         {
