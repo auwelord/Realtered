@@ -543,7 +543,7 @@ export default
         fen()
         {
             this.draw()
-            this.mana.push(this.deck.shift())
+            this.mana.unshift(this.deck.shift())
             this.ravitailler()
         },
         e_draw()
