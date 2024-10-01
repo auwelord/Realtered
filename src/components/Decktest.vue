@@ -509,6 +509,8 @@ export default
         },
         initTest()
         {
+            $('.aw-slot.aw-hero').removeClass('aw-exhauted')
+
             const tmpdeck = this.currentdeck.cards.filter(card => !this.g_isHero(card));
             
             this.deck = []
