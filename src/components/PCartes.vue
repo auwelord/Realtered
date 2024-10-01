@@ -93,7 +93,7 @@
           </div>
           <div v-if="!imageRechPathFullsize">
             <div class="card card-outline card-warning">
-              <div class="card-header" v-if="currentFaction != ''">
+              <div class="card-header">
                 <div class="d-flex justify-content-end">
                   <div v-if="g_isAdmin(user) && currentFaction != ''" class="mt-2">
                     BDD
@@ -105,7 +105,7 @@
                   <BButton @click="clearFilters" variant="light" size="sm" class="me-2" title="Supprimer tous les filtres (hors factions/éditions/tris)">
                     <font-awesome-icon :icon="['fas', 'eraser']" />
                   </BButton>
-                  <BButton @click="searchCards(false, false, false)" variant="unique" size="sm">
+                  <BButton @click="searchCardsBtnRechercher()" variant="unique" size="sm">
                     <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="me-2" />Rechercher
                   </BButton>
                   <BButton @click="searchPlayset" variant="common" size="sm" class="ms-2" v-if="g_isBearer() && !deckbuilder">
@@ -1676,12 +1676,16 @@ export default {
           {
             this.currentDeck.hero_id = null
             this.currentDeck.hero = null
+            //reset la recherche
+            this.fetchedCards = []
           }
 
           if (pcard.quantite == 0) 
           {
             this.currentDeck.cards.splice(indice, 1);
           }
+
+          if(this.currentDeck.cards.length == 0 || (this.currentDeck.cards.length == 1 && this.currentDeck.hero_id)) this.imagePathFullsize = null
           this.onChangedDeck()
           return
         }
@@ -2277,6 +2281,15 @@ export default {
     },
     searchPlayset() {
       this.searchCards(true, false, false);
+    },
+    searchCardsBtnRechercher()
+    {
+      if(!this.currentFaction)
+      {
+        toast('Veuillez sélectionner une faction pour pouvoir lancer la recherche', { type: TYPE.ERROR }) 
+        return
+      }
+      this.searchCards(false, false, false)
     },
     searchCards(pArrayView, pdontfetch, pshowstat) {
       this.fetchedCards = [];
