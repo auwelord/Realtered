@@ -839,6 +839,7 @@ export default
 }
 .aw-defausse > div{
     flex-wrap: wrap;
+    min-height: 170px;
 }
 .aw-defausse .aw-ghost
 {
