@@ -127,20 +127,37 @@
                 </BButton>
               </div>
               <div class="card-body">
-                <div class="card-group justify-content-between aw-factionsel mb-4" v-show="!deckbuilder || !currentDeck || !currentDeck.hero_id ">
-                  <a href="#" id="AX" :class="['mb-2 aw-axiom', isCurrentAxiom() ? 'aw-selected' : '']"
-                    @click="changeFaction"><img src="@/assets/img/altered/factions/axiom.webp" class="aw-faction" /></a>
-                  <a href="#" id="BR" :class="['mb-2 aw-bravos', isCurrentBravos() ? 'aw-selected' : '']"
-                    @click="changeFaction"><img src="@/assets/img/altered/factions/bravos.webp"
-                      class="aw-faction" /></a>
-                  <a href="#" id="LY" :class="['mb-2 aw-lyra', isCurrentLyra() ? 'aw-selected' : '']"
-                    @click="changeFaction"><img src="@/assets/img/altered/factions/lyra.webp" class="aw-faction" /></a>
-                  <a href="#" id="MU" :class="['mb-2 aw-muna', isCurrentMuna() ? 'aw-selected' : '']"
-                    @click="changeFaction"><img src="@/assets/img/altered/factions/muna.webp" class="aw-faction" /></a>
-                  <a href="#" id="OR" :class="['mb-2 aw-ordis', isCurrentOrdis() ? 'aw-selected' : '']"
-                    @click="changeFaction"><img src="@/assets/img/altered/factions/ordis.webp" class="aw-faction" /></a>
-                  <a href="#" id="YZ" :class="['mb-2 aw-yzmir', isCurrentYzmir() ? 'aw-selected' : '']"
-                    @click="changeFaction"><img src="@/assets/img/altered/factions/yzmir.webp" class="aw-faction" /></a>
+                <div class="card-group justify-content-between aw-factionsel mb-4">
+                  <a href="#" id="AX" :title="canSelectFaction() ? 'Sélection de la faction Axiom' : 'La sélection des factions n\'est pas possible tant que le héro du deck a été choisi'"
+                      :class="['mb-2 aw-axiom', isCurrentAxiom() ? 'aw-selected' : '', canSelectFaction() ? '' : 'aw-opacity25 aw-cursor-notallowed']"
+                      @click="changeFaction">
+                        <img src="@/assets/img/altered/factions/axiom.webp" class="aw-faction" />
+                  </a>
+                  <a href="#" id="BR" :title="canSelectFaction() ? 'Sélection de la faction Bravos' : 'La sélection des factions n\'est pas possible tant que le héro du deck a été choisi'"
+                      :class="['mb-2 aw-bravos', isCurrentBravos() ? 'aw-selected' : '', canSelectFaction() ? '' : 'aw-opacity25 aw-cursor-notallowed']"
+                      @click="changeFaction">
+                        <img src="@/assets/img/altered/factions/bravos.webp" class="aw-faction" />
+                  </a>
+                  <a href="#" id="LY" :title="canSelectFaction() ? 'Sélection de la faction Lyra' : 'La sélection des factions n\'est pas possible tant que le héro du deck a été choisi'"
+                      :class="['mb-2 aw-lyra', isCurrentLyra() ? 'aw-selected' : '', canSelectFaction() ? '' : 'aw-opacity25 aw-cursor-notallowed']"
+                      @click="changeFaction">
+                        <img src="@/assets/img/altered/factions/lyra.webp" class="aw-faction" />
+                  </a>
+                  <a href="#" id="MU" :title="canSelectFaction() ? 'Sélection de la faction Muna' : 'La sélection des factions n\'est pas possible tant que le héro du deck a été choisi'"
+                      :class="['mb-2 aw-muna', isCurrentMuna() ? 'aw-selected' : '', canSelectFaction() ? '' : 'aw-opacity25 aw-cursor-notallowed']"
+                      @click="changeFaction">
+                        <img src="@/assets/img/altered/factions/muna.webp" class="aw-faction" />
+                  </a>
+                  <a href="#" id="OR" :title="canSelectFaction() ? 'Sélection de la faction Ordis' : 'La sélection des factions n\'est pas possible tant que le héro du deck a été choisi'"
+                      :class="['mb-2 aw-ordis', isCurrentOrdis() ? 'aw-selected' : '', canSelectFaction() ? '' : 'aw-opacity25 aw-cursor-notallowed']"
+                      @click="changeFaction">
+                        <img src="@/assets/img/altered/factions/ordis.webp" class="aw-faction" />
+                  </a>
+                  <a href="#" id="YZ" :title="canSelectFaction() ? 'Sélection de la faction Yzmir' : 'La sélection des factions n\'est pas possible tant que le héro du deck a été choisi'"
+                      :class="['mb-2 aw-yzmir', isCurrentYzmir() ? 'aw-selected' : '', canSelectFaction() ? '' : 'aw-opacity25 aw-cursor-notallowed']"
+                      @click="changeFaction">
+                        <img src="@/assets/img/altered/factions/yzmir.webp" class="aw-faction" />
+                  </a>
                 </div>
                 <div class="input-group">
                   <div class="d-flex flex-column flex-fill align-items-center">
@@ -191,27 +208,24 @@
                 </div>
                 <BCollapse id="awid-filtrestype" v-model="uiparams.filtreType" @hide="storeUiparams" @show="storeUiparams">
                   <div class="card-group justify-content-evenly aw-type mt-2">
-                    <a href="javascript:" id="CHARACTER"
+                    <a href="javascript:" id="CHARACTER" title="Sélection du type Personnage"
                         :class="['aw-character d-flex flex-column align-items-center mb-3', isSelectedCharacter ? 'aw-selected' : '']"
                         @click="selectCharacter">
-                        <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-3" /><span>Personnages</span>
+                        <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-3" /><span>Personnage</span>
                     </a>
-                    <a href="javascript:" id="SPELL"
-                        v-if="!deckbuilder || !isSelectedUnique"
-                        :class="['aw-spell d-flex flex-column align-items-center mb-3', isSelectedSpell ? 'aw-selected' : '']"
+                    <a href="javascript:" id="SPELL" :title="isSelectedUnique ? 'Le type Sort ne peut pas être activé pour une rareté Unique' : 'Sélection du type Sort'"
+                        :class="['aw-spell d-flex flex-column align-items-center mb-3', isSelectedSpell ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
                         @click="selectSpell">
-                        <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-3" /><span>Sorts</span>
+                        <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-3" /><span>Sort</span>
                     </a>
-                    <a href="javascript:" id="PERMANENT"
-                        v-if="!deckbuilder || !isSelectedUnique"
-                        :class="['aw-permanent d-flex flex-column align-items-center mb-3', isSelectedPermanent ? 'aw-selected' : '']"
-                        @click="selectPermanent"><font-awesome-icon :icon="['fas', 'building-shield']" class="fs-3" /><span>Permanents</span>
+                    <a href="javascript:" id="PERMANENT" :title="isSelectedUnique ? 'Le type Permanent ne peut pas être activé pour une rareté Unique' : 'Sélection du type Permanent'"
+                        :class="['aw-permanent d-flex flex-column align-items-center mb-3', isSelectedPermanent ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
+                        @click="selectPermanent"><font-awesome-icon :icon="['fas', 'building-shield']" class="fs-3" /><span>Permanent</span>
                     </a>
-                    <a href="javascript:" id="HERO"
-                        v-if="!deckbuilder || !isSelectedUnique"
-                        :class="['aw-hero d-flex flex-column align-items-center mb-3', isSelectedHero ? 'aw-selected' : '']"
+                    <a href="javascript:" id="HERO" :title="isSelectedUnique ? 'Le type Héro ne peut pas être activé pour une rareté Unique' : 'Sélection du type Héro'"
+                        :class="['aw-hero d-flex flex-column align-items-center mb-3', isSelectedHero ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
                         @click="selectHero">
-                        <font-awesome-icon :icon="['fas', 'mask']" class="fs-3" /><span>Héros</span>
+                        <font-awesome-icon :icon="['fas', 'mask']" class="fs-3" /><span>Héro</span>
                     </a>
                   </div>
                 </BCollapse>
@@ -1090,6 +1104,10 @@ export default {
   },
   inject: ['callShowWaitingScreen', 'callHideWaitingScreen'], // Injecter la méthode de App.vue
   methods: {
+    canSelectFaction()
+    {
+      return !this.deckbuilder || !this.currentDeck || !this.currentDeck.hero_id
+    },
     getInitialFilters()
     {
       return {
@@ -2242,18 +2260,21 @@ export default {
     },
     selectSpell() 
     {
+      if(isSelectedUnique) return
       this.isSelectedSpell = !this.isSelectedSpell;
       this.setTimeoutRechType()      
       this.onChangeFilter();
     },
     selectPermanent() 
     {
+      if(isSelectedUnique) return
       this.isSelectedPermanent = !this.isSelectedPermanent;
       this.setTimeoutRechType()      
       this.onChangeFilter();
     },
     selectHero() 
     {
+      if(isSelectedUnique) return
       this.setTimeoutRechType()
       this.isSelectedHero = !this.isSelectedHero;
       this.onChangeFilter();
@@ -2308,7 +2329,10 @@ export default {
         this.fetchCards();
       }
     },
-    changeFaction(event) {
+    changeFaction(event) 
+    {
+      if(!this.canSelectFaction()) return
+      
       var $target = $(event.target);
       var $a = $target.is("a") ? $target : $target.parents("a:first");
       this.setCurrentFaction($a);
