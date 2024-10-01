@@ -1,9 +1,9 @@
 <template>
-    <div class="col-lg-8 col-12" v-if="currentdeck">
+    <div class="col-lg-8 col-12 aw-decktest" v-if="currentdeck">
         <div class="row">
             <div class="d-flex">
                 <div class="d-flex flex-fill flex-column">
-                    <div class="text-center">Expédition Héro</div>
+                    <div class="text-center m-1 aw-titlezone">Expédition Héro</div>
                     <div class="aw-expehero m-1 d-flex flex-row justify-content-center flex-fill align-items-center">
                         <draggable
                             v-model="expehero"
@@ -27,13 +27,13 @@
                     </div>
                 </div>
                 <div class="d-flex flex-column">
-                    <div class="text-center">Héro</div>
-                    <div class="aw-slot m-1 d-flex justify-content-center">
-                        <img :src="g_getImageCardPublicUrl(currentdeck.hero)" :title="currentdeck.hero.name" class="aw-imgcard aw-alteredcard p-1" />
+                    <div class="text-center m-1 aw-titlezone">Héro</div>
+                    <div class="aw-slot aw-hero m-1 d-flex justify-content-center">
+                        <img :src="g_getImageCardPublicUrl(currentdeck.hero)" :title="currentdeck.hero.name" class="aw-imgcard aw-alteredcard p-1" @click="e_exhaustHero"/>
                     </div>
                 </div>
                 <div class="d-flex flex-fill flex-column">
-                    <div class="text-center">Expédition Compagnon</div>
+                    <div class="text-center m-1 aw-titlezone">Expédition Compagnon</div>
                     <div class="aw-expecomp m-1 d-flex justify-content-center flex-fill align-items-center">
                         <draggable
                             v-model="expecomp"
@@ -61,7 +61,7 @@
         <div class="row">
             <div class="d-flex">
                 <div class="d-flex flex-fill flex-column">
-                    <div class="text-center">Réserve</div>
+                    <div class="text-center m-1 aw-titlezone">Réserve</div>
                     <div class="aw-reserve m-1 d-flex justify-content-center flex-fill align-items-center">
                         <draggable
                             v-model="reserve"
@@ -84,7 +84,7 @@
                     </div>
                 </div>
                 <div class="d-flex flex-fill flex-column">
-                    <div class="text-center">Permanents</div>
+                    <div class="text-center m-1 aw-titlezone">Permanents</div>
                     <div class="aw-perma m-1 d-flex justify-content-center flex-fill align-items-center">
                         <draggable
                             v-model="permas"
@@ -109,7 +109,7 @@
             <div class="d-flex justify-content-between">
                 <div class="d-flex">
                     <div class="d-flex flex-column">
-                        <div class="text-center">Mana: {{ mana.length }}</div>
+                        <div class="text-center m-1 aw-titlezone">Mana: {{ mana.length }}</div>
                         <div class="aw-slot aw-mana m-1">
                             <draggable
                                 v-model="mana"
@@ -130,7 +130,7 @@
                         </div>
                     </div>
                     <div class="d-flex flex-column" v-if="urlManaCard">
-                        <div class="text-center">Carte en mana</div>
+                        <div class="text-center m-1 aw-titlezone">Carte en mana</div>
                         <div class="aw-slot m-1 d-flex justify-content-center align-items-center position-relative">
                             <img :src="urlManaCard" class="aw-imgcard aw-alteredcard" />
                         </div>
@@ -139,13 +139,13 @@
 
                 <div class="d-flex justify-content-end">
                     <div class="d-flex flex-column">
-                        <div class="text-center">Deck : {{ deck.length }}</div>
+                        <div class="text-center m-1 aw-titlezone">Deck : {{ deck.length }}</div>
                         <div class="aw-slot m-1">
                             <img src="@/assets/img/altered/card-back.webp" class="aw-imgcard aw-alteredcard"/>
                         </div>
                     </div>
                     <div class="d-flex flex-column">
-                        <div class="text-center">Défausse: {{ defausse.length }}</div>
+                        <div class="text-center m-1 aw-titlezone">Défausse: {{ defausse.length }}</div>
                         <div class="aw-defausse m-1 d-flex justify-content-center align-items-center position-relative">
                             <draggable 
                                 v-model="defausse" 
@@ -199,7 +199,7 @@
         <div class="row mt-3">
             <div class="d-flex aw-maincontainer">
                 <div class="d-flex flex-column flex-fill">
-                    <div class="text-center">Main: {{ hand.length }} / Coût de main: {{ getCoutDeMain()}} / Coût de réserve: {{ getCoutDeReserve() }}</div>
+                    <div class="text-center m-1 aw-titlezone">Main: {{ hand.length }} / Coût de main: {{ getCoutDeMain()}} / Coût de réserve: {{ getCoutDeReserve() }}</div>
                     <draggable 
                         v-model="hand" 
                         v-bind="dragOptions"
@@ -277,6 +277,10 @@ export default
     },
     methods:
     {
+        e_exhaustHero()
+        {
+            $('.aw-slot.aw-hero').toggleClass('aw-exhauted')
+        },
         e_mouseEnterMana(pcard)
         {
             this.urlManaCard = this.g_getImageCardPublicUrl(pcard)
@@ -582,6 +586,38 @@ export default
 </script>
 
 <style scoped>
+.aw-slot.aw-hero
+{
+    transition: width 0.5s;
+}
+.aw-slot.aw-hero img
+{
+    transition: transform 0.5s;
+    cursor: pointer;
+}
+.aw-slot.aw-hero.aw-exhauted
+{
+    width: 185px;
+}
+.aw-slot.aw-hero.aw-exhauted img
+{
+    transform: rotate(90deg);
+}
+
+.aw-titlezone{
+    background-color: rgb(0 0 0 / 33%);
+    border-width: var(--bs-border-width);
+    border-color: var(--bs-border-color-translucent);
+    border-radius: var(--bs-border-radius);
+    border-style: solid;
+    color: white;
+    font-weight: bolder;
+}
+.aw-decktest{
+    background-image: url(/src/assets/img/altered_leviathan.jpg);
+    background-size: contain;
+    color: white;
+}
 .aw-imgjeton.aw-selected
 {
     border: 2px solid var(--c-unique);
@@ -704,7 +740,7 @@ export default
 .aw-mana .aw-manaslot
 {
     display: block;
-    background-color: var(--c-rared2);
+    background-color: var(--c-uniqued2);
     transition: all 0.3s;
 }
 .aw-mana .aw-manaslot:hover
