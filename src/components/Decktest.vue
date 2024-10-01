@@ -144,8 +144,16 @@
                             <img src="@/assets/img/altered/card-back.webp" class="aw-imgcard aw-alteredcard"/>
                         </div>
                     </div>
-                    <div class="d-flex flex-column">
-                        <div class="text-center m-1 aw-titlezone">Défausse: {{ defausse.length }}</div>
+                    <div class="d-flex flex-column aw-defaussecontainer">
+                        <div class="text-center m-1 aw-titlezone">
+                            <div class="d-flex justify-content-between align-items-center ps-2 pe-2 font-weight-bold">
+                                Défausse: {{ defausse.length }} 
+                                <div>
+                                    <font-awesome-icon :icon="['far', 'eye']" class="ms-1 aw-showdefausse" @click="e_toggleShowDefausse" v-if="defausse.length > 1"/>
+                                    <font-awesome-icon :icon="['far', 'eye-slash']" class="ms-3 aw-hidedefausse" @click="e_toggleShowDefausse" v-if="defausse.length > 1"/>
+                                </div>
+                            </div>
+                        </div>
                         <div class="aw-defausse m-1 d-flex justify-content-center align-items-center position-relative">
                             <draggable 
                                 v-model="defausse" 
@@ -154,7 +162,7 @@
                                 @end="e_endDrag" 
                                 data-dragto='DEFAUSSE'
                                 item-key="testid"
-                                class="m-1 d-flex justify-content-center flex-fill">
+                                class="m-1 d-flex justify-content-center">
                                 <template #item="{element}">
                                     <div class="aw-ghost m-1" :id="element.testid" @click="e_selectCard(element)">
                                         <img :src="g_getImageCardPublicUrl(element)" :title="element.name" class="aw-imgcard aw-dragcard aw-alteredcard" />
@@ -277,6 +285,10 @@ export default
     },
     methods:
     {
+        e_toggleShowDefausse()
+        {
+            $('.aw-defaussecontainer').toggleClass('aw-showall')
+        },
         e_exhaustHero()
         {
             $('.aw-slot.aw-hero').toggleClass('aw-exhauted')
@@ -588,6 +600,32 @@ export default
 </script>
 
 <style scoped>
+.aw-defaussecontainer
+{
+    max-width: 800px;
+}
+.aw-defaussecontainer .aw-hidedefausse
+{
+    display: none;
+}
+.aw-defaussecontainer.aw-showall .aw-showdefausse
+{
+    display: none;
+}
+.aw-defaussecontainer.aw-showall .aw-hidedefausse
+{
+    display: block;
+}
+.aw-hidedefausse,
+.aw-showdefausse
+{
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.aw-showdefausse:hover
+{
+    color: var(--c-unique)
+}
 .aw-slot.aw-hero
 {
     transition: width 0.5s;
@@ -718,11 +756,11 @@ export default
 {
     display: none;
 }
-.aw-defausse .aw-ghost:first-child
+.aw-defausse .aw-ghost:first-child,
+.aw-defaussecontainer.aw-showall .aw-defausse .aw-ghost
 {
     display: block;
 }
-
 .aw-ghost
 {
     display: inline-block;
@@ -776,6 +814,12 @@ export default
 {
     width: 132px;    
 }
+.aw-defaussecontainer .aw-defausse
+{
+    min-width: 134px;  
+    width: auto; 
+    height: auto;
+}
 .aw-decksize
 {
     background-color: transparent;
@@ -788,7 +832,19 @@ export default
 .aw-imgcard
 {
     height: 100%;
+    width: 100%;
 }
+.aw-defaussecontainer .aw-showall.aw-defausse{
+    height: auto;
+}
+.aw-defausse > div{
+    flex-wrap: wrap;
+}
+.aw-defausse .aw-ghost
+{
+    max-width: 116px;
+}
+
 .aw-maincontainer
 {
     overflow-x: auto;
