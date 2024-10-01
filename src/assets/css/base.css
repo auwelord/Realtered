@@ -89,6 +89,11 @@
   font-weight: normal;
 }
 
+.btn-light
+{
+  border: 1px solid var(--bs-border-color-translucent);
+}
+
 .btn-info
 {
   color: white !important;

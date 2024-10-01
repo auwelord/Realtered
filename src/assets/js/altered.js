@@ -190,26 +190,26 @@ export default {
         }
 
         app.config.globalProperties.g_isHero = function (pcard) {
-            return pcard.cardType == "HERO";
+            return pcard && pcard.cardType == "HERO";
         };
         app.config.globalProperties.g_isPersonnage = function (pcard) {
-            return pcard.cardType == "CHARACTER";
+            return pcard && pcard.cardType == "CHARACTER";
         };
         app.config.globalProperties.g_isSort = function (pcard) {
-            return pcard.cardType == "SPELL";
+            return pcard && pcard.cardType == "SPELL";
         };
         app.config.globalProperties.g_isPermanent = function (pcard) {
-            return pcard.cardType == "PERMANENT";
+            return pcard && pcard.cardType == "PERMANENT";
         };
 
         app.config.globalProperties.g_isCommon = function (pcard) {
-            return pcard.rarity == "COMMON";
+            return pcard && pcard.rarity == "COMMON";
         };
         app.config.globalProperties.g_isRare = function (pcard) {
-            return pcard.rarity == "RARE";
+            return pcard && pcard.rarity == "RARE";
         };
         app.config.globalProperties.g_isUnique = function (pcard) {
-            return pcard.rarity == "UNIQUE";
+            return pcard && pcard.rarity == "UNIQUE";
         };
         
 
