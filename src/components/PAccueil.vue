@@ -176,15 +176,6 @@
 
               <div class="col-sm-4">
                 <div class="item">
-                  <img src="@/assets/img/altered/tools/altereddb.png" alt="Altered DB">
-                  <div class="d-flex justify-content-center fs-5">Altered DB</div>
-                  <div class="isotope-overlay">
-                    <a href="https://altered-db.com/">
-                      Altered DB
-                    </a>
-                  </div><!-- /.isotope-overlay -->
-                </div><!-- /.item -->
-                <div class="item">
                   <img src="@/assets/img/altered/tools/ajordat.webp" alt="Altered TCG Builder">
                   <div class="d-flex justify-content-center fs-5">Altered TCG Builder</div>
                   <div class="isotope-overlay">
