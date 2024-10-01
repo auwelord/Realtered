@@ -107,25 +107,33 @@
         </div>
         <div class="row">
             <div class="d-flex justify-content-between">
-                <div class="d-flex flex-column">
-                    <div class="text-center">Mana: {{ mana.length }}</div>
-                    <div class="aw-slot aw-mana m-1">
-                        <draggable
-                            v-model="mana"
-                            v-bind="dragOptions"
-                            item-key="testid"
-                            @start="dragFrom='MANA'"
-                            @end="e_endDrag" 
-                            data-dragto='MANA'
-                            class="d-flex flex-column justify-content-end"
-                            >
-                            <template #item="{element}">
-                                <div class="aw-ghost" :id="element.testid" @click="e_selectCard(element)">
-                                    <img :src="g_getImageCardPublicUrl(element)" :title="element.name" class="aw-imgcard aw-dragcard aw-alteredcard" />
-                                    <div class="aw-manaslot aw-manacard mb-1 ms-1 me-1"></div>
-                                </div>
-                            </template>
-                        </draggable>
+                <div class="d-flex">
+                    <div class="d-flex flex-column">
+                        <div class="text-center">Mana: {{ mana.length }}</div>
+                        <div class="aw-slot aw-mana m-1">
+                            <draggable
+                                v-model="mana"
+                                v-bind="dragOptions"
+                                item-key="testid"
+                                @start="dragFrom='MANA'"
+                                @end="e_endDrag" 
+                                data-dragto='MANA'
+                                class="d-flex flex-column justify-content-end"
+                                >
+                                <template #item="{element}">
+                                    <div class="aw-ghost" :id="element.testid" @click="e_selectCard(element)" @mouseenter="e_mouseEnterMana(element)" @mouseleave="e_mouseLeaveMana(element)">
+                                        <img :src="g_getImageCardPublicUrl(element)" :title="element.name" class="aw-imgcard aw-dragcard aw-alteredcard" />
+                                        <div class="aw-manaslot aw-manacard mb-1 ms-1 me-1"></div>
+                                    </div>
+                                </template>
+                            </draggable>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column" v-if="urlManaCard">
+                        <div class="text-center">Carte en mana</div>
+                        <div class="aw-slot m-1 d-flex justify-content-center align-items-center position-relative">
+                            <img :src="urlManaCard" class="aw-imgcard aw-alteredcard" />
+                        </div>
                     </div>
                 </div>
 
@@ -250,7 +258,8 @@ export default
             permas: [],
             fulldeck: [], //pour manipuler les statuts
             dragFrom: null,
-            selectedCard: null
+            selectedCard: null,
+            urlManaCard: null,
         }
     },
     computed: {
@@ -268,6 +277,14 @@ export default
     },
     methods:
     {
+        e_mouseEnterMana(pcard)
+        {
+            this.urlManaCard = this.g_getImageCardPublicUrl(pcard)
+        },
+        e_mouseLeaveMana(pcard)
+        {
+            this.urlManaCard = null
+        },
         getClassBoost(pcard)
         {
             return 'aw-boost' + pcard.boost
@@ -688,7 +705,12 @@ export default
 {
     display: block;
     background-color: var(--c-rared2);
+    transition: all 0.3s;
 }
+.aw-mana .aw-manaslot:hover
+{
+    background-color: var(--c-unique);
+}    
 .ghost {
   opacity: 0.5;
   background: #c8ebfb;
