@@ -88,7 +88,7 @@ export default {
             connectUser(predirectTo)
         }
 
-        async function assignRoles(puser)
+        async function assignRoles(puser, pcallback)
         {
             if(!puser) return
 
@@ -98,6 +98,8 @@ export default {
             {
                 const { data, error: erreur } = await axios.get(API_BASEURL + '/user/admin', hparams())
                 puser.admin = data && data.isadmin
+
+                pcallback(puser)
             } 
             catch (error) 
             {
@@ -112,9 +114,10 @@ export default {
 
                 if(data.user)
                 {
-                    assignRoles(data.user)
+                    assignRoles(data.user, pcallback)
                 }
-                pcallback(data.user)
+                else pcallback(data.user)
+                
             } catch (error) {
                 handleApiError(error)
                 pcallback(null)
