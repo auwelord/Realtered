@@ -1004,7 +1004,7 @@ a.aw-unique::after {
 .aw-imgapercu.aw-imageapon .aw-imgapercustick
 {
   box-shadow: 0px 20px 50px 52px rgba(0, 0, 0, 0.55);
-  left: 0;
+  left: 3px;
 }
 .aw-imgapercu .aw-imgapercustick img
 {

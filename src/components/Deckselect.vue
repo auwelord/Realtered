@@ -225,7 +225,7 @@ export default
             },
             mouseEnterCard(pcard)
             {
-                if(this.mouserechtimeout) clearTimeout(this.mousetimeout)
+                if(this.mousetimeout) clearTimeout(this.mousetimeout)
                 this.imagePathFullsize = this.g_getImageCardPublicUrl(pcard)
                 this.showImageFullsize = true
             },
