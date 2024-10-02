@@ -12,6 +12,7 @@
                             @start="dragFrom='EXPEHERO'"
                             @end="e_endDrag" 
                             data-dragto='EXPEHERO'
+                            class="d-flex flex-wrap"
                             >
                             <template #item="{element}">
                                 <div :class="['aw-ghost m-1 position-relative', getClassCard(element), getClassSelectedCard(element)]" :id="element.testid" @click="e_selectCard(element)">
@@ -42,6 +43,7 @@
                             @start="dragFrom='EXPECOMP'"
                             @end="e_endDrag" 
                             data-dragto='EXPECOMP'
+                            class="d-flex flex-wrap"
                             >
                             <template #item="{element}">
                                 <div :class="['aw-ghost m-1 position-relative', getClassCard(element), getClassSelectedCard(element)]" :id="element.testid" @click="e_selectCard(element)">
@@ -70,6 +72,7 @@
                             @start="dragFrom='RESERVE'" 
                             @end="e_endDrag"
                             data-dragto='RESERVE'
+                            class="d-flex flex-wrap"
                             >
                             <template #item="{element}">
                                 <div :class="['aw-ghost m-1 position-relative', getClassCard(element), getClassSelectedCard(element)]" :id="element.testid" @click="e_selectCard(element)">
@@ -165,7 +168,7 @@
                                 @end="e_endDrag" 
                                 data-dragto='DEFAUSSE'
                                 item-key="testid"
-                                class="d-flex justify-content-between">
+                                class="d-flex">
                                 <template #item="{element}">
                                     <div class="aw-ghost m-1 d-flex justify-content-center" :id="element.testid" @click="e_selectCard(element)">
                                         <img :src="g_getImageCardPublicUrl(element)" :title="element.name" class="aw-imgcard aw-dragcard aw-alteredcard" />
@@ -788,6 +791,7 @@ export default
 .aw-ghost
 {
     display: inline-block;
+    max-width: 127px;
 }
 .aw-mana .aw-ghost
 {
@@ -823,7 +827,7 @@ export default
 }
 .aw-reserve, .aw-perma, .aw-slot, .aw-expehero, .aw-expecomp, .aw-main, .aw-defausse
 {
-    height: 180px;
+    min-height: 180px;
     background-color: var(--bs-border-color-translucent);
     border-width: var(--bs-border-width);
     border-color: var(--bs-border-color-translucent);
@@ -836,7 +840,7 @@ export default
 }
 .aw-slot, .aw-deck, .aw-defausse
 {
-    width: 132px;    
+    min-width: 122px; 
 }
 .aw-defaussecontainer .aw-defausse
 {
@@ -855,8 +859,8 @@ export default
 }
 .aw-imgcard
 {
-    height: 100%;
-    width: 100%;
+    height: auto;
+    width: 120px;
     /*min-width: 126px;*/
 }
 .aw-defaussecontainer .aw-showall.aw-defausse{
@@ -867,7 +871,7 @@ export default
 }
 .aw-defausse .aw-ghost
 {
-    max-width: 116px;
+    /*max-width: 116px;*/
 }
 
 .aw-maincontainer
