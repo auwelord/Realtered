@@ -5,12 +5,12 @@
     <div class="container-fluid pt-2"> <!--begin::Row-->
       <div class="row">
         <div class="col-12 col-xl-3">
-          <div :class="['aw-imgapercurech', imageRechPathFullsize ? 'aw-imageapon' : '']">
-            <div class="sticky">
-              <img :src="imageRechPathFullsize" class="img-fluid aw-alteredcard" />
+          <div :class="['aw-imgapercu', showImageFullsize ? 'aw-imageapon' : '']">
+            <div class="aw-imgapercustick">
+              <img :src="g_getImageApercu(imagePathFullsize)" class="img-fluid aw-alteredcard" />
             </div>
           </div>
-          <div v-if="deckbuilder && !imageRechPathFullsize" class="card card-outline card-info mb-1">
+          <div v-if="deckbuilder" class="card card-outline card-info mb-1">
             <div class="card-header">
               <h3 class="card-title">Mes decks</h3>
               <div class="card-tools d-flex">
@@ -527,24 +527,17 @@
         </div>
         <div :class="['col-12', deckbuilder && currentSelectedDeck != null ? 'col-xl-4' : 'col-xl-9']">
           <div class="container-fluid">
-            <div class="row" v-if="!hasResult() && !loading && !imagePathFullsize && !uiparams.afficherstats">
+            <div class="row" v-if="!hasResult() && !loading && !uiparams.afficherstats">
               <div class="col-12 d-flex flex-column align-items-center">
                   <div class="fs-4">Sélectionnez une faction et paramétrez vos filtres pour lancer la recherche</div>
                   <img src="/src/assets/img/empty.png" alt="" class="mt-5" style="width: 300px" />
               </div>
             </div>
-            <div v-if="!uiparams.afficherstats && deckbuilder" :class="['row mb-3 aw-imgapercu', imagePathFullsize ? 'aw-imageapon' : '']">
-              <div class="col-12">
-                <div class="sticky">
-                  <img :src="imagePathFullsize" alt="" class="img-fluid aw-alteredcard" />
-                </div>
-              </div>
-            </div>
-            <div v-else-if="currentDeck && deckbuilder && currentSelectedDeck != null">
+            <div v-if="currentDeck && deckbuilder && currentSelectedDeck != null && uiparams.afficherstats">
               <DeckStats :currentDeck="currentDeck" v-if="renderStatComponent"/>
             </div>
-            <div v-if="!uiparams.afficherstats && !imagePathFullsize">
-              <div :class="['row aw-resultsearch', imagePathFullsize && deckbuilder ? 'aw-imageapon' : '']">
+            <div v-if="!uiparams.afficherstats">
+              <div class="row aw-resultsearch">
                 <Card v-for="card in fetchedCards" 
                   :key="card.id" 
                   :card="card" 
@@ -557,8 +550,8 @@
                   @addcard="addCard" 
                   @removecard="removeCard"
                   @onshowcarddetail="onshowcarddetail" 
-                  @mouseentercard="mouseenterCardRech" 
-                  @mouseleavecard="mouseleaveCardRech" />
+                  @mouseentercard="mouseenterCard" 
+                  @mouseleavecard="mouseleaveCard" />
               </div>
               <div class="row d-flex p-2">
                 <BButton v-if="hasMore && currentPage > 1 && !loading" @click="fetchCards" variant="unique" size="sm">
@@ -1008,6 +1001,7 @@ export default {
       showModalDeleteVersion: false,
       showVersionsEvol: false,
       versionsDiffs: null,
+      showImageFullsize: false,
     };
   },
   mounted() 
@@ -1656,34 +1650,17 @@ export default {
     {
       localStorage.setItem("currentDeck", JSON.stringify(this.currentDeck))
     },
-    mouseenterCardRech(card) 
-    {
-      if(this.mouserechtimeout) clearTimeout(this.mouserechtimeout)
-      this.imageRechPathFullsize = this.g_getImageCardPublicUrl(card)  //"/src/assets/img/altered_kojo.png",
-    },
-    mouseleaveCardRech(card)
-    {
-      this.mouserechtimeout = setTimeout(() => 
-      {
-        this.imageRechPathFullsize = null
-      }, 200)
-    },
     mouseenterCard(card) 
     {
-      if(this.deckbuilder) 
-      {
-        if(this.uiparams.afficherstats != null) this.oldAfficherStats = this.uiparams.afficherstats
-        this.uiparams.afficherstats = null
-      }
       if(this.mousetimeout) clearTimeout(this.mousetimeout)
-      this.imagePathFullsize = this.g_getImageCardPublicUrl(card);  //"/src/assets/img/altered_kojo.png",
+      this.imagePathFullsize = this.g_getImageCardPublicUrl(card)
+      this.showImageFullsize = true
     },
     mouseleaveCard(card)
-    {      
+    {
       this.mousetimeout = setTimeout(() => 
       {
-        if(this.deckbuilder) this.uiparams.afficherstats = this.oldAfficherStats;
-        this.imagePathFullsize = null
+        if(this.mousetimeout) this.showImageFullsize = false
       }, 200)
     },
     onshowcarddetail(card) 

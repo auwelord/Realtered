@@ -273,6 +273,9 @@ watch(() => props.currentdeck, async (newcurrentdeck, oldcurrentdeck) => {
         instance.proxy.initTest();
     }
 })
+
+const emit = defineEmits(['mouseentercard', 'mouseleavecard']);
+
 </script>
 
 <script>
@@ -318,6 +321,13 @@ export default
     },
     mounted() 
     {
+    },
+    watch: {
+        selectedCard(newval, oldval)
+        {
+            if(newval) this.$emit('mouseentercard', newval)
+            else this.$emit('mouseleavecard')
+        }
     },
     methods:
     {

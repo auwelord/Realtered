@@ -239,6 +239,13 @@ export default {
             return zecard;
         };
 
+        app.config.globalProperties.g_getImageApercu = function(purl)
+        {
+            if(purl) return purl
+            return "/src/assets/img/altered/card-back.webp"
+        }
+
+        
         app.config.globalProperties.g_canAddCardToDeck = function(pcard, pdeck)
         {
             if(!pdeck) return false;

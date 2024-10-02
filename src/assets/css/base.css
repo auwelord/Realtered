@@ -990,3 +990,24 @@ a.aw-unique::after {
 {
   color: var(--c-ocean)
 }
+
+.aw-imgapercu .aw-imgapercustick
+{
+  width: 350px;
+  left: -350px;
+  position: fixed;
+  z-index: 99;
+  background-color: transparent;
+  transition: left 0.2s ease-out 0s;
+  border-radius: 5px;
+}
+.aw-imgapercu.aw-imageapon .aw-imgapercustick
+{
+  box-shadow: 0px 20px 50px 52px rgba(0, 0, 0, 0.55);
+  left: 0;
+}
+.aw-imgapercu .aw-imgapercustick img
+{
+  width: 100% !important;
+  height: auto;
+}

@@ -5,12 +5,17 @@
             <img src="@/assets/img/empty.png" v-if="!decks || decks.length == 0"/>
         </div>
 
-        <img src="@/assets/img/collectionfond.png" class="aw-fond" v-if="!afficherstats && !imagePathFullsize"/>
+        <img src="@/assets/img/collectionfond.png" class="aw-fond" v-if="!afficherstats"/>
 
         <div class="container-fluid pt-2" v-if="!erreurdeckid"> <!--begin::Row-->
             <div class="row">
                 <div :class="['col-lg-4 col-12 aw-colleft', afficherstats ? 'aw-deckliststat' : '']">
-                    <div class="card card-outline card-info mb-1" v-if="!afficherstats && !imagePathFullsize">
+                    <div :class="['aw-imgapercu', showImageFullsize ? 'aw-imageapon' : '']">
+                        <div class="aw-imgapercustick">
+                            <img :src="g_getImageApercu(imagePathFullsize)" alt="" class="img-fluid aw-alteredcard" />
+                        </div>
+                    </div>
+                    <div class="card card-outline card-info mb-1" v-if="!afficherstats">
                         <div class="card-body">
                             <div class="card-group justify-content-between aw-factionsel">
                                 <a href="#" id="AX" :class="['mb-2 aw-axiom', g_isCodeAxiom(currentFaction) ? 'aw-selected' : '']"
@@ -78,12 +83,8 @@
                         </div>
                     </div>
 
-                    <div :class="['aw-imgapercu', imagePathFullsize ? 'aw-imageapon' : '']">
-                        <div class="sticky">
-                            <img :src="imagePathFullsize" alt="" class="img-fluid aw-alteredcard" />
-                        </div>
-                    </div>
-                    <DeckStats v-if="currentdeck && afficherstats && !imagePathFullsize" :currentDeck="currentdeck" />
+                    
+                    <DeckStats v-if="currentdeck && afficherstats" :currentDeck="currentdeck" />
                 </div>
 
                 <Decklists :user="user" :currentdeck="currentdeck" :deckid="deckid" v-if="typeui == 'decklist'"
@@ -91,7 +92,9 @@
                     @mouseleavecard="mouseLeaveCard"
                     @onafficherstat="pafficher => afficherstats = pafficher"/>
 
-                <Decktest :user="user" :currentdeck="currentdeck" v-if="typeui == 'decktest'" />
+                <Decktest :user="user" :currentdeck="currentdeck" v-if="typeui == 'decktest'" 
+                    @mouseentercard="mouseEnterCard" 
+                    @mouseleavecard="mouseLeaveCard" />
             </div>
         </div>
     </div>
@@ -182,6 +185,7 @@ export default
                 currenthero: null,
                 erreurdeckid: false,
                 imagePathFullsize: null,
+                showImageFullsize: false,
                 mousetimeout: null,
             }
         },
@@ -212,16 +216,6 @@ export default
             currenthero(newValue, oldValue) {
                 this.resetDecks();
             },
-            imagePathFullsize(newValue, oldValue) {
-                if(newValue)
-                {
-                    setTimeout(() => $('.aw-colleft').addClass('aw-imageapon'), 10)
-                }
-                else
-                {
-                    setTimeout(() => $('.aw-colleft').removeClass('aw-imageapon'), 10)
-                }
-            },
         },
         methods:
         {
@@ -231,13 +225,14 @@ export default
             },
             mouseEnterCard(pcard)
             {
-                clearTimeout(this.mousetimeout)
+                if(this.mouserechtimeout) clearTimeout(this.mousetimeout)
                 this.imagePathFullsize = this.g_getImageCardPublicUrl(pcard)
+                this.showImageFullsize = true
             },
             mouseLeaveCard(pcard)
             {
                 this.mousetimeout = setTimeout(() => {
-                    if(this.mousetimeout)this.imagePathFullsize = null
+                    if(this.mousetimeout) this.showImageFullsize = false
                 }, 200)
             },
             alimListeHeroes()
@@ -415,12 +410,14 @@ export default
 
 .aw-colleft.aw-imageapon
 {
+    /*
     padding-left: 20px !important;
     padding-right: 20px !important;
+    */
 }
 .aw-colleft.aw-imageapon .aw-imgapercu img {
     margin-top: 0;
-    width: calc(0.31 * 100vw);
+    width: calc(0.20 * 100vw);
 }
 
 @media (max-width: 1199px) {
