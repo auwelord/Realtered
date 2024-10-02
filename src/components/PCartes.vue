@@ -346,7 +346,7 @@
                           value="0" @change="onChangeStat" />
                       </div>
                       <div class="card-group justify-content-between align-items-center mt-2">
-                        <div><i class="altered-water fs-5 me-2"></i><span class="fs-3">{{ water }}</span></div>
+                        <div><i class="altered-ocean fs-5 me-2"></i><span class="fs-3">{{ water }}</span></div>
                         <div>
                           <BFormCheckbox v-model="waterOrMore" value="ouplus" @change="onChangeWaterOrMore">ou plus</BFormCheckbox>
                         </div>
@@ -356,7 +356,7 @@
                         </div>
                       </div>
                       <div class="aw-slider">
-                        <input type="range" id="water" v-model="water" class="w-100" min="0" max="10" step="1" value="0"
+                        <input type="range" id="ocean" v-model="water" class="w-100" min="0" max="10" step="1" value="0"
                           @change="onChangeStat" />
                       </div>
                     </div>
@@ -2241,6 +2241,7 @@ export default {
       var rangePercent = this.forest;
 
       if ($(event.target).attr("id") == "mountain") rangePercent = this.mountain;
+      else if ($(event.target).attr("id") == "ocean") rangePercent = this.water;
       // : this.forest);
       $(event.target).css('filter', 'grayscale(' + (50 - (5 * rangePercent)) + '%)');
 
@@ -3001,7 +3002,7 @@ export default {
   }
 
   .aw-stats .aw-slider input#water[type=range]::-webkit-slider-thumb {
-    box-shadow: -330px 0 0 320px var(--c-water), inset 0 0 0 25px var(--c-water);
+    box-shadow: -330px 0 0 320px var(--c-ocean), inset 0 0 0 25px var(--c-ocean);
   }
 }
 
@@ -3013,8 +3014,8 @@ export default {
   color: var(--c-mountain);
 }
 
-.aw-stats .altered-water {
-  color: var(--c-water);
+.aw-stats .altered-ocean {
+  color: var(--c-ocean);
 }
 
 .aw-type a,
@@ -3033,7 +3034,7 @@ export default {
 .aw-type a.aw-spell:hover,
 .aw-type a.aw-spell:hover span,
 .aw-type a.aw-spell.aw-selected {
-  color: var(--c-water);
+  color: var(--c-ocean);
 }
 
 .aw-type a.aw-permanent:hover,

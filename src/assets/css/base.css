@@ -61,7 +61,7 @@
   --c-uniqued2: #aa7708;  
   --c-forest: #B4BF4D;
   --c-mountain: #BE8049;
-  --c-water: #648AB9;
+  --c-ocean: #648AB9;
 
   --ms-max-height: 30rem;
   --ms-group-label-bg: var(--c-unique);
@@ -976,4 +976,17 @@ a.aw-unique::after {
 
 .aw-opacity50{
   opacity: 0.5;
+}
+
+.altered-forest
+{
+  color: var(--c-forest)
+}
+.altered-mountain
+{
+  color: var(--c-mountain)
+}
+.altered-ocean
+{
+  color: var(--c-ocean)
 }

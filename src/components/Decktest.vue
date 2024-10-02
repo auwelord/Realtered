@@ -3,7 +3,12 @@
         <div class="row">
             <div class="d-flex">
                 <div class="d-flex flex-fill flex-column">
-                    <div class="text-center m-1 aw-titlezone">Expédition Héro</div>
+                    <div class="text-center m-1 aw-titlezone">
+                        Expédition Héro
+                        <i class="altered-forest fs-7 me-1"></i>{{ getPatate('forest', 'hero') }}
+                        <i class="altered-mountain fs-7 ms-2 me-1"></i>{{ getPatate('mountain', 'hero') }}
+                        <i class="altered-ocean fs-7 ms-2 me-1"></i>{{ getPatate('ocean', 'hero') }}
+                    </div>
                     <div class="aw-expehero m-1 d-flex flex-row justify-content-center flex-fill align-items-center">
                         <draggable
                             v-model="expehero"
@@ -34,7 +39,12 @@
                     </div>
                 </div>
                 <div class="d-flex flex-fill flex-column">
-                    <div class="text-center m-1 aw-titlezone">Expédition Compagnon</div>
+                    <div class="text-center m-1 aw-titlezone">
+                        Expédition Compagnon
+                        <i class="altered-forest fs-7 me-1"></i>{{ getPatate('forest', 'comp') }}
+                        <i class="altered-mountain fs-7 ms-2 me-1"></i>{{ getPatate('mountain', 'comp') }}
+                        <i class="altered-ocean fs-7 ms-2 me-1"></i>{{ getPatate('ocean', 'comp') }}
+                    </div>
                     <div class="aw-expecomp m-1 d-flex justify-content-center flex-fill align-items-center">
                         <draggable
                             v-model="expecomp"
@@ -311,6 +321,47 @@ export default
     },
     methods:
     {
+        getPatate(pbiome, pqui)
+        {
+            var total = 0
+            if(pqui == 'hero')
+            {
+                for(let card of this.expehero)
+                {
+                    if(!card.endormi) switch(pbiome)
+                    {
+                        case 'forest':
+                            total += card.forestPower + card.boost
+                            break
+                        case 'mountain':
+                            total += card.mountainPower + card.boost
+                            break
+                        case 'ocean':
+                            total += card.oceanPower + card.boost
+                            break
+                    }
+                }
+            }
+            else
+            {
+                for(let card of this.expecomp)
+                {
+                    if(!card.endormi) switch(pbiome)
+                    {
+                        case 'forest':
+                            total += card.forestPower + card.boost
+                            break
+                        case 'mountain':
+                            total += card.mountainPower + card.boost
+                            break
+                        case 'ocean':
+                            total += card.oceanPower + card.boost
+                            break
+                    }
+                }
+            }
+            return total
+        },
         e_addToken(pevt)
         {
             const ref = $(pevt.target).data('ref')

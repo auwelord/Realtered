@@ -72,7 +72,7 @@ i[class^="altered"] {
 .altered-support:before {
   content: "\e90f";
 }
-.altered-water:before {
+.altered-ocean:before {
   content: "\e910";
 }
 .altered-x:before {
