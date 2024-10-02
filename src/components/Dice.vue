@@ -129,11 +129,6 @@ export default
   box-shadow: inset 2px 2px #d90429;
 }
 
-.dice-one {
-  position: absolute;
-  left: 150px; 
-}
-
 .side {
   position: absolute;
   background-color: #ffF;

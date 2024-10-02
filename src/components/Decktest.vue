@@ -138,8 +138,21 @@
                             <img :src="urlManaCard" class="aw-imgcard aw-alteredcard" />
                         </div>
                     </div>
-                    <div class="d-flex align-items-center">
-                        <Dice :dice="dice" @dicerolled="e_dicerolled"/>
+                    <div class="d-flex align-items-center flex-column m-2 aw-decktools">
+                        <Dice :dice="dice" @dicerolled="e_dicerolled" class="position-relative"/>
+
+                        <BButton @click="e_addToken" data-ref="ALT_CORE_A_OR_31_C" variant="primary" size="xs" title="Réinitialiser" class="mt-1 w-100 text-left" v-if="g_isDeckOrdis(currentdeck) && tokenavail.length > 0">
+                            <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />1/1/1 Recrue Ordis
+                        </BButton>
+                        <BButton @click="e_addToken" data-ref="ALT_CORE_A_AX_31_C" variant="primary" size="xs" title="Réinitialiser" class="mt-1 w-100 text-left" v-if="g_isDeckAxiom(currentdeck) && tokenavail.length > 0">
+                            <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />2/2/2 Scarabot
+                        </BButton>
+                        <BButton @click="e_addToken" data-ref="ALT_CORE_A_BR_31_C" variant="primary" size="xs" title="Réinitialiser" class="mt-1 w-100 text-left" v-if="g_isDeckBravos(currentdeck) && tokenavail.length > 0">
+                            <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />2/2/2 Booda
+                        </BButton>
+                        <BButton @click="e_addToken" data-ref="ALT_CORE_A_YZ_31_C" variant="primary" size="xs" title="Réinitialiser" class="mt-1 w-100 text-left" v-if="g_isDeckYzmir(currentdeck) && tokenavail.length > 0">
+                            <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />0/0/0 Maw
+                        </BButton>
                     </div>
                 </div>
 
@@ -274,10 +287,13 @@ export default
             reserve: [],
             permas: [],
             fulldeck: [], //pour manipuler les statuts
+            token: [], //token in game
+            tokenavail: [],
             dragFrom: null,
             selectedCard: null,
             urlManaCard: null,
             dice: {value: 1},
+            maxTestid: 1
         }
     },
     computed: {
@@ -295,6 +311,19 @@ export default
     },
     methods:
     {
+        e_addToken(pevt)
+        {
+            const ref = $(pevt.target).data('ref')
+            if(!ref) return
+
+            const token = $.extend({}, this.tokenavail.find(pcard => pcard.reference == ref))
+            token.testid = this.maxTestid++
+            token.boost = 0
+
+            this.token.push(token)
+            this.expehero.push(token)
+            this.e_selectCard(token)
+        },
         e_dicerolled()
         {
             toast('Vous avez fait un ' + this.dice.value, {type: TYPE.INFO})
@@ -321,7 +350,7 @@ export default
         },
         e_changeBoost(pval)
         {
-            if(!this.selectedCard || !this.g_isPersonnage(this.selectedCard)) return
+            if(!this.selectedCard || !this.g_canHaveBoost(this.selectedCard)) return
 
             if(pval == 0){
                 this.selectedCard.boost = 0
@@ -360,7 +389,7 @@ export default
             if(card) return 'EXPEHERO'
 
             card = this.expecomp.find(pcard => pcard.testid == this.selectedCard.testid)
-            if(card) return 'EXPEHERO'
+            if(card) return 'EXPECOMP'
 
             card = this.reserve.find(pcard => pcard.testid == this.selectedCard.testid)
             if(card) return 'RESERVE'
@@ -388,7 +417,7 @@ export default
         isVisibleBoost()
         {
             if(!this.selectedCard) return false
-            if(!this.g_isPersonnage(this.selectedCard)) return false
+            if(!this.g_canHaveBoost(this.selectedCard)) return false
 
             const where = this.getPositionSelectedCard()
             if(where != 'EXPEHERO' && where != 'EXPECOMP' ) return false
@@ -416,6 +445,34 @@ export default
             const dragTo = $(pevent.to).data('dragto')
             const card = this.getCardFromId(pevent.item.id)
             
+            //un token n'est autorisé qu'en expé
+            //si zone différente, on le supprime
+            if(this.g_isToken(card) && (!(dragTo == 'EXPEHERO' || dragTo == 'EXPECOMP')))
+            {
+                switch (dragTo) {
+                    case 'RESERVE':
+                        this.reserve = this.reserve.filter(pcard => pcard.testid != card.testid)
+                        break
+                    case 'PERMAS':
+                        this.permas = this.permas.filter(pcard => pcard.testid != card.testid)
+                        break
+                    case 'MANA':
+                        this.mana = this.mana.filter(pcard => pcard.testid != card.testid)
+                        break
+                    case 'HAND':
+                        this.hand = this.hand.filter(pcard => pcard.testid != card.testid)
+                        break
+                    case 'DEFAUSSE':
+                        this.defausse = this.defausse.filter(pcard => pcard.testid != card.testid)
+                        break
+                }
+                //suppression du token in game
+                this.token = this.token.filter(pcard => pcard.testid != card.testid)
+                
+                this.selectedCard = null
+                return
+            }
+
             switch (dragTo) {
                 case 'RESERVE':
                     if(this.dragFrom != 'EXPEHERO' && this.dragFrom != 'EXPECOMP' && this.dragFrom != 'HAND' && !this.g_isSort(card))
@@ -494,7 +551,11 @@ export default
         },
         getCardFromId(ptestid)
         {
-            return this.fulldeck.find(pcard => pcard.testid == ptestid)
+            var card = this.fulldeck.find(pcard => pcard.testid == ptestid)
+            if(card) return card
+
+            //peut être un token
+            return this.token.find(pcard => pcard.testid == ptestid)
         },
         getClassCard(pcard)
         {
@@ -548,14 +609,16 @@ export default
             this.defausse = []
             this.permas = []
             this.fulldeck = []
+            this.token = []
+            this.tokenavail = []
 
-            var cpt = 1
+            this.maxTestid = 1
             tmpdeck.forEach(card => 
             {
                 for(let nbcards = 1; nbcards <= card.quantite; nbcards++)
                 {
                     card.boost = 0
-                    card.testid = cpt++
+                    card.testid = this.maxTestid++
                     this.deck.push($.extend({}, card))
                 }
             })
@@ -567,6 +630,23 @@ export default
             {
                 this.hand.push(this.deck.shift())
             }
+
+            //recup des tokens
+            var calcparams = {
+                deckbuilder: false,
+                currentFaction: this.currentdeck.main_faction,
+                calculatedrarity: ['COMMON'],
+                calculatedtype: ['TOKEN'],
+                currentPage: 1,
+                itemsPerPage: 50,                
+            }
+            this.g_fetchCardsFromDatabase(calcparams, pcards => 
+            {
+                if(pcards)
+                {
+                    this.tokenavail = pcards
+                }
+            })
         },
         e_fen()
         {
@@ -620,6 +700,10 @@ export default
 </script>
 
 <style scoped>
+.aw-decktools
+{
+    margin-top: 38px !important;
+}
 .aw-main img{
     min-width: 124px;
 }
@@ -868,10 +952,6 @@ export default
 }
 .aw-defausse > div{
     flex-wrap: wrap;
-}
-.aw-defausse .aw-ghost
-{
-    /*max-width: 116px;*/
 }
 
 .aw-maincontainer

@@ -201,6 +201,9 @@ export default {
         app.config.globalProperties.g_isPermanent = function (pcard) {
             return pcard && pcard.cardType == "PERMANENT";
         };
+        app.config.globalProperties.g_isToken = function (pcard) {
+            return pcard && pcard.cardType == "TOKEN";
+        };
 
         app.config.globalProperties.g_isCommon = function (pcard) {
             return pcard && pcard.rarity == "COMMON";
@@ -212,6 +215,9 @@ export default {
             return pcard && pcard.rarity == "UNIQUE";
         };
         
+        app.config.globalProperties.g_canHaveBoost = function (pcard) {
+            return this.g_isPersonnage(pcard) || this.g_isToken(pcard);
+        };
 
         app.config.globalProperties.g_getQuantiteInDeck = function (pcard, pdeck) {
             if(!pdeck || !pdeck.cards || !pcard) return 0;
@@ -274,6 +280,25 @@ export default {
                     return "#FFF";
             }
         }; 
+
+        app.config.globalProperties.g_isDeckAxiom = function (pdeck) {
+            return pdeck && pdeck.main_faction && this.g_isCodeAxiom(pdeck.main_faction)
+        };
+        app.config.globalProperties.g_isDeckBravos = function (pdeck) {
+            return pdeck && pdeck.main_faction && this.g_isCodeBravos(pdeck.main_faction)
+        };
+        app.config.globalProperties.g_isDeckLyra = function (pdeck) {
+            return pdeck && pdeck.main_faction && this.g_isCodeLyra(pdeck.main_faction)
+        };
+        app.config.globalProperties.g_isDeckMuna = function (pdeck) {
+            return pdeck && pdeck.main_faction && this.g_isCodeMuna(pdeck.main_faction)
+        };
+        app.config.globalProperties.g_isDeckOrdis = function (pdeck) {
+            return pdeck && pdeck.main_faction && this.g_isCodeOrdis(pdeck.main_faction)
+        };
+        app.config.globalProperties.g_isDeckYzmir = function (pdeck) {
+            return pdeck && pdeck.main_faction && this.g_isCodeYzmir(pdeck.main_faction)
+        };
 
         app.config.globalProperties.g_isCodeAxiom = function (pcode) {
             return pcode == "AX"

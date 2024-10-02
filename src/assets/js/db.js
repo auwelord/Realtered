@@ -165,14 +165,14 @@ export default {
             }
 
             if (params.currentName) req = req.ilike('name', '%' + params.currentName + '%')
-            if (params.calculatedrarity.length > 0) req = req.in("rarity", params.calculatedrarity)
-            if (params.calculatedmaincost.length > 0) req = req.in("mainCost", params.calculatedmaincost)
-            if (params.calculatedrecallcost.length > 0) req = req.in("recallCost", params.calculatedrecallcost)
-            if (params.calculatedforest.length > 0) req = req.in("forestPower", params.calculatedforest)
-            if (params.calculatedmountain.length > 0) req = req.in("mountainPower", params.calculatedmountain)
-            if (params.calculatedwater.length > 0) req = req.in("oceanPower", params.calculatedwater)
-            if (params.calculatedtype.length > 0) req = req.in("cardType", params.calculatedtype)
-            if (params.currentEditions.length > 0) req = req.in("cardSet", params.currentEditions)
+            if (params.calculatedrarity && params.calculatedrarity.length > 0) req = req.in("rarity", params.calculatedrarity)
+            if (params.calculatedmaincost && params.calculatedmaincost.length > 0) req = req.in("mainCost", params.calculatedmaincost)
+            if (params.calculatedrecallcost && params.calculatedrecallcost.length > 0) req = req.in("recallCost", params.calculatedrecallcost)
+            if (params.calculatedforest && params.calculatedforest.length > 0) req = req.in("forestPower", params.calculatedforest)
+            if (params.calculatedmountain && params.calculatedmountain.length > 0) req = req.in("mountainPower", params.calculatedmountain)
+            if (params.calculatedwater && params.calculatedwater.length > 0) req = req.in("oceanPower", params.calculatedwater)
+            if (params.calculatedtype && params.calculatedtype.length > 0) req = req.in("cardType", params.calculatedtype)
+            if (params.currentEditions && params.currentEditions.length > 0) req = req.in("cardSet", params.currentEditions)
 
             if(params.capaStaticNonVide) req = req.gt('static_effect', '')
             else if(params.capaStatic) req = req.ilike('static_effect', '%' + params.capaStatic + '%')
@@ -193,23 +193,29 @@ export default {
             else if(params.capaSupport) req = req.ilike('echo_effect', '%' + params.capaSupport + '%')
 
             var streq = []
-            if (params.currentSoustypes.length > 0)
+            if (params.currentSoustypes && params.currentSoustypes.length > 0)
             {
                 params.currentSoustypes.forEach(st => streq.push('cardSubtypes.cs.\{' + st + '\}'))
             }
             if(streq.length > 0) req = req.or(streq.join(','))
 
             var keywords = []
-            params.currentKeywords.forEach(kw => {
-                var label = app.config.globalProperties.g_getKeywordLabel(kw);
-                keywords.push('main_effect.ilike.%' + label + '%,echo_effect.ilike.%' + label + '%')
-            });
+            if(params.currentKeywords)
+            {
+                params.currentKeywords.forEach(kw => {
+                    var label = app.config.globalProperties.g_getKeywordLabel(kw);
+                    keywords.push('main_effect.ilike.%' + label + '%,echo_effect.ilike.%' + label + '%')
+                });
+            }
             if(keywords.length > 0) req = req.or(keywords.join(','))
 
-            params.currentSort.forEach(sortref => {
-                var tab = sortref.split(',')
-                req = req.order(tab[0] == 'translations.name' ? 'name' : tab[0], { ascending: tab.length == 1 })
-            });      
+            if(params.currentSort)
+            {
+                params.currentSort.forEach(sortref => {
+                    var tab = sortref.split(',')
+                    req = req.order(tab[0] == 'translations.name' ? 'name' : tab[0], { ascending: tab.length == 1 })
+                });      
+            }
             
             req = req.range((params.currentPage - 1) * params.itemsPerPage, (params.currentPage * params.itemsPerPage) )
 

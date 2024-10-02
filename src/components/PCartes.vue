@@ -207,25 +207,31 @@
                   </div>
                 </div>
                 <BCollapse id="awid-filtrestype" v-model="uiparams.filtreType" @hide="storeUiparams" @show="storeUiparams">
-                  <div class="card-group justify-content-evenly aw-type mt-2">
+                  <div class="card-group justify-content-between aw-type mt-2">
                     <a href="javascript:" id="CHARACTER" title="Sélection du type Personnage"
                         :class="['aw-character d-flex flex-column align-items-center mb-3', isSelectedCharacter ? 'aw-selected' : '']"
                         @click="selectCharacter">
-                        <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-3" /><span>Personnage</span>
+                          <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-4" /><span>Personnage</span>
                     </a>
                     <a href="javascript:" id="SPELL" :title="isSelectedUnique ? 'Le type Sort ne peut pas être activé pour une rareté Unique' : 'Sélection du type Sort'"
                         :class="['aw-spell d-flex flex-column align-items-center mb-3', isSelectedSpell ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
                         @click="selectSpell">
-                        <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-3" /><span>Sort</span>
+                          <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-4" /><span>Sort</span>
                     </a>
                     <a href="javascript:" id="PERMANENT" :title="isSelectedUnique ? 'Le type Permanent ne peut pas être activé pour une rareté Unique' : 'Sélection du type Permanent'"
                         :class="['aw-permanent d-flex flex-column align-items-center mb-3', isSelectedPermanent ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
-                        @click="selectPermanent"><font-awesome-icon :icon="['fas', 'building-shield']" class="fs-3" /><span>Permanent</span>
+                        @click="selectPermanent">
+                          <font-awesome-icon :icon="['fas', 'building-shield']" class="fs-4" /><span>Permanent</span>
                     </a>
                     <a href="javascript:" id="HERO" :title="isSelectedUnique ? 'Le type Héro ne peut pas être activé pour une rareté Unique' : 'Sélection du type Héro'"
                         :class="['aw-hero d-flex flex-column align-items-center mb-3', isSelectedHero ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
                         @click="selectHero">
-                        <font-awesome-icon :icon="['fas', 'mask']" class="fs-3" /><span>Héro</span>
+                          <font-awesome-icon :icon="['fas', 'mask']" class="fs-4" /><span>Héro</span>
+                    </a>
+                    <a href="javascript:" v-if="g_isAdmin(user)" id="TOKEN" :title="isSelectedUnique ? 'Le type Token ne peut pas être activé pour une rareté Unique' : 'Sélection du type Token'"
+                        :class="['aw-token d-flex flex-column align-items-center mb-3', isSelectedToken ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
+                        @click="selectToken">
+                          <font-awesome-icon :icon="['fas', 'robot']" class="fs-4" /><span>Token</span>
                     </a>
                   </div>
                 </BCollapse>
@@ -878,6 +884,7 @@ export default {
       isSelectedPermanent: false,
       isSelectedSpell: false,
       isSelectedHero: false,
+      isSelectedToken: false,
       isSelectedCommon: false,
       isSelectedRare: false,
       isSelectedUnique: false,
@@ -1022,6 +1029,7 @@ export default {
     this.isSelectedPermanent = filters.isSelectedPermanent
     this.isSelectedSpell = filters.isSelectedSpell
     this.isSelectedHero = filters.isSelectedHero
+    this.isSelectedToken = filters.isSelectedToken
     this.isSelectedCommon = filters.isSelectedCommon
     this.isSelectedRare = filters.isSelectedRare
     this.isSelectedUnique = filters.isSelectedUnique
@@ -1115,6 +1123,7 @@ export default {
         isSelectedPermanent: false,
         isSelectedSpell: false,
         isSelectedHero: false,
+        isSelectedToken: false,
         isSelectedCommon: false,
         isSelectedRare: false,
         isSelectedUnique: false,
@@ -1340,6 +1349,7 @@ export default {
       filters.isSelectedSpell = this.isSelectedSpell;
       filters.isSelectedPermanent = this.isSelectedPermanent;
       filters.isSelectedHero = this.isSelectedHero;
+      filters.isSelectedToken = this.isSelectedToken;
       filters.handCostOrMore = this.handCostOrMore;
       filters.reserveCostOrMore = this.reserveCostOrMore;
       filters.forestOrMore = this.forestOrMore;
@@ -1384,6 +1394,7 @@ export default {
       this.isSelectedPermanent = filters.isSelectedPermanent
       this.isSelectedSpell = filters.isSelectedSpell
       this.isSelectedHero = filters.isSelectedHero
+      this.isSelectedToken = filters.isSelectedToken
       this.isSelectedCommon = filters.isSelectedCommon
       this.isSelectedRare = filters.isSelectedRare
       this.isSelectedUnique = filters.isSelectedUnique
@@ -2260,23 +2271,30 @@ export default {
     },
     selectSpell() 
     {
-      if(isSelectedUnique) return
+      if(this.isSelectedUnique) return
       this.isSelectedSpell = !this.isSelectedSpell;
       this.setTimeoutRechType()      
       this.onChangeFilter();
     },
     selectPermanent() 
     {
-      if(isSelectedUnique) return
+      if(this.isSelectedUnique) return
       this.isSelectedPermanent = !this.isSelectedPermanent;
       this.setTimeoutRechType()      
       this.onChangeFilter();
     },
     selectHero() 
     {
-      if(isSelectedUnique) return
+      if(this.isSelectedUnique) return
       this.setTimeoutRechType()
       this.isSelectedHero = !this.isSelectedHero;
+      this.onChangeFilter();
+    },
+    selectToken()
+    {
+      if(this.isSelectedUnique) return
+      this.setTimeoutRechType()
+      this.isSelectedToken = !this.isSelectedToken;
       this.onChangeFilter();
     },
     isEmptyFetchedCards() {
@@ -2332,7 +2350,7 @@ export default {
     changeFaction(event) 
     {
       if(!this.canSelectFaction()) return
-      
+
       var $target = $(event.target);
       var $a = $target.is("a") ? $target : $target.parents("a:first");
       this.setCurrentFaction($a);
@@ -2374,6 +2392,7 @@ export default {
         this.isSelectedSpell = false;
         this.isSelectedPermanent = false;
         this.isSelectedHero = false;
+        this.isSelectedToken = false;
 
         this.isSelectedRare = false
         this.isSelectedCommon = false
@@ -2519,6 +2538,7 @@ export default {
       if (this.isSelectedSpell) types.push("SPELL");
       if (this.isSelectedPermanent) types.push("PERMANENT");
       if (this.isSelectedHero) types.push("HERO");
+      if (this.isSelectedToken) types.push("TOKEN");
       return types;
     },
     calcRarities() {
@@ -3026,6 +3046,12 @@ export default {
 .aw-type a.aw-hero:hover span,
 .aw-type a.aw-hero.aw-selected {
   color: var(--c-forest);
+}
+
+.aw-type a.aw-token:hover,
+.aw-type a.aw-token:hover span,
+.aw-type a.aw-token.aw-selected {
+  color: var(--c-rare);
 }
 
 .aw-type a:hover::after,
