@@ -140,8 +140,8 @@
                 <div class="d-flex justify-content-end">
                     <div class="d-flex flex-column">
                         <div class="text-center m-1 aw-titlezone">Deck : {{ deck.length }}</div>
-                        <div class="aw-slot m-1">
-                            <img src="@/assets/img/altered/card-back.webp" class="aw-imgcard aw-alteredcard"/>
+                        <div class="aw-slot m-1 h-100">
+                            <img src="@/assets/img/altered/card-back.webp" class="aw-imgcard aw-alteredcard aw-imgdeck"/>
                         </div>
                     </div>
                     <div class="d-flex flex-column aw-defaussecontainer">
@@ -154,7 +154,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="aw-defausse m-1 d-flex justify-content-center align-items-center position-relative">
+                        <div class="aw-defausse m-1 d-flex justify-content-center align-items-center position-relative h-100">
                             <draggable 
                                 v-model="defausse" 
                                 v-bind="dragOptions"
@@ -162,9 +162,9 @@
                                 @end="e_endDrag" 
                                 data-dragto='DEFAUSSE'
                                 item-key="testid"
-                                class="m-1 d-flex justify-content-center">
+                                class="d-flex justify-content-between">
                                 <template #item="{element}">
-                                    <div class="aw-ghost m-1" :id="element.testid" @click="e_selectCard(element)">
+                                    <div class="aw-ghost m-1 d-flex justify-content-center" :id="element.testid" @click="e_selectCard(element)">
                                         <img :src="g_getImageCardPublicUrl(element)" :title="element.name" class="aw-imgcard aw-dragcard aw-alteredcard" />
                                         <div class="aw-manaslot aw-manacard mb-1 ms-1 me-1"></div>
                                     </div>
@@ -404,7 +404,7 @@ export default
             
             switch (dragTo) {
                 case 'RESERVE':
-                    if(this.dragFrom != 'EXPEHERO' && this.dragFrom != 'EXPECOMP' && !this.g_isSort(card))
+                    if(this.dragFrom != 'EXPEHERO' && this.dragFrom != 'EXPECOMP' && this.dragFrom != 'HAND' && !this.g_isSort(card))
                     {
                         this.reAddCardToOriginalGroup(card)
                         this.reserve = this.reserve.filter(pcard => pcard.testid != card.testid)
@@ -600,6 +600,12 @@ export default
 </script>
 
 <style scoped>
+.aw-main img{
+    min-width: 124px;
+}
+.aw-imgdeck{
+    max-height: 170px;
+}
 .aw-defaussecontainer
 {
     max-width: 800px;
@@ -634,6 +640,7 @@ export default
 {
     transition: transform 0.5s;
     cursor: pointer;
+    max-width: 132px;
 }
 .aw-slot.aw-hero.aw-exhauted
 {
@@ -754,12 +761,12 @@ export default
 
 .aw-defausse .aw-ghost
 {
-    display: none;
+    display: none !important;
 }
 .aw-defausse .aw-ghost:first-child,
 .aw-defaussecontainer.aw-showall .aw-defausse .aw-ghost
 {
-    display: block;
+    display: block !important;
 }
 .aw-ghost
 {
@@ -816,7 +823,7 @@ export default
 }
 .aw-defaussecontainer .aw-defausse
 {
-    min-width: 134px;  
+    min-width: 127px;
     width: auto; 
     height: auto;
 }
@@ -833,13 +840,13 @@ export default
 {
     height: 100%;
     width: 100%;
+    /*min-width: 126px;*/
 }
 .aw-defaussecontainer .aw-showall.aw-defausse{
     height: auto;
 }
 .aw-defausse > div{
     flex-wrap: wrap;
-    min-height: 170px;
 }
 .aw-defausse .aw-ghost
 {
