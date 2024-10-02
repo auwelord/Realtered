@@ -965,9 +965,11 @@ a.aw-unique::after {
 }
 
 .aw-cursor-notallowed{
-  cursor: not-allowed
+  cursor: not-allowed;
 }
-
+.aw-cursor-pointer{
+  cursor: pointer;
+}
 .aw-opacity25{
   opacity: 0.25;
 }

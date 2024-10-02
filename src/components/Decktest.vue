@@ -135,6 +135,9 @@
                             <img :src="urlManaCard" class="aw-imgcard aw-alteredcard" />
                         </div>
                     </div>
+                    <div class="d-flex align-items-center">
+                        <Dice :dice="dice" @dicerolled="e_dicerolled"/>
+                    </div>
                 </div>
 
                 <div class="d-flex justify-content-end">
@@ -248,6 +251,9 @@ watch(() => props.currentdeck, async (newcurrentdeck, oldcurrentdeck) => {
 
 <script>
 import draggable from 'vuedraggable'
+import { useToast, TYPE } from "vue-toastification";
+
+const toast = useToast();
 
 export default
 {
@@ -268,6 +274,7 @@ export default
             dragFrom: null,
             selectedCard: null,
             urlManaCard: null,
+            dice: {value: 1},
         }
     },
     computed: {
@@ -285,6 +292,10 @@ export default
     },
     methods:
     {
+        e_dicerolled()
+        {
+            toast('Vous avez fait un ' + this.dice.value, {type: TYPE.INFO})
+        },
         e_toggleShowDefausse()
         {
             $('.aw-defaussecontainer').toggleClass('aw-showall')
