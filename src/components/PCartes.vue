@@ -262,7 +262,7 @@
                     </div>
                   </div>
                   <div class="aw-slider aw-handcost">
-                    <input type="range" id="handCost" v-model="handCost" class="w-100 mt-0" min="1" max="10" step="1"
+                    <input type="range" id="handCost" v-model="handCost" class="w-100 mt-0" min="0" max="10" step="1"
                       value="1" @change="onChangeMaincost" />
                   </div>
                 </div>
@@ -294,7 +294,7 @@
                     </div>
                   </div>
                   <div class="aw-slider aw-reservecost">
-                    <input type="range" id="reserveCost" v-model="reserveCost" class="w-100 mt-0" min="1" max="10"
+                    <input type="range" id="reserveCost" v-model="reserveCost" class="w-100 mt-0" min="0" max="10"
                       step="1" value="1" @change="onChangeRecallCost" />
                   </div>
                 </div>
@@ -896,9 +896,9 @@ export default {
       loading: false,
       currentPage: 1,
       hasMore: true,
-      handCost: 1,
+      handCost: 0,
       handCostOrMore: "ouplus",
-      reserveCost: 1,
+      reserveCost: 0,
       reserveCostOrMore: "ouplus",
       forest: 0,
       forestOrMore: "ouplus",
@@ -2486,14 +2486,14 @@ export default {
 
       if (!rangeType) return [Number(costValue)];
       if (rangeType == "ouplus") {
-        if (costValue == 1) return []; //0 ou plus : ne pas envoyer le param
+        if (costValue == 0) return []; //0 ou plus : ne pas envoyer le param
         for (let cost = Number(costValue); cost <= 20; cost++) {
           couts.push(cost);
         }
       }
       else {
         if (costValue == 10) return []; //10 ou moins : ne pas envoyer le param
-        for (let cost = Number(costValue); cost >= 1; cost--) {
+        for (let cost = Number(costValue); cost >= 0; cost--) {
           couts.push(cost);
         }
       }
