@@ -13,7 +13,7 @@
       <div>
         <img :src="g_getImageCardPublicUrl(card)" :title="card.name" class="img-fluid aw-alteredcard" />
         <div class="aw-collection" v-if="collection">{{ card.inMyCollection }}</div>
-        <div class="aw-cardoptions ">
+        <div class="aw-cardoptions" v-if="!g_isToken(card)">
           <div class="d-flex align-items-center">
             <div class="d-flex flex-column align-items-center flex-fill">
               <div class="d-flex justify-content-between aw-tools" v-if="deckbuilder && !g_isOOF(card, currentDeck)">

@@ -242,6 +242,7 @@ export default {
         app.config.globalProperties.g_canAddCardToDeck = function(pcard, pdeck)
         {
             if(!pdeck) return false;
+            if(this.g_isToken(pcard)) return false
             if(pcard.quantite == 3) return false;
             if(this.g_isOOF(pcard, pdeck)) return false;
             var ishero = this.g_isHero(pcard);
