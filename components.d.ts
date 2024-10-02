@@ -29,6 +29,7 @@ declare module 'vue' {
     Deckselect: typeof import('./src/components/Deckselect.vue')['default']
     DeckStats: typeof import('./src/components/DeckStats.vue')['default']
     Decktest: typeof import('./src/components/Decktest.vue')['default']
+    Dice: typeof import('./src/components/Dice.vue')['default']
     Loader: typeof import('./src/components/icons/Loader.vue')['default']
     Logo: typeof import('./src/components/icons/Logo.vue')['default']
     Menu: typeof import('./src/components/Menu.vue')['default']
