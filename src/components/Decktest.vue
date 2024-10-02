@@ -589,7 +589,13 @@ export default
         },
         ravitailler()
         {
-            this.reserve.push(this.deck.shift())
+            const card = this.deck.shift()
+
+            if(card)
+            {
+                if(!this.g_isPermanent(card)) card.fugace = true
+                this.reserve.push(card)
+            }
         },
         shuffleDeck() 
         {
