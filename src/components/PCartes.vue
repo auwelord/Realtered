@@ -14,6 +14,13 @@
             <div class="card-header">
               <h3 class="card-title">Mes decks</h3>
               <div class="card-tools d-flex">
+                  <div v-if="g_isAdmin(user)">
+                  Tournois
+                  <label class="switch me-2">
+                    <input type="checkbox" v-model="cbdeckstournois">
+                    <span class="slider round"></span>
+                  </label>
+                </div>
                 <BDropdown v-model="showDDCreateDeck" v-if="!creatingDeck && !proprietingdeck" size="sm" split variant="primary" class="me-2" @click="createDeck">
                   <template #button-content>
                     <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>Créer
@@ -577,9 +584,9 @@
                   <h3 class="fs-5" v-if="currentDeck"><font-awesome-icon :icon="['fas', 'lock']" class="me-2" v-if="!currentDeck.public"/>{{ currentDeck.name }}</h3>
                   <div class="fs-7">Cartes: {{ g_getTotalCardsInDeck({deck: currentDeck}) }}</div>
                 </div>
-                <div class="d-flex align-items-end">
+                <div class="d-flex align-items-center">
                   <div class="me-2" v-if="!showVersionsEvol">
-                      <div class="input-group flex-nowrap" v-if="user && currentSelectedDeck > 0">
+                      <div class="input-group flex-nowrap" v-if="user && currentSelectedDeck > 0 && !currentDeck.tournoiId">
                         <Multiselect class="m-0 me-2 aw-selectversion"
                           v-model="currentVersion" 
                           :close-on-select="true" 
@@ -608,10 +615,18 @@
                         </span>
                       </div>
                     </div>
-                    <BButton @click="saveDeck()" variant="primary"  class="me-2 text-nowrap" v-if="user && !showVersionsEvol">
+                    <BButton @click="saveDeck()" variant="primary"  class="me-2 text-nowrap" v-if="user && !showVersionsEvol && currentDeck.hero">
                       <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" />Enregistrer
                     </BButton>
-                    
+                      <Multiselect class="me-2 aw-selecttournoi" v-if="tournois && !currentDeck.userId && g_isAdmin(user)"
+                          v-model="currentDeck.tournoiId" 
+                          :close-on-select="true" 
+                          :options="tournois"
+                          :canClear="true"
+                          :canDeselect="true"
+                          />
+                    <BFormInput v-model="currentDeck.tournoiPos" placeholder="Position" class="me-2 aw-ftournoipos" type="number" min="1" v-if="currentDeck.tournoiId && g_isAdmin(user)" />
+                          
                                         
                     <BDropdown v-model="showDecklistoptions" start  variant="outline-secondary" v-if="!showVersionsEvol">
                       <template #button-content>
@@ -1002,11 +1017,24 @@ export default {
       showVersionsEvol: false,
       versionsDiffs: null,
       showImageFullsize: false,
+      tournois: null,
+      cbdeckstournois: false,
     };
   },
   mounted() 
   { 
     this.router = useRouter();
+
+    this.tournois = []
+    this.g_fetchTournois(null, ptournois =>
+    {
+      this.tournois = ptournois.map(tournoi => {
+        return { 
+          value: tournoi.id, 
+          label: tournoi.libelle 
+      }});
+    })
+
     const storeduiparams = localStorage.getItem('uiparams');
     if(storeduiparams) this.uiparams = JSON.parse(storeduiparams);
     
@@ -1102,6 +1130,10 @@ export default {
         return
       }
       this.m_setCurrentDeck(newValue)
+    },
+    cbdeckstournois(newValue, oldValue){
+      this.onClearCurrentDeck()
+      this.loadDecks();
     }
   },
   inject: ['callShowWaitingScreen', 'callHideWaitingScreen'], // Injecter la méthode de App.vue
@@ -1604,6 +1636,7 @@ export default {
         myonly: true,
         withhero: true,
         withfavs: false,
+        tournois: this.cbdeckstournois,
         callback : pdecks => this.onFetchedDecks(pdecks, pidDft)
       });
     },
@@ -2696,7 +2729,12 @@ export default {
 </script>
 
 <style>
-.multiselect.aw-selectversion .multiselect-wrapper
+.aw-ftournoipos
+{
+  width: 75px !important;
+}
+.multiselect.aw-selectversion .multiselect-wrapper,
+.multiselect.aw-selecttournoi .multiselect-wrapper
 {
   min-height: auto;
 }
@@ -2706,9 +2744,11 @@ export default {
 .multiselect.aw-selectversion
 {
   width: 160px;
-  min-height: auto;
 }
-
+.multiselect.aw-selecttournoi
+{
+  width: 260px;
+}
 .aw-quantitediff
 {
   background-color: #00000096;

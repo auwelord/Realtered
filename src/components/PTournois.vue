@@ -74,7 +74,7 @@
                         <h3 class="card-title">Decks</h3>
                     </div>
                     <div class="card-body">
-                        <BListGroup>
+                        <BListGroup v-if="decks && decks.length > 0">
                             <BListGroupItem v-for="deck in decks" @click="e_showDeck(deck)" :class="['aw-deck aw-cursor-pointer', getClassDeck(deck)]" :id="'deck' + deck.id">
                                 <div class="d-flex justify-content-between">
                                     <div>{{ deck.name }}</div>
@@ -88,6 +88,7 @@
                                 </div>
                             </BListGroupItem>
                         </BListGroup>
+                        <div v-else>Aucun deck</div>
                     </div>
                 </div>
             </BCol>

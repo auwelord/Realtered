@@ -311,6 +311,12 @@ export default {
 
         async function fetchDecks(params)
         {
+            if(params.tournois)
+            {
+                params.myonly = false
+                params.favonly = false
+            }
+
             var select = '*';
             if(params.withcards) select += ', CardsDeck(*), hero:Card!Deck_hero_id_fkey(*)'
             else if(params.withhero) select += ', hero:Card!Deck_hero_id_fkey(*)'
@@ -329,27 +335,34 @@ export default {
             const dataUser = await anonSupabase.auth.getUser()
             const user = dataUser.data.user
                 
-            if(params.myonly)
+            if(params.tournois)
             {
-                if(!user)
-                {
-                    if(params.callback) params.callback([])
-                    return
-                }
-                req = req.eq('userId', user.id);
+                req = req.is('userId', null);
             }
-            else
-            {            
-                //on veut tous les decks
-                //utilisateur non connecté : on recupere que les decks publics
-                if(!user)
+            else 
+            {
+                if(params.myonly)
                 {
-                    req = req.eq('public', true);
+                    if(!user)
+                    {
+                        if(params.callback) params.callback([])
+                        return
+                    }
+                    req = req.eq('userId', user.id);
                 }
                 else
-                {
-                    //utilisateur connecté : on recupere tous les decks publics + mes decks
-                    req = req.or('public.eq.TRUE,userId.eq.' + user.id);
+                {            
+                    //on veut tous les decks
+                    //utilisateur non connecté : on recupere que les decks publics
+                    if(!user)
+                    {
+                        req = req.eq('public', true);
+                    }
+                    else
+                    {
+                        //utilisateur connecté : on recupere tous les decks publics + mes decks
+                        req = req.or('public.eq.TRUE,userId.eq.' + user.id);
+                    }
                 }
             }
 
@@ -525,6 +538,7 @@ export default {
                     .from('Deck')
                     .select()
                     .eq('tournoiId', ptournoi.id)
+                    .eq('public', true)
                     .order('tournoiPos')
 
             pcallback(data)
