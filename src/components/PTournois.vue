@@ -14,7 +14,7 @@
                     <div class="card-header">
                         <h3 class="card-title">Tournois</h3>
                         <div class="card-tools d-flex">
-                            <BButton @click="e_createTournoi" variant="primary" size="sm" v-if="!show_formtournoi && user && user.admin">
+                            <BButton @click="e_createTournoi" variant="primary" size="sm" v-if="!show_formtournoi && g_isAdmin(user)">
                                 <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />Créer
                             </BButton>
                         </div>
