@@ -218,6 +218,9 @@ export default {
         app.config.globalProperties.g_canHaveBoost = function (pcard) {
             return this.g_isPersonnage(pcard) || this.g_isToken(pcard);
         };
+        app.config.globalProperties.g_canHaveMarker = function (pcard) {
+            return this.g_isPermanent(pcard) || this.g_isHero(pcard);
+        };
 
         app.config.globalProperties.g_getQuantiteInDeck = function (pcard, pdeck) {
             if(!pdeck || !pdeck.cards || !pcard) return 0;

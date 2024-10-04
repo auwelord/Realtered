@@ -27,6 +27,7 @@
                                     <div class="aw-imgancre"></div>
                                     <div class="aw-imgendormi"></div>
                                     <div :class="['aw-imgboost', getClassBoost(element)]"></div>
+                                    <div :class="['aw-imgmarker', getClassMarker(element)]"></div>
                                 </div>
                             </template>
                         </draggable>
@@ -34,8 +35,9 @@
                 </div>
                 <div class="d-flex flex-column">
                     <div class="text-center m-1 aw-titlezone">Héro</div>
-                    <div class="aw-slot aw-hero m-1 d-flex justify-content-center">
-                        <img :src="g_getImageCardPublicUrl(currentdeck.hero)" :title="currentdeck.hero.name" class="aw-imgcard aw-alteredcard p-1" @click="e_exhaustHero"/>
+                    <div :class="['aw-slot aw-hero m-1 position-relative d-flex justify-content-center',getClassExhaustedCard(currentdeck.hero) ,getClassSelectedCard(currentdeck.hero)]">
+                        <img :src="g_getImageCardPublicUrl(currentdeck.hero)" :title="currentdeck.hero.name" class="aw-imgcard aw-alteredcard p-1" @dblclick="e_toggleExhaustHero"  @click="e_selectCard(currentdeck.hero)"/>
+                        <div :class="['aw-imgmarker', getClassMarker(currentdeck.hero)]"></div>
                     </div>
                 </div>
                 <div class="d-flex flex-fill flex-column">
@@ -63,6 +65,7 @@
                                     <div class="aw-imgancre"></div>
                                     <div class="aw-imgendormi"></div>
                                     <div :class="['aw-imgboost', getClassBoost(element)]"></div>
+                                    <div :class="['aw-imgmarker', getClassMarker(element)]"></div>
                                 </div>
                             </template>
                         </draggable>
@@ -108,9 +111,10 @@
                             data-dragto='PERMAS'
                             >
                             <template #item="{element}">
-                                <div :class="['aw-ghost m-1', getClassSelectedCard(element)]" :id="element.testid" @click="e_selectCard(element)">
+                                <div :class="['aw-ghost m-1 position-relative', getClassSelectedCard(element)]" :id="element.testid" @click="e_selectCard(element)">
                                     <img :src="g_getImageCardPublicUrl(element)" :title="element.name" class="aw-imgcard aw-dragcard aw-alteredcard" />
                                     <div class="aw-manaslot aw-manacard mb-1 ms-1 me-1"></div>
+                                    <div :class="['aw-imgmarker', getClassMarker(element)]"></div>
                                 </div>
                             </template>
                         </draggable>
@@ -210,9 +214,14 @@
                                 <img src="@/assets/img/altered/endormi.png" @click="e_toggleStatut('endormi')" :class="['aw-imgjeton aw-imgendormi p-1 m-1', getClassStatut('endormi')]" />
                             </div>
                             <div class="d-flex justify-content-between" v-if="isVisibleBoost()">
-                                <img src="@/assets/img/altered/boost0.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeBoost(0)" />
-                                <img src="@/assets/img/altered/boostremove.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeBoost(-1)" />
-                                <img src="@/assets/img/altered/boostadd.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeBoost(1)" />
+                                <img src="@/assets/img/altered/boost0.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeBoost(0)" title="Supprimer tous les boosts" />
+                                <img src="@/assets/img/altered/boostremove.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeBoost(-1)" title="Retirer un boost" />
+                                <img src="@/assets/img/altered/boostadd.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeBoost(1)" title="Ajouter un boost" />
+                            </div>
+                            <div class="d-flex justify-content-between" v-if="isVisibleMarker()">
+                                <img src="@/assets/img/altered/marker0.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeMarker(0)" title="Supprimer tous les marqueurs"/>
+                                <img src="@/assets/img/altered/markerremove.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeMarker(-1)" title="Retirer un marqueur" />
+                                <img src="@/assets/img/altered/markeradd.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeMarker(1)" title="Ajouter un marqueur" />
                             </div>
                             <div class="d-flex justify-content-between" style="height: 45px;">
                             <BButton @click="e_fen" variant="light" size="sm" class="me-1" title="Piocher / Mettre en mana / ravitailler" v-if="deck.length >= 3 && isDeckFen()">
@@ -234,7 +243,7 @@
             </div>
         </div>
         <div class="row mt-3">
-            <div class="d-flex aw-maincontainer">
+            <div class="d-flex">
                 <div class="d-flex flex-column flex-fill">
                     <div class="text-center m-1 aw-titlezone">Main: {{ hand.length }} / Coût de main: {{ getCoutDeMain()}} / Coût de réserve: {{ getCoutDeReserve() }}</div>
                     <draggable 
@@ -244,7 +253,7 @@
                         @end="e_endDrag" 
                         data-dragto='HAND'
                         item-key="testid"
-                        class="aw-main m-1 d-flex justify-content-center flex-fill">
+                        class="aw-main m-1 d-flex justify-content-center flex-fill flex-wrap">
                         <template #item="{element}">
                             <div :class="['aw-ghost m-1', getClassSelectedCard(element)]" :id="element.testid" @click="e_selectCard(element)">
                                 <img :src="g_getImageCardPublicUrl(element)" :title="element.name" class="aw-imgcard aw-dragcard aw-alteredcard" />
@@ -306,7 +315,7 @@ export default
             selectedCard: null,
             urlManaCard: null,
             dice: {value: 1},
-            maxTestid: 1
+            maxTestid: 1,
         }
     },
     computed: {
@@ -380,6 +389,7 @@ export default
             const token = $.extend({}, this.tokenavail.find(pcard => pcard.reference == ref))
             token.testid = this.maxTestid++
             token.boost = 0
+            token.marker = 0
 
             this.token.push(token)
             this.expehero.push(token)
@@ -393,9 +403,9 @@ export default
         {
             $('.aw-defaussecontainer').toggleClass('aw-showall')
         },
-        e_exhaustHero()
+        e_toggleExhaustHero()
         {
-            $('.aw-slot.aw-hero').toggleClass('aw-exhauted')
+            this.currentdeck.hero.exhausted = !this.currentdeck.hero.exhausted
         },
         e_mouseEnterMana(pcard)
         {
@@ -408,6 +418,10 @@ export default
         getClassBoost(pcard)
         {
             return 'aw-boost' + pcard.boost
+        },
+        getClassMarker(pcard)
+        {
+            return 'aw-marker' + pcard.marker
         },
         e_changeBoost(pval)
         {
@@ -422,6 +436,20 @@ export default
                 if(this.selectedCard.boost > 0) this.selectedCard.boost -= 1
             }
             else if(this.selectedCard.boost < 20) this.selectedCard.boost += 1
+        },
+        e_changeMarker(pval)
+        {
+            if(!this.selectedCard || !this.g_canHaveMarker(this.selectedCard)) return
+
+            if(pval == 0){
+                this.selectedCard.marker = 0
+                return
+            }
+            else if(pval == -1)
+            {
+                if(this.selectedCard.marker > 0) this.selectedCard.marker -= 1
+            }
+            else if(this.selectedCard.marker < 20) this.selectedCard.marker += 1
         },
         e_toggleStatut(pstatut)
         {
@@ -464,6 +492,10 @@ export default
             card = this.deck.find(pcard => pcard.testid == this.selectedCard.testid)
             if(card) return 'DECK'
 
+            if(this.selectedCard.testid == this.currentdeck.hero.testid)
+            {
+                return 'HERO'
+            }
             return null
         },
         isVisibleStatut(pstatut)
@@ -482,7 +514,15 @@ export default
 
             const where = this.getPositionSelectedCard()
             if(where != 'EXPEHERO' && where != 'EXPECOMP' ) return false
-            //&& (g_isPersonnage(this.selectedCard) || g_isPermanent(this.selectedCard))
+            return true
+        },
+        isVisibleMarker()
+        {
+            if(!this.selectedCard) return false
+            if(!this.g_canHaveMarker(this.selectedCard)) return false
+
+            const where = this.getPositionSelectedCard()
+            if(where != 'PERMAS' && where != 'HERO') return false
             return true
         },
         getClassStatut(pstatut)
@@ -548,6 +588,7 @@ export default
                     }
                     card.ancre = false
                     card.endormi = false
+                    card.marker = 0
                     break;
                 case 'EXPEHERO':
                 case 'EXPECOMP':
@@ -575,6 +616,7 @@ export default
                     card.endormi = false
                     card.fugace = false
                     card.boost = 0
+                    card.marker = 0
                     break;
                 default:
                     break;
@@ -630,6 +672,10 @@ export default
         {
             return this.selectedCard && pcard.testid == this.selectedCard.testid ? 'aw-selected' : ''
         },
+        getClassExhaustedCard(pcard)
+        {
+            return pcard.exhausted ? 'aw-exhausted' : ''
+        },
         getCoutDeMain()
         {
             var cost = 0
@@ -657,10 +703,13 @@ export default
         },
         initTest()
         {
-            $('.aw-slot.aw-hero').removeClass('aw-exhauted')
-
             const tmpdeck = this.currentdeck.cards.filter(card => !this.g_isHero(card));
             
+            this.selectedCard = null
+            this.currentdeck.hero.testid = 1
+            this.currentdeck.hero.marker = 0
+            this.currentdeck.hero.exhausted = false
+
             this.deck = []
             this.hand = []
             this.mana = []
@@ -673,12 +722,13 @@ export default
             this.token = []
             this.tokenavail = []
 
-            this.maxTestid = 1
+            this.maxTestid = 2
             tmpdeck.forEach(card => 
             {
                 for(let nbcards = 1; nbcards <= card.quantite; nbcards++)
                 {
                     card.boost = 0
+                    card.marker = 0
                     card.testid = this.maxTestid++
                     this.deck.push($.extend({}, card))
                 }
@@ -807,11 +857,11 @@ export default
     cursor: pointer;
     max-width: 132px;
 }
-.aw-slot.aw-hero.aw-exhauted
+.aw-exhausted
 {
     width: 185px;
 }
-.aw-slot.aw-hero.aw-exhauted img
+.aw-exhausted img
 {
     transform: rotate(90deg);
 }
@@ -830,7 +880,8 @@ export default
     background-size: contain;
     color: white;
 }
-.aw-imgjeton.aw-selected
+.aw-imgjeton.aw-selected,
+.aw-hero.aw-selected
 {
     border: 2px solid var(--c-unique);
 }
@@ -852,16 +903,19 @@ export default
 .aw-ghost .aw-imgancre::after,
 .aw-ghost .aw-imgfugace::after,
 .aw-ghost .aw-imgendormi::after,
-.aw-ghost .aw-imgboost::after
+.aw-ghost .aw-imgboost::after,
+.aw-ghost .aw-imgmarker::after,
+.aw-hero .aw-imgmarker::after
 {
     position: absolute;
     right: 5px;
-    background-size: 35px 35px;
-    width: 35px;
-    height: 35px;
+    background-size: 25px 25px;
+    width: 25px;
+    height: 25px;
     content: "";
     color: white;
-    padding-left: 14px;
+    padding-left: 9px;
+    font-size: 12px;
 }
 .aw-ghost.aw-ancre .aw-imgancre,
 .aw-ghost.aw-fugace .aw-imgfugace,
@@ -876,19 +930,49 @@ export default
 }
 .aw-ghost.aw-ancre .aw-imgancre::after
 {
-    top: 38px;
+    top: 26px;
     background-image: url(/src/assets/img/altered/ancre.png);    
 }
 .aw-ghost.aw-endormi .aw-imgendormi::after
 {
-    top: 76px;
+    top: 52px;
     background-image: url(/src/assets/img/altered/endormi.png);
 }
 .aw-ghost .aw-imgboost::after
 {
-    top: 114px;
+    top: 76px;
     background-image: url(/src/assets/img/altered/boost.png);  
 }
+.aw-ghost .aw-imgmarker::after,
+.aw-hero .aw-imgmarker::after
+{
+    top: 102px;
+    color: black;
+    background-image: url(/src/assets/img/altered/marker.png);
+}
+
+.aw-ghost .aw-imgmarker.aw-marker0::after, .aw-hero .aw-imgmarker.aw-marker0::after { display: none; }
+.aw-ghost .aw-imgmarker.aw-marker1::after, .aw-hero .aw-imgmarker.aw-marker1::after { content: "1"; }
+.aw-ghost .aw-imgmarker.aw-marker2::after, .aw-hero .aw-imgmarker.aw-marker2::after { content: "2"; }
+.aw-ghost .aw-imgmarker.aw-marker3::after, .aw-hero .aw-imgmarker.aw-marker3::after { content: "3"; }
+.aw-ghost .aw-imgmarker.aw-marker4::after, .aw-hero .aw-imgmarker.aw-marker4::after { content: "4"; }
+.aw-ghost .aw-imgmarker.aw-marker5::after, .aw-hero .aw-imgmarker.aw-marker5::after { content: "5"; }
+.aw-ghost .aw-imgmarker.aw-marker6::after, .aw-hero .aw-imgmarker.aw-marker6::after { content: "6"; }
+.aw-ghost .aw-imgmarker.aw-marker7::after, .aw-hero .aw-imgmarker.aw-marker7::after { content: "7"; }
+.aw-ghost .aw-imgmarker.aw-marker8::after, .aw-hero .aw-imgmarker.aw-marker8::after { content: "8"; }
+.aw-ghost .aw-imgmarker.aw-marker9::after, .aw-hero .aw-imgmarker.aw-marker9::after { content: "9"; }
+.aw-ghost .aw-imgmarker.aw-marker10::after, .aw-hero .aw-imgmarker.aw-marker10::after { content: "10"; padding-left: 6px;}
+.aw-ghost .aw-imgmarker.aw-marker11::after, .aw-hero .aw-imgmarker.aw-marker11::after { content: "11"; padding-left: 6px; }
+.aw-ghost .aw-imgmarker.aw-marker12::after, .aw-hero .aw-imgmarker.aw-marker12::after { content: "12"; padding-left: 6px; }
+.aw-ghost .aw-imgmarker.aw-marker13::after, .aw-hero .aw-imgmarker.aw-marker13::after { content: "13"; padding-left: 6px; }
+.aw-ghost .aw-imgmarker.aw-marker14::after, .aw-hero .aw-imgmarker.aw-marker14::after { content: "14"; padding-left: 6px; }
+.aw-ghost .aw-imgmarker.aw-marker15::after, .aw-hero .aw-imgmarker.aw-marker15::after { content: "15"; padding-left: 6px; }
+.aw-ghost .aw-imgmarker.aw-marker16::after, .aw-hero .aw-imgmarker.aw-marker16::after { content: "16"; padding-left: 6px; }
+.aw-ghost .aw-imgmarker.aw-marker17::after, .aw-hero .aw-imgmarker.aw-marker17::after { content: "17"; padding-left: 6px; }
+.aw-ghost .aw-imgmarker.aw-marker18::after, .aw-hero .aw-imgmarker.aw-marker18::after { content: "18"; padding-left: 6px; }
+.aw-ghost .aw-imgmarker.aw-marker19::after, .aw-hero .aw-imgmarker.aw-marker19::after { content: "19"; padding-left: 6px; }
+.aw-ghost .aw-imgmarker.aw-marker20::after , .aw-hero .aw-imgmarker.aw-marker20::after{ content: "20"; padding-left: 6px; }
+
 .aw-ghost .aw-imgboost.aw-boost0::after { display: none; }
 .aw-ghost .aw-imgboost.aw-boost1::after { content: "1"; }
 .aw-ghost .aw-imgboost.aw-boost2::after { content: "2"; }
@@ -899,17 +983,17 @@ export default
 .aw-ghost .aw-imgboost.aw-boost7::after { content: "7"; }
 .aw-ghost .aw-imgboost.aw-boost8::after { content: "8"; }
 .aw-ghost .aw-imgboost.aw-boost9::after { content: "9"; }
-.aw-ghost .aw-imgboost.aw-boost10::after { content: "10"; padding-left: 9px;}
-.aw-ghost .aw-imgboost.aw-boost11::after { content: "11"; padding-left: 9px; }
-.aw-ghost .aw-imgboost.aw-boost12::after { content: "12"; padding-left: 9px; }
-.aw-ghost .aw-imgboost.aw-boost13::after { content: "13"; padding-left: 9px; }
-.aw-ghost .aw-imgboost.aw-boost14::after { content: "14"; padding-left: 9px; }
-.aw-ghost .aw-imgboost.aw-boost15::after { content: "15"; padding-left: 9px; }
-.aw-ghost .aw-imgboost.aw-boost16::after { content: "16"; padding-left: 9px; }
-.aw-ghost .aw-imgboost.aw-boost17::after { content: "17"; padding-left: 9px; }
-.aw-ghost .aw-imgboost.aw-boost18::after { content: "18"; padding-left: 9px; }
-.aw-ghost .aw-imgboost.aw-boost19::after { content: "19"; padding-left: 9px; }
-.aw-ghost .aw-imgboost.aw-boost20::after { content: "20"; padding-left: 9px; }
+.aw-ghost .aw-imgboost.aw-boost10::after { content: "10"; padding-left: 6px;}
+.aw-ghost .aw-imgboost.aw-boost11::after { content: "11"; padding-left: 6px; }
+.aw-ghost .aw-imgboost.aw-boost12::after { content: "12"; padding-left: 6px; }
+.aw-ghost .aw-imgboost.aw-boost13::after { content: "13"; padding-left: 6px; }
+.aw-ghost .aw-imgboost.aw-boost14::after { content: "14"; padding-left: 6px; }
+.aw-ghost .aw-imgboost.aw-boost15::after { content: "15"; padding-left: 6px; }
+.aw-ghost .aw-imgboost.aw-boost16::after { content: "16"; padding-left: 6px; }
+.aw-ghost .aw-imgboost.aw-boost17::after { content: "17"; padding-left: 6px; }
+.aw-ghost .aw-imgboost.aw-boost18::after { content: "18"; padding-left: 6px; }
+.aw-ghost .aw-imgboost.aw-boost19::after { content: "19"; padding-left: 6px; }
+.aw-ghost .aw-imgboost.aw-boost20::after { content: "20"; padding-left: 6px; }
 
 .aw-expehero > div,
 .aw-expecomp > div,
@@ -1013,11 +1097,6 @@ export default
 }
 .aw-defausse > div{
     flex-wrap: wrap;
-}
-
-.aw-maincontainer
-{
-    overflow-x: auto;
 }
 
 .aw-slot.aw-mana
