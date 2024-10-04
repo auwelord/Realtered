@@ -17,6 +17,7 @@
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.3",
     "@vueform/multiselect": "^2.6.9",
+    "@vuepic/vue-datepicker": "^9.0.3",
     "@vueuse/head": "^2.0.0",
     "axios": "^1.7.4",
     "bootstrap": "^5.3.3",

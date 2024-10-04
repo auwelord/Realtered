@@ -1011,3 +1011,8 @@ a.aw-unique::after {
   width: 100% !important;
   height: auto;
 }
+
+.list-group-item.active {
+  background-color: var(--c-unique) !important;
+  border-color: var(--c-uniqued2) !important;
+}

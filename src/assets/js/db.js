@@ -483,6 +483,59 @@ export default {
             fetchVersionnedDeck(prefdeckid, pcallback)
         }      
 
+        async function fetchTournois(params, pcallback)
+        {
+            const {data, error} = await anonSupabase
+                    .from('Tournoi')
+                    .select()
+                    .order('dates', { ascending: false})
+
+            pcallback(data)
+        }
+
+        app.config.globalProperties.g_fetchTournois = function(params, pcallback)
+        {
+            fetchTournois(params, pcallback)
+        }
+
+        async function saveTournoi(ptournoi, pcallback)
+        {
+            try 
+            {
+                const { data, error } = await axios.post(API_BASEURL + '/tournoi/save', ptournoi ,hparams())
+                
+                if(error) console.error(error)
+                pcallback(error ? null : data.tournoi)
+            }
+            catch(error)
+            {
+                handleApiError(error)
+                pcallback(null)
+            }
+        }
+
+        app.config.globalProperties.g_saveTournoi = function(ptournoi, pcallback)
+        {
+            saveTournoi(ptournoi, pcallback)
+        }
+
+        async function fetchDecksTournoi(ptournoi, pcallback)
+        {
+            const {data, error} = await anonSupabase
+                    .from('Deck')
+                    .select()
+                    .eq('tournoiId', ptournoi.id)
+                    .order('tournoiPos')
+
+            pcallback(data)
+        }
+
+        app.config.globalProperties.g_fetchDecksTournoi = function(ptournoi, pcallback)
+        {
+            fetchDecksTournoi(ptournoi, pcallback)
+        }
+        
+        
         async function isOwerDeck(params)
         {
             if(!params.deck)
@@ -708,6 +761,7 @@ export default {
                 main_faction: '',
                 description: ''
             }
+            deck.version = 1 //dans tous les cas sur un import on repart sur une première version
 
             var tmpcards = params.deck ? params.deck.cards : params.cards
 

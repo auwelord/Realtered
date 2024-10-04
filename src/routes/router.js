@@ -4,6 +4,7 @@ import PDeckBuilder from '../components/PDeckBuilder.vue';
 import PCartes from '../components/PCartes.vue';
 import PDecks from '../components/PDecks.vue';
 import PDecktest from '../components/PDecktest.vue';
+import PTournois from '../components/PTournois.vue';
 import Test from '../components/Test.vue';
 
 const routes = [
@@ -62,7 +63,13 @@ const routes = [
         history: true,
         props: true
     },
-
+    {
+        path: '/tournois',
+        name: 'Tournois',
+        component: PTournois,
+        history: true,
+        props: true
+    },
     {
         path: '/test',
         name: 'Test',

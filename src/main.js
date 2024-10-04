@@ -8,6 +8,7 @@ import FontAwesomeIcon from "@/utilities/fontawesome-icons";
 import App from './App.vue'
 import router from './routes/router'
 import Toast from "vue-toastification";
+import VueDatePicker from '@vuepic/vue-datepicker';
 
 import "vue-toastification/dist/index.css";
 import altered from './assets/js/altered';
@@ -19,6 +20,7 @@ import './assets/css/LineIcons.2.0.css'
 import './assets/css/animate.css'
 import './assets/css/adminlte.css'
 import './assets/css/global.css'
+import '@vuepic/vue-datepicker/dist/main.css'
 
 import * as jqueryExports from "jquery";
 window.$ = jqueryExports.default;
@@ -29,6 +31,7 @@ pinia.use(piniaPluginPersistedState)
 const app = createApp(App)
     .component("FontAwesomeIcon", FontAwesomeIcon)
     .component("Multiselect", Multiselect)
+    .component('VueDatePicker', VueDatePicker)
     .use(router)
     .use(pinia)
     .use(altered)

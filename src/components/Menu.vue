@@ -25,6 +25,9 @@
                                         <router-link to="/cartes" class="page-scroll" href="#">Cartes</router-link>
                                     </li>
                                     <li class="nav-item">
+                                        <router-link to="/tournois" class="page-scroll" href="#">Tournois</router-link>
+                                    </li>
+                                    <li class="nav-item">
                                         <router-link to="/decklists" class="page-scroll" href="#">Decks</router-link>
                                     </li>
                                     <li class="nav-item">

@@ -87,10 +87,12 @@
                     <DeckStats v-if="currentdeck && afficherstats" :currentDeck="currentdeck" />
                 </div>
 
-                <Decklists :user="user" :currentdeck="currentdeck" :deckid="deckid" v-if="typeui == 'decklist'"
-                    @mouseentercard="mouseEnterCard" 
-                    @mouseleavecard="mouseLeaveCard"
-                    @onafficherstat="pafficher => afficherstats = pafficher"/>
+                <div class="col-lg-8 col-12" v-if="typeui == 'decklist'">
+                    <Decklists :user="user" :currentdeck="currentdeck" :deckid="deckid" 
+                        @mouseentercard="mouseEnterCard" 
+                        @mouseleavecard="mouseLeaveCard"
+                        @onafficherstat="pafficher => afficherstats = pafficher"/>
+                </div>
 
                 <Decktest :user="user" :currentdeck="currentdeck" v-if="typeui == 'decktest'" 
                     @mouseentercard="mouseEnterCard" 
@@ -391,11 +393,6 @@ export default
 </script>
 
 <style scope>
-.list-group-item.active {
-    background-color: var(--c-unique) !important;
-    border-color: var(--c-uniqued2) !important;
-}
-
 .aw-decks .aw-deck {
     cursor: pointer;
 }
