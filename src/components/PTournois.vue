@@ -218,7 +218,6 @@ export default {
             }
             this.g_fetchDeck(params, ppdeck => 
             {
-                console.log(ppdeck)
                 this.currentDeck = ppdeck
             })
         },
