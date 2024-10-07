@@ -53,18 +53,22 @@ export default {
                 //console.log('Error Headers:', error.response.headers);
                 //console.log('Error Data:', error.response.data);
           
-                if (error.response.status === 404) {
+                if (error.response.status === 404) 
+                {
                   console.error('Resource not found.');
-                } else if (error.response.status === 500) {
-                  console.error(error.response.statusText + ': ' + error.response.data.message);
                 }
-              } else if (error.request) {
+                else console.error(error.response.statusText + ': ' + error.response.data.message);
+            } 
+            else if (error.request) 
+            {
                 // No response received
                 console.error('Error: No response received from server:', error.request);
-              } else {
+            }
+            else 
+            {
                 // Request setup error
                 console.error('Error Message:', error.message);
-              }
+            }
         }
 
         async function connectUser (predirectTo)
@@ -719,10 +723,11 @@ export default {
                     if(palreadyexists)
                     {
                         //on appelle le trigger de fin
-                        if(onUpdatedImageS3) onUpdatedImageS3(pcard, palreadyexists)
+                        if(onUpdatedImageS3) onUpdatedImageS3(pcard, palreadyexists, preference)
                     }
                     else downloadImages([pcard], onDownloadingImage, onDownloadedImages, onUpdatedImageS3);
                 }
+                else if(onUpdatedImageS3) onUpdatedImageS3(pcard, false, preference)
             }
 
             var onFetchedCard = pcard => 
@@ -790,6 +795,15 @@ export default {
                 delete deck.modifiedAt
                 delete deck.DeckFav
                 delete deck.favori
+            }
+            else
+            {
+                deck.tournoiId = params.tournoi
+                if(deck.tournoiId)
+                {
+                    deck.tournoiPos = params.postournoi
+                    deck.userId = null
+                }
             }
 
             var saveddeck;
@@ -877,36 +891,46 @@ export default {
                 {
                     importingUniques = true
                     var cptUniques = 0
+                    var faileduniques = []
                     importerUniques(uniques, true,
                         //onDownloadingImage
                         ppcard => console.log("Téléchargement de " + ppcard.imagePath),
                         //onDownloadedImage
                         null,
                         //onUpdatedImageS3
-                        (ppcard, palreadyexists) => 
+                        (ppcard, palreadyexists, pref) => 
                         {
-                            if(!palreadyexists) console.log("Upload de " + ppcard.imageS3)
+                            if(ppcard && !palreadyexists) console.log("Upload de " + ppcard.imageS3)
+                            else if(!ppcard && !palreadyexists)
+                            {
+                                faileduniques.push(pref)
+                                console.log("Echec de l'import de l'unique")
+                            }
                             cptUniques++
 
                             if(cptUniques == uniques.length)
                             {
-                                runFetchCardsDecks(saveddeck, cards, onImportedDeck)
+                                if(faileduniques.length > 0)
+                                {
+                                    cards = cards.filter(pcard => !faileduniques.find(pref => pref == pcard.cardRef))
+                                }
+                                runSetCardsDecks(saveddeck, cards, onImportedDeck, faileduniques)
                             }
                         }
                     )
                 }
             }
 
-            if(!importingUniques) runFetchCardsDecks(saveddeck, cards, onImportedDeck)
+            if(!importingUniques) runSetCardsDecks(saveddeck, cards, onImportedDeck)
         }
 
-        async function runFetchCardsDecks(pdeck, pcards, onImportedDeck)
+        async function runSetCardsDecks(pdeck, pcards, onImportedDeck, pfaileduniques)
         {
             try {
                 const { data, error } = await axios.post(API_BASEURL + '/cardsdeck/set', pcards, hparams())
 
                 if(error) console.error(error)
-                onImportedDeck(error ? null : pdeck);
+                onImportedDeck(error ? null : pdeck, pfaileduniques);
             }
             catch (error) 
             {

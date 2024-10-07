@@ -66,9 +66,18 @@
                 <div class="input-group mb-2" v-if="isImporting()">
                   <input type="text" class="form-control" placeholder="Id. / URL deck Altered (optionnel)" v-model="fIdAlteredDeck">
                   <span class="input-group-append">
-                    <button type="button" class="btn btn-primary" @click="searchAlteredDeck"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></button>
+                    <BButton variant="primary" @click="searchAlteredDeck"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></BButton>
                   </span>
                 </div>
+                <Multiselect class="me-2 aw-selecttournoi w-100 mb-2" v-if="tournois && fIdAlteredDeck && newDecklist && g_isAdmin(user)"
+                          v-model="cbtournoi" 
+                          :close-on-select="true" 
+                          :options="tournois"
+                          :canClear="true"
+                          :canDeselect="true"
+                          />
+                <BFormInput placeholder="Classement du deck" v-model="fPosTournoi" v-if="tournois && cbtournoi && g_isAdmin(user)" class="mb-2" />
+
                 <div class="input-group">
                   <input required id="awid-fdeckname" v-model="newDeckName" type="text" class="form-control" placeholder="Nom du deck">
                 </div>
@@ -1019,6 +1028,8 @@ export default {
       showImageFullsize: false,
       tournois: null,
       cbdeckstournois: false,
+      cbtournoi: null,
+      fPosTournoi: 0,
     };
   },
   mounted() 
@@ -2101,13 +2112,17 @@ export default {
 
           //on enregistre directement en base et on reload tout
           this.callShowWaitingScreen(500)
-          this.g_importDeck({name: this.newDeckName, cards: decklist},
+          this.g_importDeck({name: this.newDeckName, cards: decklist, tournoi: this.cbtournoi, postournoi: this.fPosTournoi},
             //onImportedDeck: 
-            pdeck => 
+            (pdeck, pfaileduniques) => 
             {
               this.callHideWaitingScreen()
               if(!pdeck) toast('Une erreur s\'est produite', { type: TYPE.ERROR });
               else {
+                if(pfaileduniques && pfaileduniques.length > 0)
+                {
+                  toast('Une ou plusieurs uniques n\'ont pas pu être importées : ' + pfaileduniques.join(', '), { type: TYPE.WARNING });
+                }
                 //reload des decks en se positionnant sur celui importé
                 this.loadDecks(pdeck.id);
                 this.creatingDeck = false;
