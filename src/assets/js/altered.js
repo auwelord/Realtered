@@ -424,5 +424,27 @@ export default {
         {
             return preference && preference.split('_').length == 7            
         }
+
+        app.config.globalProperties.g_sortDeck = function (pdeck) {
+            if(!pdeck || !pdeck.cards) return
+            
+            pdeck.cards.sort((a, b) => {
+                if(this.g_isUnique(a) && !this.g_isUnique(b)) return -1;
+                if(!this.g_isUnique(a) && this.g_isUnique(b)) return 1;
+
+                //deja trié via la requete, si meme type, on garde le tri d'origine
+                if (a.cardType == b.cardType)
+                {
+                    if(a.mainCost != b.mainCost) return a.mainCost < b.mainCost ? -1 : 1
+                    if(a.recallCost != b.recallCost) return a.recallCost < b.recallCost ? -1 : 1
+                    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+                }
+
+                if (this.g_isPersonnage(a)) return -1;
+                if (this.g_isPermanent(a)) return 1;
+                if (this.g_isPersonnage(b)) return 1;
+                if (this.g_isPermanent(b)) return -1;
+            });
+        }
     }
 };

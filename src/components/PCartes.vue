@@ -34,7 +34,7 @@
                     <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer
                   </BDropdownItem>                  
                 </BDropdown>
-                <BDropdown v-model="showDeckoptions" start size="sm" variant="outline-secondary" v-if="currentDeck">
+                <BDropdown v-model="showDeckoptions" start size="md" variant="outline-secondary" v-if="currentDeck">
                   <template #button-content>
                     <font-awesome-icon :icon="['fas', 'gear']" />
                   </template>
@@ -69,7 +69,7 @@
                     <BButton variant="primary" @click="searchAlteredDeck"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></BButton>
                   </span>
                 </div>
-                <Multiselect class="me-2 aw-selecttournoi w-100 mb-2" v-if="tournois && fIdAlteredDeck && newDecklist && g_isAdmin(user)"
+                <Multiselect class="me-2 aw-selecttournoi w-100 mb-2" v-if="tournois && g_isAdmin(user)"
                           v-model="cbtournoi" 
                           :close-on-select="true" 
                           :options="tournois"
@@ -79,7 +79,7 @@
                 <BFormInput placeholder="Classement du deck" v-model="fPosTournoi" v-if="tournois && cbtournoi && g_isAdmin(user)" class="mb-2" />
 
                 <div class="input-group">
-                  <input required id="awid-fdeckname" v-model="newDeckName" type="text" class="form-control" placeholder="Nom du deck">
+                  <BFormInput required id="awid-fdeckname" v-model="newDeckName" type="text" class="form-control" placeholder="Nom du deck" />
                 </div>
                 <div class="input-group mt-2" v-if="isImporting() && !proprietingdeck">
                   <BFormTextarea v-model="newDecklist" placeholder="Collez ici la decklist..." rows="15" />
@@ -2140,9 +2140,9 @@ export default {
 
       this.decks.unshift({ value: 0, label: this.newDeckName });
 
-      this.initEmptyNewDeck(this.newDeckName);
+      this.initEmptyNewDeck(this.newDeckName, this.cbtournoi, this.fPosTournoi);
     },
-    initEmptyNewDeck(pname)
+    initEmptyNewDeck(pname, ptournoi, ppostournoi)
     {
       this.currentDeck = {
         id: 0,
@@ -2151,8 +2151,14 @@ export default {
         public: true,
         main_faction: '',
         hero_id: null,
-        cards: []
+        cards: [],
       };
+
+      if(ptournoi)
+      {
+        this.currentDeck.tournoiId = ptournoi
+        this.currentDeck.tournoiPos = ppostournoi
+      }
 
       this.currentSelectedDeck = 0;
       this.saveCurrentDeckToLocalStorage();

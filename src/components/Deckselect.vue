@@ -303,26 +303,7 @@ export default
             setCurrentDeck(pdeck)
             {
                 this.currentdeck = pdeck
-                if(this.currentdeck)
-                {
-                    this.currentdeck.cards.sort((a, b) => {
-                        if(this.g_isUnique(a) && !this.g_isUnique(b)) return -1;
-                        if(!this.g_isUnique(a) && this.g_isUnique(b)) return 1;
-
-                        //deja trié via la requete, si meme type, on garde le tri d'origine
-                        if (a.cardType == b.cardType)
-                        {
-                            if(a.mainCost != b.mainCost) return a.mainCost < b.mainCost ? -1 : 1
-                            if(a.recallCost != b.recallCost) return a.recallCost < b.recallCost ? -1 : 1
-                            return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-                        }
-
-                        if (this.g_isPersonnage(a)) return -1;
-                        if (this.g_isPermanent(a)) return 1;
-                        if (this.g_isPersonnage(b)) return 1;
-                        if (this.g_isPermanent(b)) return -1;
-                    });
-                }
+                this.g_sortDeck(this.currentdeck)
             },
             getDeckFactionImage(pdeck) {
                 return 'https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/icons/' + this.g_getFactionName(pdeck.main_faction, true) + '.png'

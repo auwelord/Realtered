@@ -219,6 +219,7 @@ export default {
             this.g_fetchDeck(params, ppdeck => 
             {
                 this.currentDeck = ppdeck
+                this.g_sortDeck(this.currentDeck)
             })
         },
         getClassTournoi(ptournoi)
