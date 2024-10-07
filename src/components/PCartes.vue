@@ -198,13 +198,13 @@
                 <BCollapse id="awid-filtresrarity" v-model="uiparams.filtreRarity" @hide="storeUiparams" @show="storeUiparams">
                   <div class="d-flex justify-content-evenly aw-raritysel mt-2">
                     <a href="javascript:" id="COMMON" :class="['aw-common', isSelectedCommon ? 'aw-selected' : '']"
-                      @click="selectCommon"><img src="@/assets/img/altered/rarities/common.png" class="aw-rarity" /></a>
+                      @click="selectCommon"><Common :width="40" class="aw-rarity" /></a>
                     <a href="javascript:" id="RARE" :class="['aw-rare', isSelectedRare ? 'aw-selected' : '']"
-                      @click="selectRare"><img src="@/assets/img/altered/rarities/rare.png" class="aw-rarity" /></a>
+                      @click="selectRare"><Rare :width="40" class="aw-rarity" /></a>
 
                     <a href="javascript:" id="UNIQUE" v-if="user"
                       :class="['aw-unique', isSelectedUnique ? 'aw-selected' : '']" 
-                      @click="selectUnique"><img src="@/assets/img/altered/rarities/unique.png" class="aw-rarity" /></a>
+                      @click="selectUnique"><Unique :width="40" class="aw-rarity" /></a>
                     <img v-else class="aw-cursor-notallowed" src="@/assets/img/altered/rarities/unique.png" title="Connectez-vous pour rechercher vos uniques ajoutées à vos favoris"/>
                   </div>
 
@@ -710,15 +710,15 @@
                         <div class="d-flex mb-2 ps-1 pe-1">
                           <div class="d-flex flex-column align-items-center">
                             {{ g_getTotalCommunesInDeck({deck: currentDeck}) }}
-                            <img src="/src/assets/img/altered/rarities/common.png" width="40px"/>
+                            <Common :width="40" />
                           </div>
                           <div class="d-flex flex-column align-items-center">
                             {{ g_getTotalRaresInDeck({deck: currentDeck}) }}
-                            <img src="/src/assets/img/altered/rarities/rare.png" width="40px"/>
+                            <Rare :width="40" />
                           </div>
                           <div class="d-flex flex-column align-items-center">
                             {{ g_getTotalUniquesInDeck({deck: currentDeck}) }}
-                            <img src="/src/assets/img/altered/rarities/unique.png" width="40px"/>
+                            <Unique :width="40" />
                           </div>
                         </div>
                         <div class="d-flex mb-2 ps-3 pe-3">

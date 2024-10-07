@@ -29,6 +29,7 @@ declare module 'vue' {
     Card: typeof import('./src/components/Card.vue')['default']
     CardDecklist: typeof import('./src/components/CardDecklist.vue')['default']
     CardDetail: typeof import('./src/components/CardDetail.vue')['default']
+    Common: typeof import('./src/components/images/Common.vue')['default']
     Decklists: typeof import('./src/components/Decklists.vue')['default']
     DeckProba: typeof import('./src/components/DeckProba.vue')['default']
     Deckselect: typeof import('./src/components/Deckselect.vue')['default']
@@ -44,9 +45,11 @@ declare module 'vue' {
     PDecks: typeof import('./src/components/PDecks.vue')['default']
     PDecktest: typeof import('./src/components/PDecktest.vue')['default']
     PTournois: typeof import('./src/components/PTournois.vue')['default']
+    Rare: typeof import('./src/components/images/Rare.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Test: typeof import('./src/components/Test.vue')['default']
+    Unique: typeof import('./src/components/images/Unique.vue')['default']
   }
   export interface ComponentCustomProperties {
     vBToggle: typeof import('bootstrap-vue-next')['vBToggle']
