@@ -218,6 +218,11 @@ export default {
 
         this.g_fetchTournois({tournoiid: this.tournoiid}, ptournois => {
             this.tournois = ptournois
+
+            if(this.tournoiid && this.tournois && this.tournois.length == 1)
+            {
+                this.e_showTournoi(this.tournois[0])
+            }
         })
     },
     methods:{
