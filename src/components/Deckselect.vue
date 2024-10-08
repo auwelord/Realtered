@@ -9,7 +9,7 @@
 
         <div class="container-fluid pt-2" v-if="!erreurdeckid"> <!--begin::Row-->
             <div class="row">
-                <div :class="['col-lg-4 col-12 aw-colleft', afficherstats ? 'aw-deckliststat' : '']">
+                <div :class="['col-lg-4 col-12 aw-colleft', afficherstats ? 'aw-deckliststat' : '']" v-if="!fullscreen">
                     <div :class="['aw-imgapercu', showImageFullsize ? 'aw-imageapon' : '']">
                         <div class="aw-imgapercustick">
                             <img :src="g_getImageApercu(imagePathFullsize)" alt="" class="img-fluid aw-alteredcard" />
@@ -96,7 +96,8 @@
 
                 <Decktest :user="user" :currentdeck="currentdeck" v-if="typeui == 'decktest'" 
                     @mouseentercard="mouseEnterCard" 
-                    @mouseleavecard="mouseLeaveCard" />
+                    @mouseleavecard="mouseLeaveCard"
+                    @togglefullscreen="togglefullscreen" />
             </div>
         </div>
     </div>
@@ -189,6 +190,7 @@ export default
                 imagePathFullsize: null,
                 showImageFullsize: false,
                 mousetimeout: null,
+                fullscreen: false,
             }
         },
         mounted() 
@@ -236,6 +238,10 @@ export default
                 this.mousetimeout = setTimeout(() => {
                     if(this.mousetimeout) this.showImageFullsize = false
                 }, 200)
+            },
+            togglefullscreen(pfullscreen)
+            {
+                this.fullscreen = pfullscreen
             },
             alimListeHeroes()
             {

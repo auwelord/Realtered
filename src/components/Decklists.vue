@@ -55,7 +55,7 @@
                         <font-awesome-icon :icon="['fas', 'vial']"  class="me-2" />Tester le deck
                     </BButton>
 
-                    <BButton @click="onToggleFavoris" variant="white" size="sm" class="me-2" v-if="user">
+                    <BButton @click="onToggleFavoris" variant="uniqued2" size="sm" class="me-2" v-if="user">
                         <font-awesome-icon :icon="['fas', 'heart']" style="color: red" v-if="currentdeck.favori" />
                         <font-awesome-icon :icon="['fas', 'heart']" v-else />
                     </BButton>                                    

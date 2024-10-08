@@ -98,13 +98,11 @@ body.aw-darkmode {
 
     & .btn {
         color: rgb(209, 205, 199);
-        background-color: transparent;
         border-color: transparent;
     }
     & .btn:hover {
         color: rgb(209, 205, 199);
         text-decoration-color: initial;
-        background-color: var(--darkreader-bg--bs-btn-hover-bg, #181a1b);
         border-color: var(--darkreader-border--bs-btn-hover-border-color);
     }
 

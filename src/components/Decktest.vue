@@ -1,5 +1,5 @@
 <template>
-    <div class="col-lg-8 col-12 aw-decktest" v-if="currentdeck">
+    <div :class="['aw-decktest', fullscreen ? 'col-12' : 'col-lg-8 col-12']" v-if="currentdeck">
         <div class="row">
             <div class="d-flex">
                 <div class="d-flex flex-fill flex-column">
@@ -34,7 +34,7 @@
                     </div>
                 </div>
                 <div class="d-flex flex-column">
-                    <div class="text-center m-1 aw-titlezone">Héro</div>
+                    <div class="text-center m-1 aw-titlezone aw-cursor-pointer" @click="e_toggleFullscreen" title="Cliquez pour activer/désctiver le plein écran">Héro</div>
                     <div :class="['aw-slot aw-hero m-1 position-relative d-flex justify-content-center',getClassExhaustedCard(currentdeck.hero) ,getClassSelectedCard(currentdeck.hero)]">
                         <img :src="g_getImageCardPublicUrl(currentdeck.hero)" :title="currentdeck.hero.name" class="aw-imgcard aw-alteredcard p-1" @dblclick="e_toggleExhaustHero"  @click="e_selectCard(currentdeck.hero)"/>
                         <div :class="['aw-imgmarker', getClassMarker(currentdeck.hero)]"></div>
@@ -152,19 +152,19 @@
                             <img :src="urlManaCard" class="aw-imgcard aw-alteredcard" />
                         </div>
                     </div>
-                    <div class="d-flex align-items-center flex-column m-2 aw-decktools">
+                    <div class="d-flex align-items-center flex-column justify-content-between m-2 aw-decktools">
                         <Dice :dice="dice" @dicerolled="e_dicerolled" class="position-relative"/>
 
-                        <BButton @click="e_addToken" data-ref="ALT_CORE_A_OR_31_C" variant="primary" size="xs" title="Réinitialiser" class="mt-1 w-100 text-left" v-if="g_isDeckOrdis(currentdeck) && tokenavail.length > 0">
+                        <BButton @click="e_addToken" data-ref="ALT_CORE_A_OR_31_C" variant="primary" size="xs" title="Réinitialiser" class="mt-1 w-100 text-left" v-if="tokenavail.length > 0">
                             <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />1/1/1 Recrue Ordis
                         </BButton>
-                        <BButton @click="e_addToken" data-ref="ALT_CORE_A_AX_31_C" variant="primary" size="xs" title="Réinitialiser" class="mt-1 w-100 text-left" v-if="g_isDeckAxiom(currentdeck) && tokenavail.length > 0">
+                        <BButton @click="e_addToken" data-ref="ALT_CORE_A_AX_31_C" variant="primary" size="xs" title="Réinitialiser" class="mt-1 w-100 text-left" v-if="tokenavail.length > 0">
                             <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />2/2/2 Scarabot
                         </BButton>
-                        <BButton @click="e_addToken" data-ref="ALT_CORE_A_BR_31_C" variant="primary" size="xs" title="Réinitialiser" class="mt-1 w-100 text-left" v-if="g_isDeckBravos(currentdeck) && tokenavail.length > 0">
+                        <BButton @click="e_addToken" data-ref="ALT_CORE_A_BR_31_C" variant="primary" size="xs" title="Réinitialiser" class="mt-1 w-100 text-left" v-if="tokenavail.length > 0">
                             <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />2/2/2 Booda
                         </BButton>
-                        <BButton @click="e_addToken" data-ref="ALT_CORE_A_YZ_31_C" variant="primary" size="xs" title="Réinitialiser" class="mt-1 w-100 text-left" v-if="g_isDeckYzmir(currentdeck) && tokenavail.length > 0">
+                        <BButton @click="e_addToken" data-ref="ALT_CORE_A_YZ_31_C" variant="primary" size="xs" title="Réinitialiser" class="mt-1 w-100 text-left" v-if="tokenavail.length > 0">
                             <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />0/0/0 Maw
                         </BButton>
                     </div>
@@ -283,7 +283,7 @@ watch(() => props.currentdeck, async (newcurrentdeck, oldcurrentdeck) => {
     }
 })
 
-const emit = defineEmits(['mouseentercard', 'mouseleavecard']);
+const emit = defineEmits(['mouseentercard', 'mouseleavecard', 'togglefullscreen']);
 
 </script>
 
@@ -316,6 +316,7 @@ export default
             urlManaCard: null,
             dice: {value: 1},
             maxTestid: 1,
+            fullscreen: false,
         }
     },
     computed: {
@@ -336,6 +337,10 @@ export default
         {
             if(newval) this.$emit('mouseentercard', newval)
             else this.$emit('mouseleavecard')
+        },
+        fullscreen(newval, oldval)
+        {
+            this.$emit('togglefullscreen', newval)
         }
     },
     methods:
@@ -394,6 +399,10 @@ export default
             this.token.push(token)
             this.expehero.push(token)
             this.e_selectCard(token)
+        },
+        e_toggleFullscreen()
+        {
+            this.fullscreen = !this.fullscreen
         },
         e_dicerolled()
         {
@@ -811,10 +820,6 @@ export default
 </script>
 
 <style scoped>
-.aw-decktools
-{
-    margin-top: 38px !important;
-}
 .aw-main img{
     min-width: 124px;
 }
