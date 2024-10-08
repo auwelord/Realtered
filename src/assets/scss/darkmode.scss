@@ -1,0 +1,163 @@
+//@forward "darkvars";
+@import "darkvars";
+
+body.aw-darkmode {
+    background-color: rgb(24, 26, 27);
+    color: rgb(158, 150, 137);
+}
+.aw-darkmode {
+    & .navbar-area{
+        background-image: initial;
+        background-color: rgb(24, 26, 27);
+    }
+    & .navbar-nav .nav-item a{
+        color: rgb(158, 150, 137);
+    }
+    & .navbar-nav .nav-item a.aw-discord {
+        background-color: rgb(33, 53, 125);
+        color: rgb(232, 230, 227);
+    }
+    & .navbar-nav .nav-item a.btn.aw-discord:hover {
+        background-color: rgb(24, 26, 27);
+        color: rgb(230, 144, 57);
+    }
+
+    & .sticky .navbar .navbar-nav .nav-item a {
+        color: rgb(160, 189, 225);
+    }
+
+    & .card {
+        background-color: rgb(24, 26, 27);
+        border: 1px solid rgba(140, 130, 115, 0.17);;
+    }
+
+    & .card-header {
+        color: #e8e6e3;
+        background-color: transparent;
+        border-bottom-color: rgba(140, 130, 115, 0.13);
+    }
+
+    & .card-body {
+        color: #e8e6e3;
+    }
+
+    & .multiselect {
+        outline-color: initial;
+        background: var(--ms-bg, #181a1b);
+        border: 1px solid #3c4143;
+    }
+
+    & .multiselect-search {
+        border-width: 0px;
+        border-style: initial;
+        border-color: initial;
+        outline-color: initial;
+        background: var(--ms-bg, #181a1b);
+    }
+
+    & .multiselect-dropdown {
+        outline-color: initial;
+        background: #181a1b;
+        border: 1px solid #3c4143;
+    }
+
+    & .multiselect-option.is-pointed {
+        color: #cdc8c2;
+        background: #1e2022;
+    }
+
+    & input.multiselect-tags-search
+    {
+        color: rgb(209, 205, 199);
+        background-color: #181a1b;
+    }
+
+    & .dropdown-menu {
+        color: rgb(209, 205, 199);
+        list-style-image: initial;
+        background-color: rgb(24, 26, 27);
+        border-color: rgba(140, 130, 115, 0.15);
+        box-shadow: rgba(0, 0, 0, 0.18) 0px 0.5rem 1rem;
+    }
+    & .dropdown-item {
+        color: rgb(209, 205, 199);
+        background-color: transparent;
+        border-width: 0px;
+        border-style: initial;
+        border-color: initial;
+    }
+
+    & .dropdown-item:hover, .dropdown-item:focus {
+        color: rgb(217, 213, 208);
+        text-decoration-color: initial;
+        background-color: rgb(27, 30, 31);
+    }
+    & .dropdown-divider {
+        border-top-color: rgb(53, 58, 60);
+    }
+
+    & .btn-primary {
+        color: rgb(232, 230, 227);
+        background-color: rgb(0, 98, 204);
+        border-color: rgb(0, 86, 179);
+        box-shadow: none;
+    }
+
+    & .btn-light {
+        color: rgb(203, 198, 192);
+        background-color: rgb(27, 30, 31);
+        border-color: rgb(50, 54, 56);
+        box-shadow: none;
+    }
+    & .btn-light:hover {
+        color: rgb(203, 198, 192);
+        background-color: rgb(38, 41, 43);
+        border-color: rgb(57, 62, 64);
+    }
+
+    & .btn-unique {
+        background-color: var(--c-uniqued2, #181a1b);
+        color: rgb(232, 230, 227);
+    }
+    & .btn-uniqued2:hover {
+        background-color: var(--c-uniqued1);
+        color: rgb(232, 230, 227);
+    }
+
+    & .aw-carddecklist div.aw-carddeck.aw-UNIQUE {
+        background-color: var(--c-uniqued2) !important;
+    }
+
+    & .form-control {
+        color: rgb(181, 175, 166);
+        background-color: rgb(24, 26, 27);
+        border-color: rgb(60, 65, 68);
+        box-shadow: rgba(0, 0, 0, 0) 0px 0px inset;
+    }
+    & .form-control:focus {
+        color: rgb(181, 175, 166);
+        background-color: rgb(24, 26, 27);
+        border-color: rgb(0, 67, 140);
+        outline-color: initial;
+        box-shadow: rgba(0, 0, 0, 0) 0px 0px inset;
+    }
+
+    & .input-group-text {
+        color: rgb(181, 175, 166);
+        background-color: rgb(35, 38, 39);
+        border-color: rgb(60, 65, 68);
+    }
+
+    & .list-group-item {
+        background-color: rgb(24, 26, 27);
+        border-color: rgba(140, 130, 115, 0.13);
+        color: #e8e6e3;
+    }
+
+    & .list-group-item.active {
+        background-color: var(--c-uniqued2) !important;
+        border-color: var(--c-unique) !important;
+    }
+}
+
+

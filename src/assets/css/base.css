@@ -1016,3 +1016,8 @@ a.aw-unique::after {
   background-color: var(--c-unique) !important;
   border-color: var(--c-uniqued2) !important;
 }
+
+
+@media (prefers-color-scheme: dark) 
+{
+}

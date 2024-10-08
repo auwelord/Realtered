@@ -36,6 +36,13 @@
                                     <li class="nav-item">
                                         <router-link to="/deckbuilder" class="page-scroll" href="#">Deckbuilder</router-link>
                                     </li>
+                                    <li class="nav-item d-flex align-items-center">
+                                        <span class="me-2 pb-1">Mode sombre</span>
+                                        <label class="switch me-2">
+                                        <input type="checkbox" v-model="cbmodesombre">
+                                        <span class="slider round"></span>
+                                        </label>
+                                    </li>
                                     <li class="nav-item">
                                         <a @click="discordConnection" class="btn aw-discord">
                                             <span v-if="user"><img :src="getAvatar()" /> {{ user.user_metadata.custom_claims.global_name }}</span>
@@ -84,7 +91,8 @@ export default {
         //const user = userStore();
         return {
             modalDisconnect: false,
-            okdisc: "Se déconnecter"
+            okdisc: "Se déconnecter",
+            cbmodesombre: true,
         };
     },
     components: {
@@ -101,9 +109,30 @@ export default {
         {
             if(!this.user) this.g_connectUser(this.$route.path)
             else this.modalDisconnect = true;
+        },
+        setModeSombre(pmodesombre)
+        {
+            var $body = $('body')
+            
+            if(pmodesombre && !$body.hasClass('aw-darkmode')) $body.addClass('aw-darkmode')
+            else if(!pmodesombre) $body.removeClass('aw-darkmode')
+        
+            localStorage.setItem('modesombre', pmodesombre)
+        }
+    },
+    watch: {
+        cbmodesombre(newval, oldval)
+        {
+            this.setModeSombre(newval)
         }
     },
     mounted() {
+        var modesombre = localStorage.getItem('modesombre')
+        if(modesombre == undefined) modesombre = true
+        else modesombre = (modesombre == 'true')
+        
+        this.cbmodesombre = modesombre
+        this.setModeSombre(modesombre)
         /*=====================================
         Sticky
         ======================================= */
@@ -155,6 +184,8 @@ export default {
     height: 30px;
     padding-right: 10px;
 }
+</style>
 
-/*.navbar-nav .nav-item a.btn.aw-discord:hover img*/
+<style lang="scss">
+  @import "/src/assets/scss/darkmode.scss";
 </style>
