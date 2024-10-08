@@ -544,7 +544,7 @@ export default {
         {
             const {data, error} = await anonSupabase
                     .from('Deck')
-                    .select()
+                    .select('*, hero:Card!Deck_hero_id_fkey(*)')
                     .eq('tournoiId', ptournoi.id)
                     .eq('public', true)
                     .order('tournoiPos')

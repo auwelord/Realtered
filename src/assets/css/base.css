@@ -130,6 +130,16 @@
   background-color: var(--c-uniqued2);
   color: #fff;
 }
+.btn-outline-uniqued1
+{
+  background-color: transparent;
+  color: #fff;
+}
+.btn-outline-uniqued1:hover
+{
+  background-color: var(--c-uniqued1);
+  color: #fff;
+}
 .btn-rare
 {
   background-color: var(--c-rare);
@@ -1016,7 +1026,14 @@ a.aw-unique::after {
   background-color: var(--c-unique) !important;
   border-color: var(--c-uniqued2) !important;
 }
-
+.list-group-item
+{
+  transition: all 0.3s;
+}
+.list-group-item:hover
+{
+  background-color: #fbae026e;
+}
 .modal-header{
   align-items: center !important;
 }

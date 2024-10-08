@@ -292,6 +292,54 @@ export default {
             }
         }; 
 
+        app.config.globalProperties.g_getHeroColorByName = function (pname)
+        {
+            switch (pname) 
+            {
+                case "Waru & Mack":
+                    return "#0B5974";
+                case "Sigismar & Wingspan":
+                    return "#19C5FF";
+                case "Gulrang & Tocsin":
+                    return "#1082A8";
+                case "Afanas & Senka":
+                    return "#714A79";
+                case "Akesha & Taru":
+                    return "#B478C1";
+                case "Lindiwe & Maw":
+                    return "#EDA0FF";
+                case "Fen & Crowbar":
+                    return "#A9365E";
+                case "Auraq & Kibble":
+                    return "#E2487E";
+                case "Nevenka & Blotch":
+                    return "#FF8CB6";
+
+                case "Sierra & Oddball":
+                    return "#6B4236";
+                case "Subhash & Marmo":
+                    return "#AD6958";
+                case "Treyst & Rossum":
+                    return "#4C2D27";
+
+                case "Kojo & Booda":
+                    return "#982925";
+                case "Basira & Kaizaimon":
+                    return "#D33A34";
+                case "Atsadi & Surge":
+                    return "#D30034";
+
+                case "Teija & Nauraa":
+                    return "#3B6331";
+                case "Rin & Orchid":
+                    return "#68AD56";
+                case "Arjun & Spike":
+                    return "#8AE271";
+                default:
+                    return "#FFF";
+            }
+        }
+
         app.config.globalProperties.g_isDeckAxiom = function (pdeck) {
             return pdeck && pdeck.main_faction && this.g_isCodeAxiom(pdeck.main_faction)
         };

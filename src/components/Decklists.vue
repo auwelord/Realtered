@@ -43,19 +43,19 @@
                     </div>
                     
                     <div class="mt-2">
-                    <BButton @click="onImporterDeck" variant="uniqued2" size="sm" title="importer le deck" class="me-2" v-if="user">
+                    <BButton @click="onImporterDeck" variant="outline-uniqued1" size="sm" title="importer le deck" class="me-2" v-if="user">
                         <font-awesome-icon :icon="['fas', 'right-long']" class="me-2"/>Importer
                     </BButton>
 
-                    <BButton @click="onCopierLienDeck" variant="uniqued2" size="sm" title="Copier le lien" class="me-2">
+                    <BButton @click="onCopierLienDeck" variant="outline-uniqued1" size="sm" title="Copier le lien" class="me-2">
                         <font-awesome-icon :icon="['fab', 'threads']" class="me-2" />Copier le lien
                     </BButton>
 
-                    <BButton @click="e_testerDeck" variant="uniqued2" size="sm" title="Tester le deck" class="me-2">
+                    <BButton @click="e_testerDeck" variant="outline-uniqued1" size="sm" title="Tester le deck" class="me-2">
                         <font-awesome-icon :icon="['fas', 'vial']"  class="me-2" />Tester le deck
                     </BButton>
 
-                    <BButton @click="onToggleFavoris" variant="uniqued2" size="sm" class="me-2" v-if="user">
+                    <BButton @click="onToggleFavoris" variant="outline-uniqued1" size="sm" class="me-2" v-if="user">
                         <font-awesome-icon :icon="['fas', 'heart']" style="color: red" v-if="currentdeck.favori" />
                         <font-awesome-icon :icon="['fas', 'heart']" v-else />
                     </BButton>                                    
@@ -71,7 +71,7 @@
                     </div>
 
                 </div>
-                <img :src="g_getImageBanner(currentdeck.hero)" />
+                <img :src="g_getImageBanner(currentdeck.hero)" class="aw-imgherobanner"/>
             </div>
         </div>
         <div class="card-body">
@@ -292,6 +292,14 @@ export default
 }
 .aw-decklistcard img:nth-child(3) {
     top: 3.2vw;
+}
+
+.aw-imgherobanner
+{
+    transition: all 0.5s;
+}
+.aw-imgherobanner:hover{
+    transform: translateX(-25px);
 }
 @media (max-width: 1399px) {
     .aw-decklistcard img:nth-child(2) {

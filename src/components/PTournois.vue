@@ -74,21 +74,28 @@
                         <h3 class="card-title">Decks</h3>
                     </div>
                     <div class="card-body">
-                        <BListGroup v-if="decks && decks.length > 0">
-                            <BListGroupItem v-for="deck in decks" @click="e_showDeck(deck)" :class="['aw-deck aw-cursor-pointer', getClassDeck(deck)]" :id="'deck' + deck.id">
-                                <div class="d-flex justify-content-between">
-                                    <div>{{ deck.name }}</div>
-                                    <div class="aw-posdeck">
-                                        <img src="/src/assets/img/altered/place1.png" v-if="deck.tournoiPos == 1"/>
-                                        <img src="/src/assets/img/altered/place2.png" v-if="deck.tournoiPos == 2"/>
-                                        <img src="/src/assets/img/altered/place3.png" v-if="deck.tournoiPos == 3"/>
-                                        {{ deck.tournoiPos }}
-                                        
+                        <div v-if="decks && decks.length > 0">
+                            <BListGroup >
+                                <BListGroupItem v-for="deck in decks" @click="e_showDeck(deck)" :class="['aw-deck aw-cursor-pointer', getClassDeck(deck)]" :id="'deck' + deck.id">
+                                    <div class="d-flex justify-content-between">
+                                        <div>{{ deck.name }}</div>
+                                        <div class="aw-posdeck">
+                                            <img src="/src/assets/img/altered/place1.png" v-if="deck.tournoiPos == 1"/>
+                                            <img src="/src/assets/img/altered/place2.png" v-if="deck.tournoiPos == 2"/>
+                                            <img src="/src/assets/img/altered/place3.png" v-if="deck.tournoiPos == 3"/>
+                                            {{ deck.tournoiPos }}
+                                            
+                                        </div>
                                     </div>
-                                </div>
-                            </BListGroupItem>
-                        </BListGroup>
+                                </BListGroupItem>
+                            </BListGroup>
+                            <Pie :options="chartFaction.chartOptions" :data="chartFaction.chartData" class="mt-3" v-if="loadedCharts"/>
+                            <Pie :options="chartHero.chartOptions" :data="chartHero.chartData" class="mt-3" v-if="loadedCharts"/>
+                        </div>
+                        
                         <div v-else>Aucun deck</div>
+
+                        
                     </div>
                 </div>
             </BCol>
@@ -114,11 +121,16 @@ defineProps({
 
 <script>
 import { useToast, TYPE } from "vue-toastification";
+import { Pie } from 'vue-chartjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement } from 'chart.js'
+
+ChartJS.register(Title, Tooltip, Legend, BarElement, ArcElement, CategoryScale, LinearScale)
 
 const toast = useToast();
 
 export default {
     name: 'PTournois',
+    components: { Pie },
     data() {
         return {
             fLibelleTournoi:'',
@@ -139,6 +151,55 @@ export default {
             showImageFullsize: false,
             imagePathFullsize: null,
             mousetimeout: null,
+            chartFaction: {
+                chartData: {
+                    labels: ['Axiom', 'Bravos', 'Lyra', 'Muna', 'Ordis', 'Yzmir'],
+                    datasets: [
+                        {
+                            label: 'Nombre de decks',
+                            data: null,
+                            backgroundColor: ['#6B4236', '#982925', '#A9365E', '#3B6331', '#0B5974', '#714A79'],
+                        }
+                    ]
+                },
+                chartOptions: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Répartition par faction'
+                        }
+                    }
+                }
+            },
+            chartHero: {
+                chartData: {
+                    //labels: ['Axiom', 'Bravos', 'Lyra', 'Muna', 'Ordis', 'Yzmir'],
+                    datasets: [
+                        {
+                            label: 'Nombre de decks',
+                            data: null,
+                            //backgroundColor: ['#6B4236', '#982925', '#A9365E', '#3B6331', '#0B5974', '#714A79'],
+                        }
+                    ]
+                },
+                chartOptions: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Répartition par héro'
+                        }
+                    }
+                }
+            },
+            loadedCharts: false,
         }
     },
     watch:{
@@ -155,6 +216,33 @@ export default {
         })
     },
     methods:{
+        setDataCharts() {
+            const factions = ['AX', 'BR', 'LY', 'MU', 'OR', 'YZ'];
+            this.chartFaction.chartData.datasets[0].data = [0,0,0,0,0,0]
+            this.chartHero.chartData.labels = []
+            this.chartHero.chartData.datasets[0].data = []
+            this.chartHero.chartData.datasets[0].backgroundColor = []
+
+            if(this.decks)
+            {
+                this.decks.forEach(pdeck => {
+                    var indexx = factions.indexOf(pdeck.main_faction)
+                    if(indexx > -1) this.chartFaction.chartData.datasets[0].data[indexx]++
+
+                    var indexhero = this.chartHero.chartData.labels.indexOf(pdeck.hero.name)
+                    if(indexhero == -1) 
+                    {
+                        this.chartHero.chartData.labels.push(pdeck.hero.name)
+                        indexhero = this.chartHero.chartData.labels.indexOf(pdeck.hero.name)
+
+                        this.chartHero.chartData.datasets[0].data.push(0)
+                        this.chartHero.chartData.datasets[0].backgroundColor.push(this.g_getHeroColorByName(pdeck.hero.name))
+                    }
+                    this.chartHero.chartData.datasets[0].data[indexhero]++
+                })
+            }
+            //waru: "01HKAFJNVMAN704B02KK1KCF7N"
+        },
         mouseEnterCard(pcard)
         {
             if(this.mousetimeout) clearTimeout(this.mousetimeout)
@@ -208,9 +296,12 @@ export default {
         {
             this.currentTournoi = ptournoi
             this.currentDeck = null
+            this.loadedCharts = false
 
             this.g_fetchDecksTournoi(ptournoi, pdecks => {
                 this.decks = pdecks
+                this.setDataCharts()
+                this.loadedCharts = true
             })
         },
         e_showDeck(pdeck)
