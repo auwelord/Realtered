@@ -1,6 +1,6 @@
 <template>
 <div class="aw-wrapper">
-    <img src="@/assets/img/collectionfond.png" class="aw-fond"/>
+    <img src="@/assets/img/collectionfond.png" class="aw-fond" v-if="!afficherstats"/>
 
     <div class="container-fluid pt-2">
         <div :class="['aw-imgapercu', showImageFullsize ? 'aw-imageapon' : '']">
@@ -9,7 +9,7 @@
             </div>
         </div>
         <BRow>
-            <BCol lg="4">
+            <BCol lg="4" v-if="!afficherstats">
                 <div class="card card-outline card-info">
                     <div class="card-header">
                         <h3 class="card-title">Tournois</h3>
@@ -99,10 +99,14 @@
                     </div>
                 </div>
             </BCol>
+            <BCol lg="4" v-if="currentDeck && !show_formtournoi && afficherstats">
+                <DeckStats :currentDeck="currentDeck" />
+            </BCol>
             <BCol lg="8" v-if="currentDeck && !show_formtournoi">
-                <Decklists :currentdeck="currentDeck" :deckid="currentDeck.id" :user="user"
+                <Decklists :currentdeck="currentDeck" :user="user"
                     @mouseentercard="mouseEnterCard" 
-                    @mouseleavecard="mouseLeaveCard" />
+                    @mouseleavecard="mouseLeaveCard" 
+                    @onafficherstat="e_afficherstat"/>
             </BCol>
         </BRow>
     </div>
@@ -200,6 +204,7 @@ export default {
                 }
             },
             loadedCharts: false,
+            afficherstats: false,
         }
     },
     watch:{
@@ -216,6 +221,10 @@ export default {
         })
     },
     methods:{
+        e_afficherstat(pafficher)
+        {
+            this.afficherstats = pafficher
+        },
         setDataCharts() {
             const factions = ['AX', 'BR', 'LY', 'MU', 'OR', 'YZ'];
             this.chartFaction.chartData.datasets[0].data = [0,0,0,0,0,0]
