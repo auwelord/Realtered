@@ -297,6 +297,7 @@ export default
 .aw-imgherobanner
 {
     transition: all 0.5s;
+    max-height: 240px;
 }
 .aw-imgherobanner:hover{
     transform: translateX(-25px);
