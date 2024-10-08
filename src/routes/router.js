@@ -71,6 +71,13 @@ const routes = [
         props: true
     },
     {
+        path: '/tournois/:tournoiid',
+        name: 'Tournoi',
+        component: PTournois,
+        history: true,
+        props: route => ({ tournoiid: convertIntegerParam(route.params.tournoiid)})
+    },
+    {
         path: '/test',
         name: 'Test',
         component: Test,

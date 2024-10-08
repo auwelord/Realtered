@@ -105,6 +105,10 @@
 <script setup>
 defineProps({
     user: { type: Object },
+    tournoiid: { 
+        type: Number,
+        default: 0
+    },
 });
 </script>
 
@@ -146,7 +150,7 @@ export default {
         this.currentTournoi = null
         this.currentDeck = null
 
-        this.g_fetchTournois(null, ptournois => {
+        this.g_fetchTournois({tournoiid: this.tournoiid}, ptournois => {
             this.tournois = ptournois
         })
     },

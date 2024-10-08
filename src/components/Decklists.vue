@@ -185,7 +185,7 @@ export default
             },
             onImporterDeck()
             {
-                this.g_importDeck({deck: this.currentdeck}, 
+                this.g_importDeck({deck: this.currentdeck, setuniquefav: true}, 
                     //onImportedDeck: 
                     pdeck => 
                     {

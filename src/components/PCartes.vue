@@ -78,9 +78,12 @@
                           />
                 <BFormInput placeholder="Classement du deck" v-model="fPosTournoi" v-if="tournois && cbtournoi && g_isAdmin(user)" class="mb-2" />
 
-                <div class="input-group">
+                <BInputGroup>
                   <BFormInput required id="awid-fdeckname" v-model="newDeckName" type="text" class="form-control" placeholder="Nom du deck" />
-                </div>
+                </BInputGroup>
+                <BInputGroup class="ms-1 mt-2" v-if="isImporting()">
+                  <BFormCheckbox v-model="cbsetuniquefav">Ajouter les uniques en favori</BFormCheckbox>
+                </BInputGroup>
                 <div class="input-group mt-2" v-if="isImporting() && !proprietingdeck">
                   <BFormTextarea v-model="newDecklist" placeholder="Collez ici la decklist..." rows="15" />
                 </div>
@@ -97,11 +100,11 @@
                   <BFormTextarea v-model="taDescDeck" placeholder="Description du deck..." rows="15" />
                 </div>
                 <div class="d-flex justify-content-end">
-                  <BButton @click="cancelCreateDeck" variant="tertiary" size="sm" class="mt-2 me-2">
-                    <font-awesome-icon :icon="['fas', 'check']" class="me-2" />Annuler
+                  <BButton @click="cancelCreateDeck" variant="light" size="sm" class="mt-2 me-2">
+                    Annuler
                   </BButton>
                   <BButton @click="checkCreateDeck" variant="success" size="sm" class="mt-2">
-                    <font-awesome-icon :icon="['fas', 'check']" class="me-2" />Valider
+                    Valider
                   </BButton>
                 </div>
               </div>
@@ -1030,6 +1033,7 @@ export default {
       cbdeckstournois: false,
       cbtournoi: null,
       fPosTournoi: 0,
+      cbsetuniquefav: true,
     };
   },
   mounted() 
@@ -1037,7 +1041,7 @@ export default {
     this.router = useRouter();
 
     this.tournois = []
-    this.g_fetchTournois(null, ptournois =>
+    this.g_fetchTournois({}, ptournois =>
     {
       this.tournois = ptournois.map(tournoi => {
         return { 
@@ -2112,7 +2116,14 @@ export default {
 
           //on enregistre directement en base et on reload tout
           this.callShowWaitingScreen(500)
-          this.g_importDeck({name: this.newDeckName, cards: decklist, tournoi: this.cbtournoi, postournoi: this.fPosTournoi},
+          var params = {
+            name: this.newDeckName,
+            cards: decklist,
+            tournoi: this.cbtournoi,
+            postournoi: this.fPosTournoi,
+            setuniquefav: this.cbsetuniquefav
+          }
+          this.g_importDeck(params,
             //onImportedDeck: 
             (pdeck, pfaileduniques) => 
             {

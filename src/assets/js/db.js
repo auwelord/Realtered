@@ -502,11 +502,15 @@ export default {
 
         async function fetchTournois(params, pcallback)
         {
-            const {data, error} = await anonSupabase
-                    .from('Tournoi')
-                    .select()
-                    .order('dates', { ascending: false})
-
+            var req = anonSupabase
+                .from('Tournoi')
+                .select()
+            if(params.tournoiid)
+            {
+                req = req.eq('id', params.tournoiid)
+            }
+            
+            const {data, error} = await req.order('dates', { ascending: false})
             pcallback(data)
         }
 
@@ -892,7 +896,7 @@ export default {
                     importingUniques = true
                     var cptUniques = 0
                     var faileduniques = []
-                    importerUniques(uniques, true,
+                    importerUniques(uniques, params.setuniquefav,
                         //onDownloadingImage
                         ppcard => console.log("Téléchargement de " + ppcard.imagePath),
                         //onDownloadedImage

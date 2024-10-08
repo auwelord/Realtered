@@ -96,11 +96,42 @@ body.aw-darkmode {
         border-top-color: rgb(53, 58, 60);
     }
 
+    & .btn {
+        color: rgb(209, 205, 199);
+        background-color: transparent;
+        border-color: transparent;
+    }
+    & .btn:hover {
+        color: rgb(209, 205, 199);
+        text-decoration-color: initial;
+        background-color: var(--darkreader-bg--bs-btn-hover-bg, #181a1b);
+        border-color: var(--darkreader-border--bs-btn-hover-border-color);
+    }
+
     & .btn-primary {
         color: rgb(232, 230, 227);
         background-color: rgb(0, 98, 204);
         border-color: rgb(0, 86, 179);
         box-shadow: none;
+    }
+
+    & .btn-primary:hover {
+        color: rgb(232, 230, 227);
+        background-color: rgb(0, 84, 174);
+        border-color: rgb(0, 93, 194);
+        text-decoration-color: initial;
+    }
+
+    & .btn-success {
+        color: rgb(232, 230, 227);
+        background-color: rgb(32, 134, 55);
+        border-color: rgb(37, 156, 64);
+        box-shadow: none;
+    }
+    & .btn-success:hover {
+        color: rgb(232, 230, 227);
+        background-color: rgb(26, 109, 45);
+        border-color: rgb(40, 168, 69);
     }
 
     & .btn-light {
@@ -113,6 +144,12 @@ body.aw-darkmode {
         color: rgb(203, 198, 192);
         background-color: rgb(38, 41, 43);
         border-color: rgb(57, 62, 64);
+    }
+
+    & .btn-outline-secondary:hover {
+        color: rgb(232, 230, 227);
+        background-color: rgb(88, 95, 99);
+        border-color: rgb(102, 94, 83);
     }
 
     & .btn-unique {

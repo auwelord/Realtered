@@ -1017,6 +1017,13 @@ a.aw-unique::after {
   border-color: var(--c-uniqued2) !important;
 }
 
+.modal-header{
+  align-items: center !important;
+}
+
+.modal-header .btn-close {
+  background: transparent url('@/assets/img/modalclosewhite.png') center / 2em auto no-repeat !important;
+}
 
 @media (prefers-color-scheme: dark) 
 {
