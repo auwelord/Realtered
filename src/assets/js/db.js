@@ -356,7 +356,8 @@ export default {
                 }
                 else
                 {            
-                    //on veut tous les decks
+                    //on veut tous les decks non tournoi
+                    req = req.not('userId', 'is', null)
                     //utilisateur non connecté : on recupere que les decks publics
                     if(!user)
                     {

@@ -87,14 +87,14 @@
                     <DeckStats v-if="currentdeck && afficherstats" :currentDeck="currentdeck" />
                 </div>
 
-                <div class="col-lg-8 col-12" v-if="typeui == 'decklist'">
+                <div class="col-lg-8 col-12" v-if="isDecklist()">
                     <Decklists :user="user" :currentdeck="currentdeck" :deckid="deckid" 
                         @mouseentercard="mouseEnterCard" 
                         @mouseleavecard="mouseLeaveCard"
                         @onafficherstat="pafficher => afficherstats = pafficher"/>
                 </div>
 
-                <Decktest :user="user" :currentdeck="currentdeck" v-if="typeui == 'decktest'" 
+                <Decktest :user="user" :currentdeck="currentdeck" v-if="isDeckTest()" 
                     @mouseentercard="mouseEnterCard" 
                     @mouseleavecard="mouseLeaveCard"
                     @togglefullscreen="togglefullscreen" />
@@ -223,6 +223,12 @@ export default
         },
         methods:
         {
+            isDecklist(){
+                return this.typeui == 'decklist'
+            },
+            isDeckTest(){
+                return this.typeui == 'decktest'
+            },
             getClassDeck(pdeck)
             {
                 return this.currentdeck && this.currentdeck.id == pdeck.id ? 'active' : ''
