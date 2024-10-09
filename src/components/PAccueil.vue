@@ -18,7 +18,7 @@
               <router-link to="/decklists" class="main-btn btn-hover wow fadeInUp" href="#" data-wow-delay=".6s">
                 Decks
               </router-link>
-              <router-link to="/deckbuilder" class="main-btn border-btn btn-hover btn-uniqued2 wow fadeInUp" href="#" data-wow-delay=".6s">
+              <router-link to="/deckbuilder" class="main-btn border-btn btn-hover wow fadeInUp" href="#" data-wow-delay=".6s">
                 Deckbuilder
               </router-link>
             </div>
