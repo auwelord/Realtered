@@ -134,11 +134,11 @@
               </div> <!-- /.card-header -->
               <div class="card-header" v-if="g_isAdmin(user)">
                 <div v-if="!database && fetchedCards && currentFaction != ''">
-                  <BButton @click="updateDetailFromApi" variant="secondary" size="sm" class="me-2">
-                    <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Details <span v-if="updatingname">{{  updatingname }}</span>
+                  <BButton @click="updateDetailFromApi" variant="secondary" size="sm" class="me-2" v-if="g_isLocaleFrench()">
+                    <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Details <span v-if="cptupdatecard > 0">{{  cptupdatecard }} / {{fetchedCards.length}}</span>
                   </BButton>
                   <BButton @click="onClickDownloadImages" variant="secondary" size="sm" class="me-2">
-                    <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Images <span v-if="updatingname">{{  updatingname }}</span>
+                    <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Images <span v-if="cptupdatecard > 0">{{  cptupdatecard }} / {{fetchedCards.length}}</span>
                   </BButton>
                 </div>
                 <BButton @click="updateUniques" variant="secondary" size="sm" class="me-2" title="Mettre à jour les uniques" v-if="g_isAdmin(user) && database">
@@ -1027,6 +1027,7 @@ export default {
       cbtournoi: null,
       fPosTournoi: 0,
       cbsetuniquefav: true,
+      cptupdatecard: 0,
     };
   },
   mounted() 
@@ -1272,20 +1273,36 @@ export default {
     },
     updateDetailFromApi()
     {
+      this.cptupdatecard = 0
+
       this.g_updateCardsFromApi(this.fetchedCards,
         //onUpdatingCard: 
-        pcard => this.updatingname = pcard.reference,
+        pcard => {
+          this.cptupdatecard++
+          this.updatingname = pcard.reference
+        },
         //onUpdatedCards: 
-        () => this.updatingname = null
+        () => {
+          this.updatingname = null
+          this.cptupdatecard = 0
+        }
       )
     },
     onClickDownloadImages()
     {
+      this.cptupdatecard = 0
+
       this.g_downloadImages(this.fetchedCards,
         //onDownloadingImage
-        pcard => this.updatingname = pcard.reference,
+        pcard => {
+          this.cptupdatecard++
+          this.updatingname = pcard.reference
+        },
         //onDownloadedImages
-        () => this.updatingname = null,
+        () => {
+          this.cptupdatecard = 0
+          this.updatingname = null
+        },
         //onUpdatedImageS3
         null
       );
@@ -2737,7 +2754,9 @@ export default {
               forceupdate: true
             },
             //onUpdatedCard:
-            ppcard => console.log("Carte mise à jour : " + ppcard.reference)
+            ppcard => {
+              console.log("Carte mise à jour : " + ppcard.reference)
+            }
           )
 
           this.fetchedCards.push(pcard);

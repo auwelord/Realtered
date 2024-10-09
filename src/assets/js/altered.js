@@ -14,6 +14,18 @@ const altered = {
 export default {
     install: (app, options) => 
     {
+        app.config.globalProperties.g_getLocale = function()
+        {
+            var locale = localStorage.getItem('language')
+            if(!locale) locale = 'fr'
+            return locale
+        }
+
+        app.config.globalProperties.g_isLocaleFrench = function()
+        {
+            return this.g_getLocale() == 'fr'
+        }
+
         app.config.globalProperties.g_getHeroName = function(phero)
         {
             return phero.name.split('&')[0].trim().toLowerCase()
@@ -26,13 +38,13 @@ export default {
 
         app.config.globalProperties.g_getImageBanner = function(phero)
         {
-            var heroname = app.config.globalProperties.g_getHeroName(phero)
+            var heroname = this.g_getHeroName(phero)
             return "https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/banner-" + heroname + '.png';
         }
 
         app.config.globalProperties.g_getImageHeroNotext = function(phero)
         {
-            var heroname = app.config.globalProperties.g_getHeroName(phero)
+            var heroname = this.g_getHeroName(phero)
             return "https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/heronotext-" + heroname + '.png';
         }
 
@@ -60,7 +72,7 @@ export default {
         {
             return formats
         }
-        
+
         app.config.globalProperties.g_formatsForCb = function()
         {
             return formats.map(format => {

@@ -1144,6 +1144,8 @@ export default {
             card.mountainPower = parseInt(card.mountainPower);
             card.oceanPower = parseInt(card.oceanPower);
 
+            card.locale = app.config.globalProperties.g_getLocale()
+
             try {
                 const { data, error } = await axios.post(API_BASEURL + '/card/update', card, hparams())
 
@@ -1311,6 +1313,8 @@ export default {
          */
         async function uploadFile(pcard, pblob, onUpdatedImageS3) 
         {
+            var locale = app.config.globalProperties.g_getLocale()
+
             var v_path = "cards/";
             var v_faction = pcard.mainFaction.reference;
             if(!v_faction) v_faction = pcard.mainFaction;
@@ -1322,6 +1326,10 @@ export default {
             else if(v_faction == "OR") v_path+= "ordis/";
             else v_faction+= "yzmir/";
 
+            if(locale != 'fr')
+            {
+                v_path+= locale + "/"
+            }
             v_path+= pcard.reference + '.webp';
             
             try {
@@ -1329,7 +1337,7 @@ export default {
                 let file = new File([pblob], pcard.reference + '.webp');
                 formData.append('fichier', file)
                 formData.append('path', v_path)
-
+                
                 //res.data: card
                 const { error } = await axios.post(API_BASEURL + '/image/s3/upload', formData, hparams(true)) 
 
@@ -1337,7 +1345,7 @@ export default {
                 else 
                 {
                     //update Card.imageS3
-                    updateImageS3(pcard, v_path, onUpdatedImageS3)
+                    updateImageS3(pcard, v_path, locale, onUpdatedImageS3)
                 }
             } 
             catch (error) 
@@ -1353,13 +1361,14 @@ export default {
          * 
          * onUpdatedImageS3(card) : callback de fin de mise à jour de la base
          */
-        async function updateImageS3(pcard, ppath, onUpdatedImageS3)
+        async function updateImageS3(pcard, ppath, plocale, onUpdatedImageS3)
         {
             try {
                 //req.body: {card, path}
                 const apiparams = {
                     card: pcard,
-                    path: ppath
+                    path: ppath,
+                    locale: plocale
                 }
                 //res.data: card
                 const { data, error } = await axios.post(API_BASEURL + '/image/s3', apiparams, hparams())
@@ -1381,6 +1390,12 @@ export default {
         app.config.globalProperties.g_isBearer = function()
         {
             return bearer != null
+        }
+
+        function getFormattedLocale(plocale)
+        {
+            if(plocale == 'en') return 'en-us'
+            return plocale + '-' + plocale
         }
 
         async function fetchCardsFromApi (params, pcallback)
@@ -1409,6 +1424,9 @@ export default {
             if (params.currentEditions.length > 0) $.extend(apiparams, { cardSet: params.currentEditions });
             if (params.currentSoustypes.length > 0) $.extend(apiparams, { cardSubTypes: params.currentSoustypes });
     
+            var locale = app.config.globalProperties.g_getLocale()
+            $.extend(apiparams, { locale: getFormattedLocale(locale)});
+
             var headers = hparams()
 
             if (bearer) {
