@@ -29,13 +29,13 @@ export default {
                     labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "10+"],
                     datasets: [
                         {
-                            label: "Coût de main",
+                            label: this.$t('ui.lib.maincost'),
                             data: this.getQuantiteMainCost(),
                             borderColor: "white",
                             backgroundColor: this.g_getFactionColorFromDeck(this.currentDeck),
                         },
                         {
-                            label: "Coût de réserve",
+                            label: this.$t('ui.lib.recallcost'),
                             data: this.getQuantiteRecallCost(),
                             borderColor: "white",
                             backgroundColor: "#FFB410",
@@ -49,21 +49,21 @@ export default {
                             display: true,
                             title: {
                                 display: true,
-                                text: 'Coût en mana',
+                                text: this.$t('ui.lib.manacost'),
                             }
                         },
                         y: {
                             display: true,
                             title: {
                                 display: true,
-                                text: 'Nombre de cartes',
+                                text: this.$t('ui.lib.nbcartes'),
                             }
                         }
                     },
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Coûts',
+                            text: this.$t('ui.lib.couts'),
                         },
                         legend: {
                             title: {
@@ -75,16 +75,16 @@ export default {
             },
             chartTotalCost: {
                 chartData: {
-                    labels: ["Coût total"],
+                    labels: [this.$t('ui.lib.couttotal')],
                     datasets: [
                         {
-                            label: "Coût total de main",
+                            label: this.$t('ui.lib.totalmaincost'),
                             data: [this.getCoutTotalMain()],
                             borderColor: "white",
                             backgroundColor: this.g_getFactionColorFromDeck(this.currentDeck),
                         },
                         {
-                            label: "Coût total de réserve",
+                            label: this.$t('ui.lib.totalrecallcost'),
                             data: [this.getCoutTotalReserve()],
                             borderColor: "white",
                             backgroundColor: "#FFB410",
@@ -99,7 +99,7 @@ export default {
                             display: true,
                             title: {
                                 display: false,
-                                text: 'Coût en mana',
+                                text: this.$t('ui.lib.manacost'),
                             }
                         },
                         y: {
@@ -109,7 +109,7 @@ export default {
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Coûts',
+                            text: this.$t('ui.lib.couts'),
                         },
                         legend: {
                             title: {
@@ -121,10 +121,10 @@ export default {
             },
             chartType: {
                 chartData: {
-                    labels: ['Personnage', 'Sort', 'Permanent'],
+                    labels: [this.$t('ui.lib.personnage'), this.$t('ui.lib.sort'), this.$t('ui.lib.permanent')],
                     datasets: [
                         {
-                            label: 'Nombre de cartes',
+                            label: this.$t('ui.lib.nbcartes'),
                             data: this.getQuantiteTypes(),
                             backgroundColor: ['#8549ba', '#4dc9f6', '#f67019'],
                         }
@@ -138,7 +138,7 @@ export default {
                         },
                         title: {
                             display: true,
-                            text: 'Proportions par types'
+                            text: this.$t('ui.lib.repartitionpartype')
                         }
                     }
                 }
@@ -148,20 +148,20 @@ export default {
                     labels: [""],
                     datasets: [
                         {
-                            label: "Patate totale en forêt",
+                            label: this.$t('ui.lib.totalforestpower'),
                             data: [this.getStatTotalForest()],
                             borderColor: "white",
                             backgroundColor: this.g_colorForest(),
                         },
                         {
-                            label: "Patate totale en montagne",
+                            label: this.$t('ui.lib.totalmountainpower'),
                             data: [this.getStatTotalMountain()],
                             borderColor: "white",
                             backgroundColor: this.g_colorMountain(),
                         }
                         ,
                         {
-                            label: "Patate totale en océan",
+                            label: this.$t('ui.lib.totaloceanpower'),
                             data: [this.getStatTotalOcean()],
                             borderColor: "white",
                             backgroundColor: this.g_colorWater(),
@@ -174,7 +174,7 @@ export default {
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Patates totales par biôme',
+                            text: this.$t('ui.lib.totalbiomepower'),
                         },
                         legend: {
                             title: {
@@ -189,20 +189,20 @@ export default {
                     labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "10+"],
                     datasets: [
                         {
-                            label: "Forêt",
+                            label: this.$t('ui.lib.foret'),
                             data: this.getQuantiteStatForet(),
                             borderColor: "white",
                             backgroundColor: this.g_colorForest(),
                         },
                         {
-                            label: "Montagne",
+                            label: this.$t('ui.lib.montagne'),
                             data: this.getQuantiteStatMountain(),
                             borderColor: "white",
                             backgroundColor: this.g_colorMountain(),
                         }
                         ,
                         {
-                            label: "Océan",
+                            label: this.$t('ui.lib.ocean'),
                             data: this.getQuantiteStatWater(),
                             borderColor: "white",
                             backgroundColor: this.g_colorWater(),
@@ -216,21 +216,21 @@ export default {
                             display: true,
                             title: {
                                 display: true,
-                                text: 'Patate',
+                                text: this.$t('ui.lib.patates'),
                             }
                         },
                         y: {
                             display: true,
                             title: {
                                 display: true,
-                                text: 'Nombre de cartes',
+                                text: this.$t('ui.lib.nbcartes'),
                             }
                         }
                     },
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Patates par biôme',
+                            text: this.$t('ui.lib.biomepower'),
                         },
                         legend: {
                             title: {

@@ -9,6 +9,7 @@ import App from './App.vue'
 import router from './routes/router'
 import Toast from "vue-toastification";
 import VueDatePicker from '@vuepic/vue-datepicker';
+import i18n from '@/utilities/i18n';
 
 import "vue-toastification/dist/index.css";
 import altered from './assets/js/altered';
@@ -37,6 +38,7 @@ const app = createApp(App)
     .use(altered)
     .use(db)
     .use(Toast)
+    .use(i18n)
     .use(createHead())
     .use(createBootstrap());
 

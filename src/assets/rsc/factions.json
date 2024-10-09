@@ -4,48 +4,55 @@
     "fr": "Axiom",
     "es": "Axiom",
     "it": "Axiom",
-    "de": "Axiom"
+    "de": "Axiom",
+    "color": "#6B4236"
   },
   "BR": {
     "en": "Bravos",
     "fr": "Bravos",
     "es": "Bravos",
     "it": "Bravos",
-    "de": "Bravos"
+    "de": "Bravos",
+    "color": "#982925"
   },
   "LY": {
     "en": "Lyra",
     "fr": "Lyra",
     "es": "Lyra",
     "it": "Lyra",
-    "de": "Lyra"
+    "de": "Lyra",
+    "color": "#A9365E"
   },
   "MU": {
     "en": "Muna",
     "fr": "Muna",
     "es": "Muna",
     "it": "Muna",
-    "de": "Muna"
+    "de": "Muna",
+    "color": "#3B6331"
   },
   "OR": {
     "en": "Ordis",
     "fr": "Ordis",
     "es": "Ordis",
     "it": "Ordis",
-    "de": "Ordis"
+    "de": "Ordis",
+    "color": "#0B5974"
   },
   "YZ": {
     "en": "Yzmir",
     "fr": "Yzmir",
     "es": "Yzmir",
     "it": "Yzmir",
-    "de": "Yzmir"
+    "de": "Yzmir",
+    "color": "#714A79"
   },
   "NE": {
     "en": "Neutral",
     "fr": "Neutre",
     "es": "Neutral",
     "it": "Neutral",
-    "de": "Neutral"
+    "de": "Neutral",
+    "color": "#FFF"
   }
 }

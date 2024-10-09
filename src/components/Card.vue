@@ -25,7 +25,7 @@
                   <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-3" />
                 </div>
               </div>
-              <div class="mt-2 aw-tools aw-raritycompare d-flex flex-column align-items-center" @click="onShowCardDetail(card)" title="Comparer les raretés">
+              <div class="mt-2 aw-tools aw-raritycompare d-flex flex-column align-items-center" @click="onShowCardDetail(card)" :title="$t('ui.action.comparerraretes')">
                 <font-awesome-icon :icon="['fas', 'code-compare']" class="fs-6" />
               </div>
               <div class="mt-2 aw-tools aw-raritycompare d-flex flex-column align-items-center" @click="e_onToggleFavori(card)" title="Ajouter / retirer l'unique des favoris pour la rendre disponible ou non dans le deckbuilder" v-if="user && !deckbuilder && g_isUnique(card)">

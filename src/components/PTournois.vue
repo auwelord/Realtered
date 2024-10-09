@@ -141,12 +141,8 @@ export default {
             fLieuTournoi:'',
             fDatesTournoi:null,
             fNbJoueursTournoi:4,
-            cbFormatTournoi:'CONSTRUIT',
-            formats :[
-                { value: 'CONSTRUIT', label: 'Construit' },
-                { value: 'DRAFT', label: 'Draft' },
-                { value: 'SCELLE', label: 'Scellé' },
-            ],
+            cbFormatTournoi: null,
+            formats : this.g_formatsForCb(),
             show_formtournoi: false,
             currentTournoi: null,
             tournois: [],
@@ -157,12 +153,12 @@ export default {
             mousetimeout: null,
             chartFaction: {
                 chartData: {
-                    labels: ['Axiom', 'Bravos', 'Lyra', 'Muna', 'Ordis', 'Yzmir'],
+                    labels: null,
                     datasets: [
                         {
                             label: 'Nombre de decks',
                             data: null,
-                            backgroundColor: ['#6B4236', '#982925', '#A9365E', '#3B6331', '#0B5974', '#714A79'],
+                            backgroundColor: null,
                         }
                     ]
                 },
@@ -181,12 +177,12 @@ export default {
             },
             chartHero: {
                 chartData: {
-                    //labels: ['Axiom', 'Bravos', 'Lyra', 'Muna', 'Ordis', 'Yzmir'],
+                    labels: null,
                     datasets: [
                         {
                             label: 'Nombre de decks',
                             data: null,
-                            //backgroundColor: ['#6B4236', '#982925', '#A9365E', '#3B6331', '#0B5974', '#714A79'],
+                            backgroundColor: null,
                         }
                     ]
                 },
@@ -230,32 +226,52 @@ export default {
         {
             this.afficherstats = pafficher
         },
-        setDataCharts() {
-            const factions = ['AX', 'BR', 'LY', 'MU', 'OR', 'YZ'];
-            this.chartFaction.chartData.datasets[0].data = [0,0,0,0,0,0]
-            this.chartHero.chartData.labels = []
-            this.chartHero.chartData.datasets[0].data = []
-            this.chartHero.chartData.datasets[0].backgroundColor = []
+        setDataCharts() 
+        {
+            var factionLabels = [],
+                factionDataset = {
+                    data: [],
+                    backgroundColor: []
+                },
+                heroLabels = [],
+                heroDataset = {
+                    data: [],
+                    backgroundColor: []
+                }
 
             if(this.decks)
             {
-                this.decks.forEach(pdeck => {
-                    var indexx = factions.indexOf(pdeck.main_faction)
-                    if(indexx > -1) this.chartFaction.chartData.datasets[0].data[indexx]++
+                this.decks.forEach(pdeck => 
+                {
+                    const faction = this.g_getFaction(pdeck.main_faction)
+                    
+                    var indexfaction = factionLabels.indexOf(faction.fr)
+                    if(indexfaction == -1)
+                    {
+                        factionLabels.push(faction.fr)
+                        indexfaction = factionLabels.indexOf(faction.fr)
 
-                    var indexhero = this.chartHero.chartData.labels.indexOf(pdeck.hero.name)
+                        factionDataset.data.push(0)
+                        factionDataset.backgroundColor.push(faction.color)
+                    }
+                    factionDataset.data[indexfaction]++
+
+                    var indexhero = heroLabels.indexOf(pdeck.hero.name)
                     if(indexhero == -1) 
                     {
-                        this.chartHero.chartData.labels.push(pdeck.hero.name)
-                        indexhero = this.chartHero.chartData.labels.indexOf(pdeck.hero.name)
+                        heroLabels.push(pdeck.hero.name)
+                        indexhero = heroLabels.indexOf(pdeck.hero.name)
 
-                        this.chartHero.chartData.datasets[0].data.push(0)
-                        this.chartHero.chartData.datasets[0].backgroundColor.push(this.g_getHeroColorByName(pdeck.hero.name))
+                        heroDataset.data.push(0)
+                        heroDataset.backgroundColor.push(this.g_getHeroColorByName(pdeck.hero.name))
                     }
-                    this.chartHero.chartData.datasets[0].data[indexhero]++
+                    heroDataset.data[indexhero]++
                 })
             }
-            //waru: "01HKAFJNVMAN704B02KK1KCF7N"
+            this.chartFaction.chartData.datasets[0] = factionDataset
+            this.chartFaction.chartData.labels = factionLabels
+            this.chartHero.chartData.datasets[0] = heroDataset
+            this.chartHero.chartData.labels = heroLabels
         },
         mouseEnterCard(pcard)
         {
@@ -274,7 +290,7 @@ export default {
             this.fLieuTournoi = ''
             this.fDatesTournoi = null
             this.fNbJoueursTournoi = 4
-            this.cbFormatTournoi = 'CONSTRUIT'
+            this.cbFormatTournoi = this.g_formats()[0].code
             this.show_formtournoi = true
 
             setTimeout(() => $("#awid-libtournoi").trigger('select'), 50)

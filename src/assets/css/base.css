@@ -89,6 +89,17 @@
   font-weight: normal;
 }
 
+.color-white
+{
+  color: white;
+}
+.aw-color-rare{
+  color: var(--c-rare);
+}
+.aw-color-rared2{
+  color: var(--c-rared2);
+}
+
 .btn-light
 {
   border: 1px solid var(--bs-border-color-translucent);

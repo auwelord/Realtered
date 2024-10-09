@@ -17,7 +17,7 @@
                 <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-4" />
               </div>
             </div>
-            <div class="mt-2 aw-tools aw-raritycompare d-flex flex-column align-items-center" @click="onShowCardDetail(card)" title="Comparer les raretés">
+            <div class="mt-2 aw-tools aw-raritycompare d-flex flex-column align-items-center" @click="onShowCardDetail(card)" :title="$t('ui.action.comparerraretes')">
               <font-awesome-icon :icon="['fas', 'code-compare']" class="fs-6" />
             </div>
           </div>

@@ -1,0 +1,17 @@
+[
+  {
+    "code": "CONSTRUIT",
+    "limite": false,
+    "fr": "Construit"
+  },
+  {
+    "code": "DRAFT",
+    "limite": true,
+    "fr": "Draft"
+  },
+  {
+    "code": "SCELLE",
+    "limite": true,
+    "fr": "Scellé"
+  }
+]

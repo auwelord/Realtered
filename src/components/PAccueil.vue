@@ -4,22 +4,21 @@
       <div class="row align-items-center">
         <div class="col-lg-6">
           <div class="hero-content">
-            <h1 class="wow fadeInUp" data-wow-delay=".2s">
-              <span v-if="user">{{ user.user_metadata.custom_claims.global_name }}, explore l'inattendu !</span>
+            <h1 class="wow fadeInUp fs-1 color-white" data-wow-delay=".2s">
+              <span v-if="user">{{ $t('ui.paccueil.welcome', {name: user.user_metadata.custom_claims.global_name})}}</span>
               <span v-else>Explorer l'inattendu</span>
             </h1>
-            <p class="wow fadeInUp" data-wow-delay=".4s">
-              Incarne un héros, choisis ta faction et mène tes expéditions vers l'inconnu dans ce jeu de cartes à
-              collectionner novateur à l'univers moderne, riche et coloré.
+            <p class="wow fadeInUp color-white" data-wow-delay=".4s">
+              {{ $t('ui.paccueil.welcomebas') }}
             </p>
             <div class="hero-btns text-center">
               <router-link to="/cartes" class="main-btn btn-hover wow fadeInUp" href="#" data-wow-delay=".6s">
-                Cartes
+                {{ $t('ui.menu.cartes')}}
               </router-link>
               <router-link to="/decklists" class="main-btn btn-hover wow fadeInUp" href="#" data-wow-delay=".6s">
                 Decks
               </router-link>
-              <router-link to="/deckbuilder" class="main-btn border-btn btn-hover wow fadeInUp" href="#" data-wow-delay=".6s">
+              <router-link to="/deckbuilder" class="main-btn border-btn btn-hover btn-uniqued2 wow fadeInUp" href="#" data-wow-delay=".6s">
                 Deckbuilder
               </router-link>
             </div>
@@ -40,7 +39,7 @@
   <section id="portfolio" class="portfolio">
     <div class="portfolio-details">
       <div class="section-heading text-center">
-        <h2>Site Officel</h2>
+        <h2>{{ $t('ui.paccueil.officialwebsite') }}</h2>
       </div>
       <div class="container">
         <div class="portfolio-content">
@@ -70,7 +69,7 @@
   <section id="portfolio" class="portfolio">
     <div class="portfolio-details">
       <div class="section-heading text-center">
-        <h2>Outils communautaires</h2>
+        <h2>{{ $t('ui.paccueil.outils') }}</h2>
       </div>
       <div class="container">
         <div class="portfolio-content">
@@ -234,70 +233,15 @@
                   <LogoAltered :width="200" />
                 </a>
               </div>
-              <!--
-              <ul class="socials">
-                <li>
-                  <a href="javascript:void(0)"> <i class="lni lni-facebook-filled"></i> </a>
-                </li>
-                <li>
-                  <a href="javascript:void(0)"> <i class="lni lni-twitter-filled"></i> </a>
-                </li>
-                <li>
-                  <a href="javascript:void(0)"> <i class="lni lni-instagram-filled"></i> </a>
-                </li>
-                <li>
-                  <a href="javascript:void(0)"> <i class="lni lni-linkedin-original"></i> </a>
-                </li>
-              </ul>
-            -->
             </div>
           </div>
-<!--
-          <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
-            <div class="footer-widget">
-              <h3>Features</h3>
-              <ul class="links">
-                <li> <a href="javascript:void(0)">Easy to use</a> </li>
-                <li> <a href="javascript:void(0)">Work on all device</a> </li>
-                <li> <a href="javascript:void(0)">Always up to date</a> </li>
-                <li> <a href="javascript:void(0)">Track your devices</a> </li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="col-xl-3 col-lg-2 col-md-6 col-sm-6">
-            <div class="footer-widget">
-              <h3>About Us</h3>
-              <ul class="links">
-                <li> <a href="javascript:void(0)">Home</a> </li>
-                <li> <a href="javascript:void(0)">Features</a> </li>
-                <li> <a href="javascript:void(0)">Explore</a> </li>
-                <li> <a href="javascript:void(0)">Testimonials</a> </li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="col-xl-2 col-lg-3 col-md-6 col-sm-6">
-            <div class="footer-widget">
-              <h3>Support</h3>
-              <ul class="links">
-                <li> <a href="javascript:void(0)">About Us</a> </li>
-                <li> <a href="javascript:void(0)">Privacy Policy</a> </li>
-                <li> <a href="javascript:void(0)">Terms of Service</a> </li>
-                <li> <a href="javascript:void(0)">Accessibility</a> </li>
-              </ul>
-            </div>
-          </div>
-        -->
         </div>
       </div>
 
       <div class="copy-right-wrapper">
-        <p>Designed and Developed by <a href="mailto:auwelord@gmail.com" rel="nofollow" target="_blank">Auwelord</a>
+        <p>{{ $t('ui.paccueil.owner') }} <a href="mailto:auwelord@gmail.com" rel="nofollow" target="_blank">Auwelord</a>
         </p>
-        <p class="fs-8">Ce site web est un projet personnel en aucun cas affilié à Equinoxe.<br>
-          Tous les droits concernant Altered TCG et son univers sont la propriété exclusive de Equinoxe. <br>
-          Ce site n'a aucune intention commerciale et est dédié à la communauté des fans du jeu.
+        <p class="fs-8">{{ $t('ui.paccueil.disclaimer1') }}<br>{{ $t('ui.paccueil.disclaimer2') }}<br>{{ $t('ui.paccueil.disclaimer3') }}
         </p>
       </div> 
     </div>
@@ -345,7 +289,7 @@ export default {
   position: relative;
   z-index: 1;
   padding: 150px 0 50px;
-  background-image: url("../assets/img/bgarch.png");
+  background-image: url("../assets/img/bg.webp");
   /*background-repeat: no-repeat;*/
   background-position: left;
 }

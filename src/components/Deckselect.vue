@@ -37,15 +37,15 @@
                                     @click="changeFaction"><img src="@/assets/img/altered/factions/yzmir.webp"
                                         class="aw-faction" /></a>
                             </div>
-                            Héro / Héroïne
+                            {{$t('ui.lib.hero')}}
                             <Multiselect v-model="currenthero"
                                 :options="heroes"
                                 :close-on-select="true" 
                                 :searchable="true"
                                 />
 
-                            <BFormCheckbox v-model="mesdecksonly" class="ms-1 mt-2">Mes decks uniquement</BFormCheckbox>
-                            <BFormCheckbox v-model="mesfavorisonly" class="ms-1">Mes favoris uniquement</BFormCheckbox>
+                            <BFormCheckbox v-model="mesdecksonly" class="ms-1 mt-2">{{$t('ui.lib.onmymydeck')}}</BFormCheckbox>
+                            <BFormCheckbox v-model="mesfavorisonly" class="ms-1">{{$t('ui.lib.onmyfav')}}</BFormCheckbox>
 
                             <div :class="['mt-2 aw-decks', decks && decks.length > 0 ? '' : 'd-flex justify-content-center']">
                                 <img src="@/assets/img/empty.png" v-if="!decks || decks.length == 0"/>
@@ -73,10 +73,10 @@
                                 </BListGroup>
                             </div>
                             <div class="mt-2 d-flex">
-                                <BButton @click="onPreviousDecks" variant="uniqued2" size="sm" class="flex-fill me-2 fs-4" title="Decks précédents" v-visible="currentpage > 1">
+                                <BButton @click="onPreviousDecks" variant="uniqued2" size="sm" class="flex-fill me-2 fs-4" :title="$t('ui.lib.previousdecks')" v-visible="currentpage > 1">
                                     <font-awesome-icon :icon="['fas', 'left-long']" />
                                 </BButton>
-                                <BButton @click="onNextDecks" variant="uniqued2" size="sm" class="flex-fill ms-2 fs-4" title="Decks suivants" v-visible="hasnextdeck">
+                                <BButton @click="onNextDecks" variant="uniqued2" size="sm" class="flex-fill ms-2 fs-4" :title="$t('ui.lib.nextdecks')" v-visible="hasnextdeck">
                                     <font-awesome-icon :icon="['fas', 'right-long']" />
                                 </BButton>
                             </div>

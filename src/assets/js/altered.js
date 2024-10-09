@@ -1,5 +1,7 @@
 import subtypes from '../rsc/subtypes.json'
 import factions from '../rsc/factions.json'
+import formats from '../rsc/formats.json'
+import heros from '../rsc/heros.json'
 import keywords from '../rsc/keywords.json'
 
 const altered = {
@@ -52,6 +54,21 @@ export default {
             const combTotal = combinaison(N, n); // Nombre total de façons de choisir n cartes parmi N
         
             return (comb1 * comb2) / combTotal; // Probabilité hypergéométrique
+        }
+
+        app.config.globalProperties.g_formats = function()
+        {
+            return formats
+        }
+        
+        app.config.globalProperties.g_formatsForCb = function()
+        {
+            return formats.map(format => {
+                return {
+                    value: format.code,
+                    label: format.fr
+                }
+            })
         }
 
         app.config.globalProperties.g_deconnecter = function(pcallback)
@@ -273,71 +290,14 @@ export default {
 
         app.config.globalProperties.g_getFactionColor = function (pfaction)
         {
-            switch (pfaction) 
-            {
-                case "AX":
-                    return "#6B4236";
-                case "BR":
-                    return "#982925";
-                case "LY":
-                    return "#A9365E";
-                case "MU":
-                    return "#3B6331";
-                case "OR":
-                    return "#0B5974";
-                case "YZ":
-                    return "#714A79";
-                default:
-                    return "#FFF";
-            }
+            const faction = factions[pfaction]
+            return faction ? faction.color : "#FFF"
         }; 
 
         app.config.globalProperties.g_getHeroColorByName = function (pname)
         {
-            switch (pname) 
-            {
-                case "Waru & Mack":
-                    return "#0B5974";
-                case "Sigismar & Wingspan":
-                    return "#19C5FF";
-                case "Gulrang & Tocsin":
-                    return "#1082A8";
-                case "Afanas & Senka":
-                    return "#714A79";
-                case "Akesha & Taru":
-                    return "#B478C1";
-                case "Lindiwe & Maw":
-                    return "#EDA0FF";
-                case "Fen & Crowbar":
-                    return "#A9365E";
-                case "Auraq & Kibble":
-                    return "#E2487E";
-                case "Nevenka & Blotch":
-                    return "#FF8CB6";
-
-                case "Sierra & Oddball":
-                    return "#6B4236";
-                case "Subhash & Marmo":
-                    return "#AD6958";
-                case "Treyst & Rossum":
-                    return "#4C2D27";
-
-                case "Kojo & Booda":
-                    return "#982925";
-                case "Basira & Kaizaimon":
-                    return "#D33A34";
-                case "Atsadi & Surge":
-                    return "#D30034";
-
-                case "Teija & Nauraa":
-                    return "#3B6331";
-                case "Rin & Orchid":
-                    return "#68AD56";
-                case "Arjun & Spike":
-                    return "#8AE271";
-                default:
-                    return "#FFF";
-            }
+            const hero = heros[pname]
+            return hero ? hero.color : "#FFF"
         }
 
         app.config.globalProperties.g_isDeckAxiom = function (pdeck) {
@@ -378,6 +338,10 @@ export default {
             return pcode == "YZ"
         };
 
+        app.config.globalProperties.g_getFaction = function (pcodefaction)
+        {
+            return factions[pcodefaction]
+        }
         app.config.globalProperties.g_getFactionName = function (pfaction, plc)
         {
             var name = factions[pfaction].fr;

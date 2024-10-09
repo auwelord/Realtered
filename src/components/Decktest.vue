@@ -4,7 +4,7 @@
             <div class="d-flex">
                 <div class="d-flex flex-fill flex-column">
                     <div class="text-center m-1 aw-titlezone">
-                        Expédition Héro
+                        {{ $t('ui.lib.expehero') }}
                         <i class="altered-forest fs-7 me-1"></i>{{ getPatate('forest', 'hero') }}
                         <i class="altered-mountain fs-7 ms-2 me-1"></i>{{ getPatate('mountain', 'hero') }}
                         <i class="altered-ocean fs-7 ms-2 me-1"></i>{{ getPatate('ocean', 'hero') }}
@@ -34,7 +34,7 @@
                     </div>
                 </div>
                 <div class="d-flex flex-column">
-                    <div class="text-center m-1 aw-titlezone aw-cursor-pointer" @click="e_toggleFullscreen" title="Cliquez pour activer/désctiver le plein écran">Héro</div>
+                    <div class="text-center m-1 aw-titlezone aw-cursor-pointer" @click="e_toggleFullscreen" title="Cliquez pour activer/désctiver le plein écran">{{ $t('ui.lib.hero') }}</div>
                     <div :class="['aw-slot aw-hero m-1 position-relative d-flex justify-content-center',getClassExhaustedCard(currentdeck.hero) ,getClassSelectedCard(currentdeck.hero)]">
                         <img :src="g_getImageCardPublicUrl(currentdeck.hero)" :title="currentdeck.hero.name" class="aw-imgcard aw-alteredcard p-1" @dblclick="e_toggleExhaustHero"  @click="e_selectCard(currentdeck.hero)"/>
                         <div :class="['aw-imgmarker', getClassMarker(currentdeck.hero)]"></div>
@@ -42,7 +42,7 @@
                 </div>
                 <div class="d-flex flex-fill flex-column">
                     <div class="text-center m-1 aw-titlezone">
-                        Expédition Compagnon
+                        {{ $t('ui.lib.expecomp') }}
                         <i class="altered-forest fs-7 me-1"></i>{{ getPatate('forest', 'comp') }}
                         <i class="altered-mountain fs-7 ms-2 me-1"></i>{{ getPatate('mountain', 'comp') }}
                         <i class="altered-ocean fs-7 ms-2 me-1"></i>{{ getPatate('ocean', 'comp') }}
@@ -76,7 +76,7 @@
         <div class="row">
             <div class="d-flex">
                 <div class="d-flex flex-fill flex-column">
-                    <div class="text-center m-1 aw-titlezone">Réserve</div>
+                    <div class="text-center m-1 aw-titlezone">{{$t('ui.lib.zonereserve')}}</div>
                     <div class="aw-reserve m-1 d-flex justify-content-center flex-fill align-items-center">
                         <draggable
                             v-model="reserve"
@@ -100,7 +100,7 @@
                     </div>
                 </div>
                 <div class="d-flex flex-fill flex-column">
-                    <div class="text-center m-1 aw-titlezone">Permanents</div>
+                    <div class="text-center m-1 aw-titlezone">{{$t('ui.lib.zoneperma')}}</div>
                     <div class="aw-perma m-1 d-flex justify-content-center flex-fill align-items-center">
                         <draggable
                             v-model="permas"
@@ -180,7 +180,7 @@
                     <div class="d-flex flex-column aw-defaussecontainer">
                         <div class="text-center m-1 aw-titlezone">
                             <div class="d-flex justify-content-between align-items-center ps-2 pe-2 font-weight-bold">
-                                Défausse: {{ defausse.length }} 
+                                {{ $t('ui.lib.defausse') }}: {{ defausse.length }} 
                                 <div>
                                     <font-awesome-icon :icon="['far', 'eye']" class="ms-1 aw-showdefausse" @click="e_toggleShowDefausse" v-if="defausse.length > 1"/>
                                     <font-awesome-icon :icon="['far', 'eye-slash']" class="ms-3 aw-hidedefausse" @click="e_toggleShowDefausse" v-if="defausse.length > 1"/>
@@ -214,26 +214,26 @@
                                 <img src="@/assets/img/altered/endormi.png" @click="e_toggleStatut('endormi')" :class="['aw-imgjeton aw-imgendormi p-1 m-1', getClassStatut('endormi')]" />
                             </div>
                             <div class="d-flex justify-content-between" v-if="isVisibleBoost()">
-                                <img src="@/assets/img/altered/boost0.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeBoost(0)" title="Supprimer tous les boosts" />
-                                <img src="@/assets/img/altered/boostremove.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeBoost(-1)" title="Retirer un boost" />
-                                <img src="@/assets/img/altered/boostadd.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeBoost(1)" title="Ajouter un boost" />
+                                <img src="@/assets/img/altered/boost0.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeBoost(0)" :title="$t('ui.action.removeboosts')" />
+                                <img src="@/assets/img/altered/boostremove.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeBoost(-1)" :title="$t('ui.action.removeboost')" />
+                                <img src="@/assets/img/altered/boostadd.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeBoost(1)" :title="$t('ui.action.addboost')" />
                             </div>
                             <div class="d-flex justify-content-between" v-if="isVisibleMarker()">
-                                <img src="@/assets/img/altered/marker0.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeMarker(0)" title="Supprimer tous les marqueurs"/>
-                                <img src="@/assets/img/altered/markerremove.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeMarker(-1)" title="Retirer un marqueur" />
-                                <img src="@/assets/img/altered/markeradd.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeMarker(1)" title="Ajouter un marqueur" />
+                                <img src="@/assets/img/altered/marker0.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeMarker(0)" :title="$t('ui.action.removecounters')"/>
+                                <img src="@/assets/img/altered/markerremove.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeMarker(-1)" :title="$t('ui.action.removecounter')" />
+                                <img src="@/assets/img/altered/markeradd.png" :class="['aw-imgjeton p-1 m-1']" @click="e_changeMarker(1)" :title="$t('ui.action.addcounter')" />
                             </div>
                             <div class="d-flex justify-content-between" style="height: 45px;">
                             <BButton @click="e_fen" variant="light" size="sm" class="me-1" title="Piocher / Mettre en mana / ravitailler" v-if="deck.length >= 3 && isDeckFen()">
                                 <img src="https://fyqptmokmnymednlerpj.supabase.co/storage/v1/object/public/Altered/assets/icons/lyra.png" class="h-100">
                             </BButton>
-                            <BButton @click="e_draw" variant="uniqued2" size="sm" title="Piocher" v-if="deck.length > 0">
+                            <BButton @click="e_draw" variant="uniqued2" size="sm" :title="$t('ui.action.piocher')" v-if="deck.length > 0">
                                 <i class="altered-hand"></i>
                             </BButton>
-                            <BButton @click="e_ravitailler" variant="uniqued2" size="sm" class="ms-1" title="Ravitailler" v-if="deck.length > 0">
+                            <BButton @click="e_ravitailler" variant="uniqued2" size="sm" class="ms-1" :title="$t('ui.action.ravitailler')" v-if="deck.length > 0">
                                 <i class="altered-reserve"></i>
                             </BButton>
-                            <BButton @click="e_reinit" variant="danger" size="sm" title="Réinitialiser" class="ms-1">
+                            <BButton @click="e_reinit" variant="danger" size="sm" :title="$t('ui.action.reset')" class="ms-1">
                                 <font-awesome-icon :icon="['fas', 'rotate-left']" />
                             </BButton>
                             </div>
@@ -245,7 +245,7 @@
         <div class="row mt-3">
             <div class="d-flex">
                 <div class="d-flex flex-column flex-fill">
-                    <div class="text-center m-1 aw-titlezone">Main: {{ hand.length }} / Coût de main: {{ getCoutDeMain()}} / Coût de réserve: {{ getCoutDeReserve() }}</div>
+                    <div class="text-center m-1 aw-titlezone">{{$t('ui.lib.main')}}: {{ hand.length }} / {{$t('ui.lib.maincost')}}: {{ getCoutDeMain()}} / {{$t('ui.lib.recallcost')}}: {{ getCoutDeReserve() }}</div>
                     <draggable 
                         v-model="hand" 
                         v-bind="dragOptions"

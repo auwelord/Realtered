@@ -1,0 +1,74 @@
+{
+  "Sierra & Oddball": {
+    "faction": "AX",
+    "color": "#6B4236"
+  },
+  "Subhash & Marmo": {
+    "faction": "AX",
+    "color": "#AD6958"
+  },
+  "Treyst & Rossum": {
+    "faction": "AX",
+    "color": "#4C2D27"
+  },
+  "Kojo & Booda": {
+    "faction": "BR",
+    "color": "#982925"
+  },
+  "Basira & Kaizaimon": {
+    "faction": "BR",
+    "color": "#D33A34"
+  },
+  "Atsadi & Surge": {
+    "faction": "BR",
+    "color": "#D30034"
+  },
+  "Fen & Crowbar": {
+    "faction": "LY",
+    "color": "#A9365E"
+  },
+  "Auraq & Kibble": {
+    "faction": "LY",
+    "color": "#E2487E"
+  },
+  "Nevenka & Blotch": {
+    "faction": "LY",
+    "color": "#FF8CB6"
+  },
+  "Teija & Nauraa": {
+    "faction": "MU",
+    "color": "#3B6331"
+  },
+  "Rin & Orchid": {
+    "faction": "MU",
+    "color": "#68AD56"
+  },
+  "Arjun & Spike": {
+    "faction": "MU",
+    "color": "#8AE271"
+  },
+  "Waru & Mack": {
+    "faction": "OR",
+    "color": "#0B5974"
+  },
+  "Sigismar & Wingspan": {
+    "faction": "OR",
+    "color": "#19C5FF"
+  },
+  "Gulrang & Tocsin": {
+    "faction": "OR",
+    "color": "#1082A8"
+  },
+  "Afanas & Senka": {
+    "faction": "YZ",
+    "color": "#714A79"
+  },
+  "Akesha & Taru": {
+    "faction": "YZ",
+    "color": "#B478C1"
+  },
+  "Lindiwe & Maw": {
+    "faction": "YZ",
+    "color": "#EDA0FF"
+  }
+}

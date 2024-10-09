@@ -12,10 +12,10 @@
           </div>
           <div v-if="deckbuilder" class="card card-outline card-info mb-1">
             <div class="card-header">
-              <h3 class="card-title">Mes decks</h3>
+              <h3 class="card-title">{{$t('ui.lib.mesdecks')}}</h3>
               <div class="card-tools d-flex">
                   <div v-if="g_isAdmin(user)">
-                  Tournois
+                    {{$t('ui.lib.tournois')}}
                   <label class="switch me-2">
                     <input type="checkbox" v-model="cbdeckstournois">
                     <span class="slider round"></span>
@@ -23,33 +23,33 @@
                 </div>
                 <BDropdown v-model="showDDCreateDeck" v-if="!creatingDeck && !proprietingdeck" size="sm" split variant="primary" class="me-2" @click="createDeck">
                   <template #button-content>
-                    <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>Créer
+                    <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>{{$t('ui.action.creer')}}
                   </template>
                   <BDropdownItem v-if="!user" @click="g_connectUser($route.path)">Connectez-vous pour importer un deck</BDropdownItem>
 
                   <BDropdownItem @click="copierDeck" v-if="user && currentSelectedDeck > 0">
-                    <font-awesome-icon :icon="['far', 'copy']" class="me-2" />Copier
+                    <font-awesome-icon :icon="['far', 'copy']" class="me-2" />{{$t('ui.action.copier')}}
                   </BDropdownItem>
                   <BDropdownItem @click="importDeck" v-if="user">
-                    <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer
-                  </BDropdownItem>                  
+                    <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />{{$t('ui.action.importer')}}
+                  </BDropdownItem>
                 </BDropdown>
                 <BDropdown v-model="showDeckoptions" start size="md" variant="outline-secondary" v-if="currentDeck">
                   <template #button-content>
                     <font-awesome-icon :icon="['fas', 'gear']" />
                   </template>
                   <BDropdownItem @click="onShowProprietesDeck" v-if="!creatingDeck && user && currentSelectedDeck > 0 && !proprietingdeck">
-                    <font-awesome-icon :icon="['fas', 'gear']" class="me-2" />Propriétés
+                    <font-awesome-icon :icon="['fas', 'gear']" class="me-2" />{{$t('ui.lib.proprietes')}}
                   </BDropdownItem>
                   <BDropdownItem @click="exporterCurrentDeck()">
-                    <font-awesome-icon :icon="['fas', 'file-export']" class="me-2"/>Exporter
+                    <font-awesome-icon :icon="['fas', 'file-export']" class="me-2"/>{{$t('ui.action.exporter')}}
                   </BDropdownItem>
                   <BDropdownItem @click="onCopierLienDecklist()" v-if="user && currentSelectedDeck > 0">
-                    <font-awesome-icon :icon="['fab', 'threads']" class="me-2"/>Copier le lien de la decklist
+                    <font-awesome-icon :icon="['fab', 'threads']" class="me-2"/>{{$t('ui.action.copierliendl')}}
                   </BDropdownItem>             
                   <BDropdownDivider />  
                   <BDropdownItem  @click="e_showModalDeleteDeck()" variant="danger">
-                      <font-awesome-icon :icon="['far', 'trash-can']" class="me-2" />Supprimer
+                      <font-awesome-icon :icon="['far', 'trash-can']" class="me-2" />{{$t('ui.action.supprimer')}}
                   </BDropdownItem>
                 </BDropdown>
               </div>
@@ -79,7 +79,7 @@
                 <BFormInput placeholder="Classement du deck" v-model="fPosTournoi" v-if="tournois && cbtournoi && g_isAdmin(user)" class="mb-2" />
 
                 <BInputGroup>
-                  <BFormInput required id="awid-fdeckname" v-model="newDeckName" type="text" class="form-control" placeholder="Nom du deck" />
+                  <BFormInput required id="awid-fdeckname" v-model="newDeckName" type="text" class="form-control" :placeholder="$t('ui.lib.nomdeck')" />
                 </BInputGroup>
                 <BInputGroup class="ms-1 mt-2" v-if="isImporting()">
                   <BFormCheckbox v-model="cbsetuniquefav">Ajouter les uniques en favori</BFormCheckbox>
@@ -101,10 +101,10 @@
                 </div>
                 <div class="d-flex justify-content-end">
                   <BButton @click="cancelCreateDeck" variant="light" size="sm" class="mt-2 me-2">
-                    Annuler
+                    {{$t('ui.action.annuler')}}
                   </BButton>
                   <BButton @click="checkCreateDeck" variant="success" size="sm" class="mt-2">
-                    Valider
+                    {{$t('ui.action.valider')}}
                   </BButton>
                 </div>
               </div>
@@ -125,7 +125,7 @@
                     <font-awesome-icon :icon="['fas', 'eraser']" />
                   </BButton>
                   <BButton @click="searchCardsBtnRechercher()" variant="unique" size="sm">
-                    <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="me-2" />Rechercher
+                    <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="me-2" />{{$t('ui.action.rechercher')}}
                   </BButton>
                   <BButton @click="searchPlayset" variant="common" size="sm" class="ms-2" v-if="g_isBearer() && !deckbuilder">
                     <font-awesome-icon :icon="['fas', 'magnifying-glass-arrow-right']" class="me-2" />Playset
@@ -180,7 +180,7 @@
                 </div>
                 <div class="input-group">
                   <div class="d-flex flex-column flex-fill align-items-center">
-                    <input type="text" class="form-control" placeholder="Nom de carte..." 
+                    <input type="text" class="form-control" :placeholder="$t('ui.lib.nomcarte')" 
                       v-model="currentName" 
                       @keyup.enter="searchCards(false, false, false)" />
                   </div>
@@ -192,7 +192,7 @@
                     <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechRarete && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
-                    Rareté
+                    {{$t('ui.lib.rarete')}}
                   </div>
                   <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtresrarity>
                     <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
@@ -230,27 +230,27 @@
                     <a href="javascript:" id="CHARACTER" title="Sélection du type Personnage"
                         :class="['aw-character d-flex flex-column align-items-center mb-3', isSelectedCharacter ? 'aw-selected' : '']"
                         @click="selectCharacter">
-                          <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-4" /><span>Personnage</span>
+                          <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-4" /><span>{{$t('ui.lib.personnage')}}</span>
                     </a>
                     <a href="javascript:" id="SPELL" :title="isSelectedUnique ? 'Le type Sort ne peut pas être activé pour une rareté Unique' : 'Sélection du type Sort'"
                         :class="['aw-spell d-flex flex-column align-items-center mb-3', isSelectedSpell ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
                         @click="selectSpell">
-                          <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-4" /><span>Sort</span>
+                          <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-4" /><span>{{$t('ui.lib.sort')}}</span>
                     </a>
                     <a href="javascript:" id="PERMANENT" :title="isSelectedUnique ? 'Le type Permanent ne peut pas être activé pour une rareté Unique' : 'Sélection du type Permanent'"
                         :class="['aw-permanent d-flex flex-column align-items-center mb-3', isSelectedPermanent ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
                         @click="selectPermanent">
-                          <font-awesome-icon :icon="['fas', 'building-shield']" class="fs-4" /><span>Permanent</span>
+                          <font-awesome-icon :icon="['fas', 'building-shield']" class="fs-4" /><span>{{$t('ui.lib.permanent')}}</span>
                     </a>
                     <a href="javascript:" id="HERO" :title="isSelectedUnique ? 'Le type Héro ne peut pas être activé pour une rareté Unique' : 'Sélection du type Héro'"
                         :class="['aw-hero d-flex flex-column align-items-center mb-3', isSelectedHero ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
                         @click="selectHero">
-                          <font-awesome-icon :icon="['fas', 'mask']" class="fs-4" /><span>Héro</span>
+                          <font-awesome-icon :icon="['fas', 'mask']" class="fs-4" /><span>{{$t('ui.lib.hero')}}</span>
                     </a>
                     <a href="javascript:" v-if="g_isAdmin(user)" id="TOKEN" :title="isSelectedUnique ? 'Le type Token ne peut pas être activé pour une rareté Unique' : 'Sélection du type Token'"
                         :class="['aw-token d-flex flex-column align-items-center mb-3', isSelectedToken ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
                         @click="selectToken">
-                          <font-awesome-icon :icon="['fas', 'robot']" class="fs-4" /><span>Token</span>
+                          <font-awesome-icon :icon="['fas', 'robot']" class="fs-4" /><span>{{$t('ui.lib.token')}}</span>
                     </a>
                   </div>
                 </BCollapse>
@@ -261,7 +261,7 @@
                     <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechMaincost && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
-                    Coût de main
+                    {{$t('ui.lib.maincost')}}
                   </div>
                   <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrescoutmain>
                     <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
@@ -272,11 +272,11 @@
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="fs-3">{{ handCost }}</div>
                     <div>
-                      <BFormCheckbox v-model="handCostOrMore" value="ouplus" @change="onChangeMainCostOrMore">ou plus
+                      <BFormCheckbox v-model="handCostOrMore" value="ouplus" @change="onChangeMainCostOrMore">{{$t('ui.lib.etplus')}}
                       </BFormCheckbox>
                     </div>
                     <div>
-                      <BFormCheckbox v-model="handCostOrMore" value="oumoins" @change="onChangeMainCostOrMore">ou moins
+                      <BFormCheckbox v-model="handCostOrMore" value="oumoins" @change="onChangeMainCostOrMore">{{$t('ui.lib.etmoins')}}
                       </BFormCheckbox>
                     </div>
                   </div>
@@ -293,7 +293,7 @@
                     <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechRecallcost && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
-                    Coût de réserve
+                    {{$t('ui.lib.recallcost')}}
                   </div>
                   <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrescoutreserve>
                     <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
@@ -304,12 +304,10 @@
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="fs-3">{{ reserveCost }}</div>
                     <div>
-                      <BFormCheckbox v-model="reserveCostOrMore" value="ouplus" @change="onChangeRecallCostOrMore">ou
-                        plus</BFormCheckbox>
+                      <BFormCheckbox v-model="reserveCostOrMore" value="ouplus" @change="onChangeRecallCostOrMore">{{$t('ui.lib.etplus')}}</BFormCheckbox>
                     </div>
                     <div>
-                      <BFormCheckbox v-model="reserveCostOrMore" value="oumoins" @change="onChangeRecallCostOrMore">ou
-                        moins</BFormCheckbox>
+                      <BFormCheckbox v-model="reserveCostOrMore" value="oumoins" @change="onChangeRecallCostOrMore">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
                     </div>
                   </div>
                   <div class="aw-slider aw-reservecost">
@@ -326,7 +324,7 @@
                       <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechPower && currentFaction">
                         <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                       </BButton>
-                      Patates
+                      {{$t('ui.lib.patates')}}
                     </div>
                     <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrespower>
                       <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
@@ -337,12 +335,10 @@
                       <div class="card-group justify-content-between align-items-center">
                         <div><i class="altered-forest fs-5 me-2"></i><span class="fs-3">{{ forest }}</span></div>
                         <div>
-                          <BFormCheckbox v-model="forestOrMore" value="ouplus" @change="onChangeForestOrMore">ou plus
-                          </BFormCheckbox>
+                          <BFormCheckbox v-model="forestOrMore" value="ouplus" @change="onChangeForestOrMore">{{$t('ui.lib.etplus')}}</BFormCheckbox>
                         </div>
                         <div>
-                          <BFormCheckbox v-model="forestOrMore" value="oumoins" @change="onChangeForestOrMore">ou moins
-                          </BFormCheckbox>
+                          <BFormCheckbox v-model="forestOrMore" value="oumoins" @change="onChangeForestOrMore">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
                         </div>
                       </div>
                       <div class="aw-slider">
@@ -352,12 +348,10 @@
                       <div class="card-group justify-content-between align-items-center mt-2">
                         <div><i class="altered-mountain fs-5 me-2"></i><span class="fs-3">{{ mountain }}</span></div>
                         <div>
-                          <BFormCheckbox v-model="mountainOrMore" value="ouplus" @change="onChangeMountainOrMore">ou plus
-                          </BFormCheckbox>
+                          <BFormCheckbox v-model="mountainOrMore" value="ouplus" @change="onChangeMountainOrMore">{{$t('ui.lib.etplus')}}</BFormCheckbox>
                         </div>
                         <div>
-                          <BFormCheckbox v-model="mountainOrMore" value="oumoins" @change="onChangeMountainOrMore">ou moins
-                          </BFormCheckbox>
+                          <BFormCheckbox v-model="mountainOrMore" value="oumoins" @change="onChangeMountainOrMore">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
                         </div>
                       </div>
                       <div class="aw-slider">
@@ -367,11 +361,10 @@
                       <div class="card-group justify-content-between align-items-center mt-2">
                         <div><i class="altered-ocean fs-5 me-2"></i><span class="fs-3">{{ water }}</span></div>
                         <div>
-                          <BFormCheckbox v-model="waterOrMore" value="ouplus" @change="onChangeWaterOrMore">ou plus</BFormCheckbox>
+                          <BFormCheckbox v-model="waterOrMore" value="ouplus" @change="onChangeWaterOrMore">{{$t('ui.lib.etplus')}}</BFormCheckbox>
                         </div>
                         <div>
-                          <BFormCheckbox v-model="waterOrMore" value="oumoins" @change="onChangeWaterOrMore">ou moins
-                          </BFormCheckbox>
+                          <BFormCheckbox v-model="waterOrMore" value="oumoins" @change="onChangeWaterOrMore">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
                         </div>
                       </div>
                       <div class="aw-slider">
@@ -388,7 +381,7 @@
                     <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechKeyword && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
-                    Mots-clés / Capacités
+                    {{$t('ui.lib.motscles')}} / {{$t('ui.lib.capacites')}}
                   </div>
                   <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtreskeyword>
                     <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
@@ -404,73 +397,73 @@
 
 
                   <BInputGroup class="mt-2 ms-5">
-                    <BFormCheckbox v-model="cbCapaStatic">Capacité statique non vide</BFormCheckbox>
+                    <BFormCheckbox v-model="cbCapaStatic">{{$t('ui.lib.staticabilnotempty')}}</BFormCheckbox>
                   </BInputGroup>
                   <BInputGroup>
                     <template #prepend>
                       <BInputGroupText><font-awesome-icon :icon="['fas', 'ban']" /></BInputGroupText>
                     </template>
-                    <BFormInput placeholder="Texte inclu dans la capacité sans trigger"
+                    <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
                         :disabled="cbCapaStatic"
                         v-model="fCapaStatic"
                         @keyup.enter="searchCards(false, false, false)" />
                   </BInputGroup>
                   <BInputGroup class="mt-2 ms-5">
-                    <BFormCheckbox v-model="cbCapaEtb">Capacité <i class="altered-etb"></i> non vide</BFormCheckbox>
+                    <BFormCheckbox v-model="cbCapaEtb">{{$t('ui.lib.capacite')}} <i class="altered-etb"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
                   </BInputGroup>
                   <BInputGroup>
                     <template #prepend>
                       <BInputGroupText><i class="altered-etb"></i></BInputGroupText>
                     </template>
-                    <BFormInput placeholder="Texte inclu dans la capacité"
+                    <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
                         :disabled="cbCapaEtb"
                         v-model="fCapaEtb"
                         @keyup.enter="searchCards(false, false, false)" />
                   </BInputGroup>
                   <BInputGroup class="mt-2 ms-5">
-                    <BFormCheckbox v-model="cbCapaHand">Capacité <i class="altered-hand"></i> non vide</BFormCheckbox>
+                    <BFormCheckbox v-model="cbCapaHand">{{$t('ui.lib.capacite')}} <i class="altered-hand"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
                   </BInputGroup>
                   <BInputGroup>
                     <template #prepend>
                       <BInputGroupText>	<i class="altered-hand"></i></BInputGroupText>
                     </template>
-                    <BFormInput placeholder="Texte inclu dans la capacité"
+                    <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
                         :disabled="cbCapaHand"
                         v-model="fCapaHand"
                         @keyup.enter="searchCards(false, false, false)" />
                   </BInputGroup>
                   <BInputGroup class="mt-2 ms-5">
-                    <BFormCheckbox v-model="cbCapaReserve">Capacité <i class="altered-reserve"></i> non vide</BFormCheckbox>
+                    <BFormCheckbox v-model="cbCapaReserve">{{$t('ui.lib.capacite')}} <i class="altered-reserve"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
                   </BInputGroup>
                   <BInputGroup>
                     <template #prepend>
                       <BInputGroupText><i class="altered-reserve"></i></BInputGroupText>
                     </template>
-                    <BFormInput placeholder="Texte inclu dans la capacité"
+                    <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
                         :disabled="cbCapaReserve"
                         v-model="fCapaReserve"
                         @keyup.enter="searchCards(false, false, false)" />
                   </BInputGroup>
                   <BInputGroup class="mt-2 ms-5">
-                    <BFormCheckbox v-model="cbCapaExhaust">Capacité <i class="altered-exhaust"></i> non vide</BFormCheckbox>
+                    <BFormCheckbox v-model="cbCapaExhaust">{{$t('ui.lib.capacite')}} <i class="altered-exhaust"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
                   </BInputGroup>
                   <BInputGroup>
                     <template #prepend>
                       <BInputGroupText><i class="altered-exhaust"></i></BInputGroupText>
                     </template>
-                    <BFormInput placeholder="Texte inclu dans la capacité"
+                    <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
                         :disabled="cbCapaExhaust"
                         v-model="fCapaExhaust"
                         @keyup.enter="searchCards(false, false, false)" />
                   </BInputGroup>
                   <BInputGroup class="mt-2 ms-5">
-                    <BFormCheckbox v-model="cbCapaSupport">Capacité <i class="altered-support"></i> non vide</BFormCheckbox>
+                    <BFormCheckbox v-model="cbCapaSupport">{{$t('ui.lib.capacite')}} <i class="altered-support"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
                   </BInputGroup>
                   <BInputGroup>
                     <template #prepend>
                       <BInputGroupText><i class="altered-support"></i></BInputGroupText>
                     </template>
-                    <BFormInput placeholder="Texte inclu dans la capacité de support"
+                    <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
                         :disabled="cbCapaSupport"
                         v-model="fCapaSupport"
                         @keyup.enter="searchCards(false, false, false)" />
@@ -483,7 +476,7 @@
                     <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechSubtype && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
-                    Sous-types
+                    {{$t('ui.lib.soustypes')}}
                   </div>
                   <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtressubtype>
                     <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
@@ -524,7 +517,7 @@
                     <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechSort && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
-                    Trier par 
+                    {{$t('ui.lib.trierpar')}}
                   </div>
                   <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrestri>
                     <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
@@ -594,7 +587,7 @@
               <div class="d-flex justify-content-between">
                 <div class="d-flex flex-column">
                   <h3 class="fs-5" v-if="currentDeck"><font-awesome-icon :icon="['fas', 'lock']" class="me-2" v-if="!currentDeck.public"/>{{ currentDeck.name }}</h3>
-                  <div class="fs-7">Cartes: {{ g_getTotalCardsInDeck({deck: currentDeck}) }}</div>
+                  <div class="fs-7">{{$t('ui.lib.cartes')}}: {{ g_getTotalCardsInDeck({deck: currentDeck}) }}</div>
                 </div>
                 <div class="d-flex align-items-center">
                   <div class="me-2" v-if="!showVersionsEvol">
@@ -614,21 +607,21 @@
                             </template>
                             
                             <BDropdownItem @click="e_onCreateVersion()">
-                              <font-awesome-icon :icon="['far', 'square-plus']" class="me-2" />Créer une version
+                              <font-awesome-icon :icon="['far', 'square-plus']" class="me-2" />{{$t('ui.action.createversion')}}
                             </BDropdownItem>
                             <BDropdownItem @click="e_onShowEvolVersion()" v-if="versions.length > 1">
-                              <font-awesome-icon :icon="['fas', 'shuffle']" class="me-2" />Voir les évolutions
+                              <font-awesome-icon :icon="['fas', 'shuffle']" class="me-2" />{{$t('ui.action.showversionevol')}}
                             </BDropdownItem>
                             <BDropdownDivider v-if="versions.length > 1 && currentVersion > 1" />
                             <BDropdownItem @click="e_onDeleteVersion()" variant="danger" v-if="versions.length > 1 && currentVersion > 1">
-                              <font-awesome-icon :icon="['far', 'fa-trash-can']" class="me-2" />Supprimer la version
+                              <font-awesome-icon :icon="['far', 'fa-trash-can']" class="me-2" />{{$t('ui.action.deleteversion')}}
                             </BDropdownItem>
                           </BDropdown>
                         </span>
                       </div>
                     </div>
                     <BButton @click="saveDeck()" variant="primary"  class="me-2 text-nowrap" v-if="user && !showVersionsEvol && currentDeck.hero">
-                      <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" />Enregistrer
+                      <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" />{{$t('ui.action.enregistrer')}}
                     </BButton>
                       <Multiselect class="me-2 aw-selecttournoi" v-if="tournois && !currentDeck.userId && g_isAdmin(user)"
                           v-model="currentDeck.tournoiId" 
@@ -646,32 +639,32 @@
                       </template>
                       <div v-if="user">
                         <BDropdownItem @click="affModalImportUnique()" variant="unique">
-                          <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />Importer une carte Unique
+                          <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />{{$t('ui.action.importunique')}}
                         </BDropdownItem>
                         <BDropdownDivider />
                       </div>
                       <BDropdownItem @click="e_testerDeck()" v-if="user && currentSelectedDeck > 0" >
-                        <font-awesome-icon :icon="['fas', 'vial']"  class="me-2" />Tester le deck
+                        <font-awesome-icon :icon="['fas', 'vial']"  class="me-2" />{{$t('ui.action.testdeck')}}
                       </BDropdownItem>
                       <BDropdownItem @click="redirectToDecklist()" v-if="user && currentSelectedDeck > 0" >
-                        <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Afficher la DeckList
+                        <font-awesome-icon :icon="['far', 'eye']" class="me-2" />{{$t('ui.action.affdl')}}
                       </BDropdownItem>
                       <BDropdownItem @click="changeModeListe()">
                         <span v-if="uiparams.modeliste">
-                          <font-awesome-icon :icon="['far', 'image']" class="me-2" />Passer en mode visuel
+                          <font-awesome-icon :icon="['far', 'image']" class="me-2" />{{$t('ui.action.affvisualmode')}}
                         </span>
                         <span v-else>
-                          <font-awesome-icon :icon="['fas', 'list']" class="me-2" />Passer en mode liste
+                          <font-awesome-icon :icon="['fas', 'list']" class="me-2" />{{$t('ui.action.afflistmode')}}
                         </span>
                       </BDropdownItem>
                       <BDropdownItem @click="changeModeStats()">
                           <font-awesome-icon :icon="['fas', 'chart-column']" class="me-2" />
-                          <span v-if="!uiparams.afficherstats">Afficher les stats</span>
-                          <span v-else>Cacher les stats</span>
+                          <span v-if="!uiparams.afficherstats">{{$t('ui.action.affstat')}}</span>
+                          <span v-else>{{$t('ui.action.cacherstat')}}</span>
                       </BDropdownItem>
                     </BDropdown>
-                    <BButton @click="e_hideVersionsEvol" variant="secondary" class="me-2" title="Retour à la decklist" v-if="showVersionsEvol">
-                      <font-awesome-icon :icon="['far', 'square-caret-left']" class="me-2"/>Retour
+                    <BButton @click="e_hideVersionsEvol" variant="secondary" class="me-2" :title="$t('ui.lib.backtodl')" v-if="showVersionsEvol">
+                      <font-awesome-icon :icon="['far', 'square-caret-left']" class="me-2"/>{{$t('ui.lib.back')}}
                     </BButton>
                 </div>
               </div>
@@ -694,7 +687,7 @@
                         </div>
                       </div>
                       <div v-else class="d-flex justify-content-center">
-                        Aucune différence
+                        {{$t('ui.lib.nodiff')}}
                       </div>
                     </div>
                   </div>
@@ -744,7 +737,7 @@
                             <div v-b-toggle.awid-probadeck class="aw-collapsible ms-3">Probas <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse mt-1" /></div>
                           </div>
                           <BCollapse id="awid-descdeck">
-                            <div class="col-12 mt-4 mb-2" v-if="!currentDeck.description"><i class="fs-7"><font-awesome-icon :icon="['fas', 'ban']" class="me-2"/>Ce deck ne possède pas de description</i></div>
+                            <div class="col-12 mt-4 mb-2" v-if="!currentDeck.description"><i class="fs-7"><font-awesome-icon :icon="['fas', 'ban']" class="me-2"/>{{ $t('ui.title.decknodesc') }}</i></div>
                             <div class="col-12 mt-4" v-else v-html="getFormattedDescriptionCurrentDeck()"></div>
                           </BCollapse>
                           <BCollapse id="awid-probadeck">
@@ -770,21 +763,21 @@
                     
                   </div>
                   <div class="row mt-2 pb-2 aw-decklistpersos">
-                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Personnages</div>
+                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">{{ $t('ui.lib.personnages')}}</div>
                     <CardDecklist v-for="card in getPersosCurrentDeck()" :card="card" @addcard="addCard"
                       @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
                       @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
                       :currentDeck="currentDeck" />
                   </div>
                   <div class="row mt-2 pb-2 aw-decklistsorts">
-                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Sorts</div>
+                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">{{ $t('ui.lib.sorts')}}</div>
                     <CardDecklist v-for="card in getSortsCurrentDeck()" :card="card" @addcard="addCard"
                       @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
                       @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
                       :currentDeck="currentDeck"/>
                   </div>
                   <div class="row mt-2 pb-2 aw-decklistpermas">
-                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">Permanents</div>
+                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">{{ $t('ui.lib.permanents')}}</div>
                     <CardDecklist v-for="card in getPermanentsCurrentDeck()" :card="card" @addcard="addCard"
                       @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
                       @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
@@ -799,13 +792,13 @@
     </div>
   </div>
 
-  <BModal v-model="modalDeleteDeck" @ok="e_confirmDeleteDeck" centered cancel-title="Annuler" ok-title="Supprimer"
-    ok-variant="danger" title="Supprimer un deck">
+  <BModal v-model="modalDeleteDeck" @ok="e_confirmDeleteDeck" centered :cancel-title="$t('ui.action.annuler')" :ok-title="$t('ui.action.supprimer')"
+    ok-variant="danger" :title="$t('ui.title.deletedeck')">
     Etes-vous sûr de vouloir supprimer le deck ?
   </BModal>
 
-  <BModal v-model="showModalDeleteVersion" @ok="e_confirmDeleteVersion" centered cancel-title="Annuler" ok-title="Supprimer"
-    ok-variant="danger" title="Supprimer une version">
+  <BModal v-model="showModalDeleteVersion" @ok="e_confirmDeleteVersion" centered :cancel-title="$t('ui.action.annuler')" :ok-title="$t('ui.action.supprimer')"
+    ok-variant="danger" :title="$t('ui.title.deleteversion')">
     <span v-if="currentDeck">Etes-vous sûr de vouloir supprimer la version {{ currentDeck.version }} du deck {{ currentDeck.name }} ?</span>
   </BModal>
 
@@ -833,7 +826,7 @@
     </div>
   </BModal>
 
-  <BModal v-if="currentDeck" v-model="showModalConfirmChangeDeck" @ok="confirmChangeDeck" @cancel="dontChangeDeck" centered cancel-title="Annuler" ok-title="Continuer"
+  <BModal v-if="currentDeck" v-model="showModalConfirmChangeDeck" @ok="confirmChangeDeck" @cancel="dontChangeDeck" centered :cancel-title="$t('ui.action.annuler')" ok-title="Continuer"
     ok-variant="primary" title="Modifications en cours">
     <div v-if="currentDeck.id == 0">Attention ! Le deck actuel est un deck temporaire, et va être supprimé. </div>
     <div v-else>Attention ! Le deck contient des modifications qui n'ont pas été enregistrées.</div>
@@ -2932,7 +2925,7 @@ export default {
 
 .aw-decklist .card-body {
   min-height: 130px;
-  background-image: url(/src/assets/img/bgarch.png);
+  background-image: url(/src/assets/img/bg.webp);
   background-repeat: repeat;
 }
 
