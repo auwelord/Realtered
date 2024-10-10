@@ -74,6 +74,10 @@
     ,"ui.lib.onmyfav": "Only favorites decks"
     ,"ui.lib.nextdecks": "Next decks"
     ,"ui.lib.previousdecks": "Previous decks"
+    ,"ui.lib.legal": "Legal"
+    ,"ui.lib.illegal": "Illegal"
+    ,"ui.lib.factiondistrib": "Faction distribution"
+    ,"ui.lib.herodistrib": "Hero distribution"
 
     ,"ui.title.deletedeck": "Delete deck"
     ,"ui.title.deleteversion": "Delete version"
@@ -90,7 +94,8 @@
     ,"ui.action.importer": "Import"
     ,"ui.action.exporter": "Export"
     ,"ui.action.copierliendl": "Copy link of decklist"
-    ,"ui.action.testdeck": "Test this deck"
+    ,"ui.action.copierlien": "Copy link"
+    ,"ui.action.testdeck": "Test deck"
     ,"ui.action.affdl": "Show decklist"
     ,"ui.action.affstat": "Show stats"
     ,"ui.action.cacherstat": "Hide stats"
@@ -110,5 +115,6 @@
     ,"ui.action.removecounters": "Remove all counters"
     ,"ui.action.removecounter": "Remove a counter"
     ,"ui.action.addcounter": "Add a counter"
+    ,"ui.action.addfav": "Add to favorites"
 
 }

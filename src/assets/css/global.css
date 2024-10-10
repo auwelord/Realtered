@@ -185,6 +185,10 @@ a {
     }
 }
 
+.navbar-nav .nav-item a.router-link-active
+{
+    font-weight: bold;
+}
 .navbar-nav .nav-item a::after,
 .navbar-nav .nav-item a::before {
     content: '';
@@ -198,25 +202,44 @@ a {
     transition: all 0.3s ease-out 0s;
 }
 
-.navbar-nav .nav-item a::before {
+.navbar-nav .nav-item a::before,
+.navbar-nav .nav-item a.router-link-active::before {
     width: 70%;
     left: 0;
 }
 
-.navbar-nav .nav-item a::after {
+.navbar-nav .nav-item a::after,
+.navbar-nav .nav-item a.router-link-active::after {
     width: 20%;
     right: 0;
 }
 
 .navbar-nav .nav-item a:hover,
-.navbar-nav .nav-item a.active {
+.navbar-nav .nav-item a.active,
+.navbar-nav .nav-item a.router-link-active:hover
+ {
     color: #DA7C1C
+}
+.navbar-nav .nav-item a.router-link-active{
+    color: var(--c-unique);
+}
+.navbar-nav .nav-item a.router-link-active::after,
+.navbar-nav .nav-item a.router-link-active::before
+{
+    background: var(--c-unique);
+}
+.navbar-nav .nav-item a.router-link-active:hover::after,
+.navbar-nav .nav-item a.router-link-active:hover::before
+{
+    background: #DA7C1C;
 }
 
 .navbar-nav .nav-item a:hover::after,
 .navbar-nav .nav-item a:hover::before,
 .navbar-nav .nav-item a.active::after,
-.navbar-nav .nav-item a.active::before {
+.navbar-nav .nav-item a.active::before,
+.navbar-nav .nav-item a.router-link-active::before,
+.navbar-nav .nav-item a.router-link-active::after {
     opacity: 1;
 }
 

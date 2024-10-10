@@ -7,7 +7,7 @@
         <div class="card-header">
             <div class="ribbon-wrapper ribbon-lg">
                 <div :class="['ribbon text-white', currentdeck.valide ? 'bg-success' : 'bg-danger']">
-                {{ currentdeck.valide ? 'Légal' : 'Non Légal'}}
+                {{ currentdeck.valide ? $t('ui.lib.legal') : $t('ui.lib.illegal')}}
                 </div>
             </div>
             <div class="d-flex justify-content-between">
@@ -39,23 +39,23 @@
                         <label class="switch me-2">
                             <input type="checkbox" v-model="afficherstats" @change="e_afficherStat(afficherstats)">
                             <span class="slider round"></span>
-                        </label> Voir les statistiques
+                        </label>{{$t('ui.action.affstat')}}
                     </div>
                     
                     <div class="mt-2">
-                    <BButton @click="onImporterDeck" variant="outline-uniqued1" size="sm" title="importer le deck" class="me-2" v-if="user">
-                        <font-awesome-icon :icon="['fas', 'right-long']" class="me-2"/>Importer
+                    <BButton @click="onImporterDeck" variant="outline-uniqued1" size="sm" :title="$t('ui.action.importer')" class="me-2" v-if="user">
+                        <font-awesome-icon :icon="['fas', 'right-long']" class="me-2"/>{{$t('ui.action.importer')}}
                     </BButton>
 
-                    <BButton @click="onCopierLienDeck" variant="outline-uniqued1" size="sm" title="Copier le lien" class="me-2">
-                        <font-awesome-icon :icon="['fab', 'threads']" class="me-2" />Copier le lien
+                    <BButton @click="onCopierLienDeck" variant="outline-uniqued1" size="sm" :title="$t('ui.action.copierlien')" class="me-2">
+                        <font-awesome-icon :icon="['fab', 'threads']" class="me-2" />{{$t('ui.action.copierlien')}}
                     </BButton>
 
-                    <BButton @click="e_testerDeck" variant="outline-uniqued1" size="sm" title="Tester le deck" class="me-2">
-                        <font-awesome-icon :icon="['fas', 'vial']"  class="me-2" />Tester le deck
+                    <BButton @click="e_testerDeck" variant="outline-uniqued1" size="sm" :title="$t('ui.action.testdeck')" class="me-2">
+                        <font-awesome-icon :icon="['fas', 'vial']"  class="me-2" />{{$t('ui.action.testdeck')}}
                     </BButton>
 
-                    <BButton @click="onToggleFavoris" variant="outline-uniqued1" size="sm" class="me-2" v-if="user">
+                    <BButton @click="onToggleFavoris" variant="outline-uniqued1" size="sm" class="me-2" v-if="user" :title="$t('ui.action.addfav')">
                         <font-awesome-icon :icon="['fas', 'heart']" style="color: red" v-if="currentdeck.favori" />
                         <font-awesome-icon :icon="['fas', 'heart']" v-else />
                     </BButton>                                    
@@ -76,7 +76,7 @@
         </div>
         <div class="card-body">
             <BCollapse id="awid-descdeck">
-                <div class="col-12 mt-4" v-if="!currentdeck.description"><i class="fs-7"><font-awesome-icon :icon="['fas', 'ban']" class="me-2"/>Ce deck ne possède pas de description</i></div>
+                <div class="col-12 mt-4" v-if="!currentdeck.description"><i class="fs-7"><font-awesome-icon :icon="['fas', 'ban']" class="me-2"/>{{$t('ui.title.decknodesc')}}</i></div>
                 <div class="col-12 mt-4" v-html="getFormattedDescriptionCurrentDeck()"></div>
             </BCollapse>   
             <BCollapse id="awid-probadeck">

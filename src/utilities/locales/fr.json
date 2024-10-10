@@ -74,6 +74,10 @@
     ,"ui.lib.onmyfav": "Mes favoris uniquement"
     ,"ui.lib.nextdecks": "Decks suivants"
     ,"ui.lib.previousdecks": "Decks précédents"
+    ,"ui.lib.legal": "Légal"
+    ,"ui.lib.illegal": "Non Légal"
+    ,"ui.lib.factiondistrib": "Répartition par faction"
+    ,"ui.lib.herodistrib": "Répartition par Héro"
 
     ,"ui.title.deletedeck": "Supprimer un deck"
     ,"ui.title.deleteversion": "Supprimer une version"
@@ -90,6 +94,7 @@
     ,"ui.action.importer": "Importer"
     ,"ui.action.exporter": "Exporter"
     ,"ui.action.copierliendl": "Copier le lien de la decklist"
+    ,"ui.action.copierlien": "Copier le lien"
     ,"ui.action.testdeck": "Tester le deck"
     ,"ui.action.affdl": "Afficher la deckList"
     ,"ui.action.affstat": "Afficher les stats"
@@ -110,4 +115,5 @@
     ,"ui.action.removecounters": "Supprimer tous les marqueurs"
     ,"ui.action.removecounter": "Retirer un marqueur"
     ,"ui.action.addcounter": "Ajouter un marqueur"
+    ,"ui.action.addfav": "Ajouter aux favoris"
 }

@@ -12,10 +12,10 @@
             <BCol lg="4" v-if="!afficherstats">
                 <div class="card card-outline card-info">
                     <div class="card-header">
-                        <h3 class="card-title">Tournois</h3>
+                        <h3 class="card-title">{{$t('ui.lib.tournois')}}</h3>
                         <div class="card-tools d-flex">
                             <BButton @click="e_createTournoi" variant="primary" size="sm" v-if="!show_formtournoi && g_isAdmin(user)">
-                                <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />Créer
+                                <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2" />{{$t('ui.action.creer')}}
                             </BButton>
                         </div>
                     </div>
@@ -45,8 +45,8 @@
                                 </BCol>
                             </BRow>
                             <div class="d-flex justify-content-end">
-                                <BButton variant="light" @click="show_formtournoi = false">Annuler</BButton>
-                                <BButton type="submit" variant="primary" class="ms-2">Valider</BButton>
+                                <BButton variant="light" @click="show_formtournoi = false">{{$t('ui.action.annuler')}}</BButton>
+                                <BButton type="submit" variant="primary" class="ms-2">{{$t('ui.action.valider')}}</BButton>
                             </div>
                         </BForm>
 
@@ -156,7 +156,6 @@ export default {
                     labels: null,
                     datasets: [
                         {
-                            label: 'Nombre de decks',
                             data: null,
                             backgroundColor: null,
                         }
@@ -170,7 +169,7 @@ export default {
                         },
                         title: {
                             display: true,
-                            text: 'Répartition par faction'
+                            text: this.$t('ui.lib.factiondistrib')
                         }
                     }
                 }
@@ -180,7 +179,6 @@ export default {
                     labels: null,
                     datasets: [
                         {
-                            label: 'Nombre de decks',
                             data: null,
                             backgroundColor: null,
                         }
@@ -194,7 +192,7 @@ export default {
                         },
                         title: {
                             display: true,
-                            text: 'Répartition par héro'
+                            text: this.$t('ui.lib.herodistrib')
                         }
                     }
                 }
