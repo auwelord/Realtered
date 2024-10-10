@@ -5,7 +5,7 @@
     ,"ui.menu.accueil": "Home"
 
     ,"ui.paccueil.welcome": "{name}, Welcome to ReAltered !"
-    ,"ui.paccueil.welcomebas": "Research cards, build and test your decks, view tournament rankings and meta, and more"
+    ,"ui.paccueil.welcomebas": "Search for cards, build and test your decks, view tournament rankings and meta, and more"
     ,"ui.paccueil.officialwebsite": "Official website"
     ,"ui.paccueil.outils": "Community tools"
     ,"ui.paccueil.owner": "Designed and Developed by"
@@ -83,6 +83,7 @@
     ,"ui.title.deleteversion": "Delete version"
     ,"ui.title.decknodesc": "This deck has no description"
     ,"ui.alert.selectfaction": "Select a faction and set filters to search cards"
+    ,"ui.alert.selectdeckdl": "Select a deck to see the decklist"
 
     ,"ui.action.rechercher": "Search"
     ,"ui.action.creer": "Create"

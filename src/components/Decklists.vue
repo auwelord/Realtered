@@ -1,6 +1,6 @@
 <template>
     <div class="col-12 d-flex flex-column align-items-center" v-if="!currentdeck">
-        <div class="fs-4">Sélectionnez un deck pour voir la decklist</div>
+        <div class="fs-4">{{$t('ui.alert.selectdeckdl')}}</div>
         <img src="/src/assets/img/empty.png" alt="" class="mt-5" style="width: 300px" />
     </div>
     <div v-else :class="['card aw-carddeck', getCurrentDeckCssClass()]">

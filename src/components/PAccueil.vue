@@ -230,7 +230,7 @@
             <div class="footer-widget">
               <div class="logo">
                 <a href="index.html">
-                  <LogoAltered :width="200" />
+                  <LogoAltered :width="200" :iconColor="globalStore.modesombre ? 'white' : 'black'" v-if="globalStore" />
                 </a>
               </div>
             </div>
@@ -269,14 +269,25 @@ useHead({
 </script>
 
 <script>
-import LogoAltered from '@/components/icons/Logo.vue'
+import LogoAltered from '@/components/icons/LogoAltered.vue'
 import '@/assets/css/tiers/style.css';
+import { useGlobalStore } from '@/stores/global';
 
 export default {
   name: 'Accueil',
   components: {
     LogoAltered
   },
+  data()
+  {
+    return {
+      globalStore: null
+    }
+  },
+  mounted()
+  {
+    this.globalStore = useGlobalStore();
+  }
 };
 </script>
 

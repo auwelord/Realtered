@@ -3,6 +3,7 @@ import factions from '../rsc/factions.json'
 import formats from '../rsc/formats.json'
 import heros from '../rsc/heros.json'
 import keywords from '../rsc/keywords.json'
+import { useGlobalStore } from '@/stores/global'
 
 const altered = {
     options: {
@@ -16,14 +17,12 @@ export default {
     {
         app.config.globalProperties.g_getLocale = function()
         {
-            var locale = localStorage.getItem('language')
-            if(!locale) locale = 'fr'
-            return locale
+            return useGlobalStore().language;
         }
 
         app.config.globalProperties.g_isLocaleFrench = function()
         {
-            return this.g_getLocale() == 'fr'
+            return useGlobalStore().isFrenchLanguage();
         }
 
         app.config.globalProperties.g_getHeroName = function(phero)

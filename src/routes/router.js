@@ -6,6 +6,7 @@ import PDecks from '../components/PDecks.vue';
 import PDecktest from '../components/PDecktest.vue';
 import PTournois from '../components/PTournois.vue';
 import Test from '../components/Test.vue';
+import { useGlobalStore } from '@/stores/global'
 
 const routes = [
     /*
@@ -107,7 +108,7 @@ router.beforeEach((to, from, next) => {
     let history = to.fullPath == "/" || routes.some(route => checkHistory(route, to.fullPath));
     if(history)
     {
-        localStorage.setItem('lastVisitedPage', to.fullPath);
+        useGlobalStore().lastVisitedPage = to.fullPath
     }
     next();
 });

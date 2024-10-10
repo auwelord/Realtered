@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import Logo from './icons/Logo.vue';
+import Logo from './icons/LogoAltered.vue';
 
 export default {
   props: {

@@ -875,6 +875,7 @@ watch(() => props.user, async (newUser, oldUser) =>
 import { useToast, TYPE } from "vue-toastification";
 import MarkdownIt from "markdown-it";
 import { useRouter } from 'vue-router';
+import { useGlobalStore } from '@/stores/global'
 
 const toast = useToast();
 
@@ -1032,6 +1033,7 @@ export default {
   },
   mounted() 
   { 
+    const globalStore = useGlobalStore();
     this.router = useRouter();
 
     this.tournois = []
@@ -1047,7 +1049,7 @@ export default {
     const storeduiparams = localStorage.getItem('uiparams');
     if(storeduiparams) this.uiparams = JSON.parse(storeduiparams);
     
-    this.database = localStorage.getItem('database') != null ? localStorage.getItem('database') : true
+    this.database = globalStore.database
     var filters = JSON.parse(localStorage.getItem('filters.db' + this.deckbuilder));
     if (!filters) 
     {
