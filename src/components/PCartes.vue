@@ -137,12 +137,12 @@
                   <BButton @click="updateDetailFromApi" variant="secondary" size="sm" class="me-2" v-if="g_isLocaleFrench()">
                     <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Details <span v-if="cptupdatecard > 0">{{  cptupdatecard }} / {{fetchedCards.length}}</span>
                   </BButton>
-                  <BButton @click="onClickDownloadImages" variant="secondary" size="sm" class="me-2">
-                    <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Images <span v-if="cptupdatecard > 0">{{  cptupdatecard }} / {{fetchedCards.length}}</span>
-                  </BButton>
                 </div>
-                <BButton @click="updateUniques" variant="secondary" size="sm" class="me-2" title="Mettre à jour les uniques" v-if="g_isAdmin(user) && database">
-                  <font-awesome-icon :icon="['fas', 'pen-clip']" class="me-2" />Update uniques {{  updatingname }}
+                <BButton @click="onClickDownloadImages" variant="secondary" size="sm" class="me-2">
+                  <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Images <span v-if="cptupdatecard > 0">{{  cptupdatecard }} / {{fetchedCards.length}}</span>
+                </BButton>
+                <BButton @click="updateDetailFromApi" variant="secondary" size="sm" class="me-2" title="Mettre à jour les uniques" v-if="g_isAdmin(user) && database">
+                  <font-awesome-icon :icon="['fas', 'pen-clip']" class="me-2" />Update uniques <span v-if="cptupdatecard > 0">{{  cptupdatecard }} / {{fetchedCards.length}}</span>
                 </BButton>
               </div>
               <div class="card-body">
@@ -541,7 +541,7 @@
           <div class="container-fluid">
             <div class="row" v-if="!hasResult() && !loading && !uiparams.afficherstats">
               <div class="col-12 d-flex flex-column align-items-center">
-                  <div class="fs-4">Sélectionnez une faction et paramétrez vos filtres pour lancer la recherche</div>
+                  <div class="fs-4">{{$t('ui.alert.selectfaction')}}</div>
                   <img src="/src/assets/img/empty.png" alt="" class="mt-5" style="width: 300px" />
               </div>
             </div>
@@ -807,7 +807,7 @@
       :card="currentCardDetail" 
       :currentDeck="currentDeck" 
       :deckbuilder="deckbuilder"
-      v-if="currentCardDetail && currentDeck"
+      v-if="currentCardDetail"
       @addcard="addCard" @removecard="removeCard" />
   </BModal>
   <BModal v-model="showModalImportUnique" size="md" hide-footer @cancel="closeModalImportUnique" @ok="importerUnique" title="Importer une Unique" cancel-title="Annnuler" ok-title="Importer" ok-variant="unique">
@@ -1084,13 +1084,18 @@ export default {
     this.cbCapaReserve = filters.cbCapaReserve
     this.cbCapaExhaust = filters.cbCapaExhaust
     this.cbCapaSupport = filters.cbCapaSupport
-    
-    this.loadDecks();
+
+    if(!this.deckbuilder) this.currentFaction = filters.currentFaction
+    else this.loadDecks();
+
     setTimeout(() => this.starting = false, 300)
     //this.loadMore(); // Charger les premiers éléments
     //window.addEventListener('scroll', this.handleScroll); // Ajouter l'écouteur d'événements pour le scroll
   },
   watch:{
+    currentFaction(newValue, oldValue){
+      this.onChangeFilter()
+    },
     proprietingdeck(newValue, oldValue) {
         if(newValue)
         {
@@ -1162,14 +1167,15 @@ export default {
         isSelectedCommon: false,
         isSelectedRare: false,
         isSelectedUnique: false,
-        currentNme: '',
+        currentFaction: '',
+        currentName: '',
         currentSort: ["translations.name"],
         currentEditions: ["COREKS"],
         currentSoustypes: [],
         currentKeywords: [],
-        handCost: 1,
+        handCost: 0,
         handCostOrMore: "ouplus",
-        reserveCost: 1,
+        reserveCost: 0,
         reserveCostOrMore: "ouplus",
         forest: 0,
         forestOrMore: "ouplus",
@@ -1262,15 +1268,6 @@ export default {
 
       //this.$router.push('/decklists/' + this.currentDeck.id)
     },
-    updateUniques()
-    {
-      this.g_updateCardsFromApi(this.fetchedCards,
-        //onUpdatingCard: 
-        pcard => this.updatingname = pcard.reference,
-        //onUpdatedCards: 
-        () => this.updatingname = null
-      )
-    },
     updateDetailFromApi()
     {
       this.cptupdatecard = 0
@@ -1281,6 +1278,8 @@ export default {
           this.cptupdatecard++
           this.updatingname = pcard.reference
         },
+        //onUpdatedCard: 
+        null,
         //onUpdatedCards: 
         () => {
           this.updatingname = null
@@ -1304,7 +1303,7 @@ export default {
           this.updatingname = null
         },
         //onUpdatedImageS3
-        null
+        pcard => console.log(pcard.imageS3)
       );
     },
     dontChangeDeck()
@@ -1390,29 +1389,30 @@ export default {
       this.showModalImportUnique = true;
     },
     onChangeFilter() {
-      var filters = JSON.parse(localStorage.getItem('filters.db' + this.deckbuilder));
-      filters.water = this.water;
-      filters.mountain = this.mountain;
-      filters.forest = this.forest;
-      filters.handCost = this.handCost;
-      filters.reserveCost = this.reserveCost;
-      filters.isSelectedCharacter = this.isSelectedCharacter;
-      filters.isSelectedSpell = this.isSelectedSpell;
-      filters.isSelectedPermanent = this.isSelectedPermanent;
-      filters.isSelectedHero = this.isSelectedHero;
-      filters.isSelectedToken = this.isSelectedToken;
-      filters.handCostOrMore = this.handCostOrMore;
-      filters.reserveCostOrMore = this.reserveCostOrMore;
-      filters.forestOrMore = this.forestOrMore;
-      filters.mountainOrMore = this.mountainOrMore;
-      filters.waterOrMore = this.waterOrMore;
-      filters.currentSort = this.currentSort;
-      filters.currentKeywords = this.currentKeywords;
-      filters.currentEditions = this.currentEditions;
-      filters.currentSoustypes = this.currentSoustypes;
-      filters.isSelectedCommon = this.isSelectedCommon;
-      filters.isSelectedRare = this.isSelectedRare;
-      filters.isSelectedUnique = this.isSelectedUnique;
+      var filters = JSON.parse(localStorage.getItem('filters.db' + this.deckbuilder))
+      filters.water = this.water
+      filters.mountain = this.mountain
+      filters.forest = this.forest
+      filters.handCost = this.handCost
+      filters.reserveCost = this.reserveCost
+      filters.isSelectedCharacter = this.isSelectedCharacter
+      filters.isSelectedSpell = this.isSelectedSpell
+      filters.isSelectedPermanent = this.isSelectedPermanent
+      filters.isSelectedHero = this.isSelectedHero
+      filters.isSelectedToken = this.isSelectedToken
+      filters.handCostOrMore = this.handCostOrMore
+      filters.reserveCostOrMore = this.reserveCostOrMore
+      filters.forestOrMore = this.forestOrMore
+      filters.mountainOrMore = this.mountainOrMore
+      filters.waterOrMore = this.waterOrMore
+      filters.currentSort = this.currentSort
+      filters.currentFaction = this.currentFaction
+      filters.currentKeywords = this.currentKeywords
+      filters.currentEditions = this.currentEditions
+      filters.currentSoustypes = this.currentSoustypes
+      filters.isSelectedCommon = this.isSelectedCommon
+      filters.isSelectedRare = this.isSelectedRare
+      filters.isSelectedUnique = this.isSelectedUnique
       filters.cbCapaStatic = this.cbCapaStatic
       filters.capaStatic = this.fCapaStatic
       filters.cbCapaEtb = this.cbCapaEtb
@@ -1426,7 +1426,7 @@ export default {
       filters.cbCapaSupport = this.cbCapaSupport
       filters.capaSupport = this.fCapaSupport      
       
-      localStorage.setItem('filters.db' + this.deckbuilder, JSON.stringify(filters));
+      localStorage.setItem('filters.db' + this.deckbuilder, JSON.stringify(filters))
     },
     async refreshStatComponent()
     {

@@ -78,6 +78,7 @@
     ,"ui.title.deletedeck": "Supprimer un deck"
     ,"ui.title.deleteversion": "Supprimer une version"
     ,"ui.title.decknodesc": "Ce deck ne possède pas de description"
+    ,"ui.alert.selectfaction": "Sélectionnez une faction et paramétrez vos filtres pour lancer la recherche"
 
     ,"ui.action.rechercher": "Rechercher"
     ,"ui.action.creer": "Créer"

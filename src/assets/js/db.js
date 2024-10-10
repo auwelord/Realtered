@@ -160,18 +160,30 @@ export default {
 
             const recupFav = ((!params.deckbuilder || innerFav) && data.user !== undefined)
             
+            var effectPrefix = ''
+
+            var select = '*' + (recupFav ? ', UniqueFav' + (innerFav ? '!inner' : '') + '(*)' : '')
+            if(!isLocaleFrench())
+            {
+                select += ', CardTrad!inner(*)'
+                effectPrefix = 'CardTrad.'
+            }
             //verif de la syntaxe de params.currentName
             var req = anonSupabase
                 .from('Card')
-                .select('*' + (recupFav ? ', UniqueFav' + (innerFav ? '!inner' : '') + '(*)' : ''))
+                .select(select)
                 .eq('mainFaction', params.currentFaction)
 
             if(recupFav)
             {                
                 req = req.eq('UniqueFav.userId', data.user.id)
             }
+            if(!isLocaleFrench())
+            {
+                req = req.eq('CardTrad.locale', getLocale())
+            }
 
-            if (params.currentName) req = req.ilike('name', '%' + params.currentName + '%')
+            if (params.currentName) req = req.ilike(effectPrefix + 'name', '%' + params.currentName + '%')
             if (params.calculatedrarity && params.calculatedrarity.length > 0) req = req.in("rarity", params.calculatedrarity)
             if (params.calculatedmaincost && params.calculatedmaincost.length > 0) req = req.in("mainCost", params.calculatedmaincost)
             if (params.calculatedrecallcost && params.calculatedrecallcost.length > 0) req = req.in("recallCost", params.calculatedrecallcost)
@@ -181,23 +193,23 @@ export default {
             if (params.calculatedtype && params.calculatedtype.length > 0) req = req.in("cardType", params.calculatedtype)
             if (params.currentEditions && params.currentEditions.length > 0) req = req.in("cardSet", params.currentEditions)
 
-            if(params.capaStaticNonVide) req = req.gt('static_effect', '')
-            else if(params.capaStatic) req = req.ilike('static_effect', '%' + params.capaStatic + '%')
+            if(params.capaStaticNonVide) req = req.gt(effectPrefix + 'static_effect', '')
+            else if(params.capaStatic) req = req.ilike(effectPrefix + 'static_effect', '%' + params.capaStatic + '%')
 
-            if(params.capaEtbNonVide) req = req.gt('etb_effect', '')
-            else if(params.capaEtb) req = req.ilike('etb_effect', '%' + params.capaEtb + '%')
+            if(params.capaEtbNonVide) req = req.gt(effectPrefix + 'etb_effect', '')
+            else if(params.capaEtb) req = req.ilike(effectPrefix + 'etb_effect', '%' + params.capaEtb + '%')
 
-            if(params.capaHandNonVide) req = req.gt('hand_effect', '')
-            else if(params.capaHand) req = req.ilike('hand_effect', '%' + params.capaHand + '%')
+            if(params.capaHandNonVide) req = req.gt(effectPrefix + 'hand_effect', '')
+            else if(params.capaHand) req = req.ilike(effectPrefix + 'hand_effect', '%' + params.capaHand + '%')
 
-            if(params.capaReserveNonVide) req = req.gt('reserve_effect', '')
-            else if(params.capaReserve) req = req.ilike('reserve_effect', '%' + params.capaReserve + '%')
+            if(params.capaReserveNonVide) req = req.gt(effectPrefix + 'reserve_effect', '')
+            else if(params.capaReserve) req = req.ilike(effectPrefix + 'reserve_effect', '%' + params.capaReserve + '%')
 
-            if(params.capaExhaustNonVide) req = req.gt('exhaust_effect', '')
-            else  if(params.capaExhaust) req = req.ilike('exhaust_effect', '%' + params.capaExhaust + '%')
+            if(params.capaExhaustNonVide) req = req.gt(effectPrefix + 'exhaust_effect', '')
+            else  if(params.capaExhaust) req = req.ilike(effectPrefix + 'exhaust_effect', '%' + params.capaExhaust + '%')
 
-            if(params.capaSupportNonVide) req = req.gt('echo_effect', '')
-            else if(params.capaSupport) req = req.ilike('echo_effect', '%' + params.capaSupport + '%')
+            if(params.capaSupportNonVide) req = req.gt(effectPrefix + 'echo_effect', '')
+            else if(params.capaSupport) req = req.ilike(effectPrefix + 'echo_effect', '%' + params.capaSupport + '%')
 
             var streq = []
             if (params.currentSoustypes && params.currentSoustypes.length > 0)
@@ -211,7 +223,7 @@ export default {
             {
                 params.currentKeywords.forEach(kw => {
                     var label = app.config.globalProperties.g_getKeywordLabel(kw);
-                    keywords.push('main_effect.ilike.%' + label + '%,echo_effect.ilike.%' + label + '%')
+                    keywords.push(effectPrefix + 'main_effect.ilike.%' + label + '%,' + effectPrefix + 'echo_effect.ilike.%' + label + '%')
                 });
             }
             if(keywords.length > 0) req = req.or(keywords.join(','))
@@ -220,7 +232,7 @@ export default {
             {
                 params.currentSort.forEach(sortref => {
                     var tab = sortref.split(',')
-                    req = req.order(tab[0] == 'translations.name' ? 'name' : tab[0], { ascending: tab.length == 1 })
+                    req = req.order(tab[0] == 'translations.name' ? effectPrefix + 'name' : tab[0], { ascending: tab.length == 1 })
                 });      
             }
             
@@ -229,12 +241,15 @@ export default {
             try {
                 const { data: cards, error } = await req
 
+                
                 if(!error && recupFav)
                 {
                     cards.forEach(card => 
                     {
                         card.favori = app.config.globalProperties.g_isUnique(card) && card.UniqueFav.length > 0
                         delete card.UniqueFav
+
+                        fusionnerTrad(card)
                     })
                 }
 
@@ -458,16 +473,28 @@ export default {
                 if(params.withcards && data[0].CardsDeck)
                 {
                     var refs = data[0].CardsDeck.map(card => card.cardRef);
-                                        
-                    req = await anonSupabase
+
+                    req = anonSupabase
                         .from('Card')
-                        .select()
+                        .select('*' + (!isLocaleFrench() ? ', CardTrad!inner(*)' : ''))
                         .in('reference', refs);
 
-                    req.data.forEach(card => 
+                    if(!isLocaleFrench()) req = req.eq('CardTrad.locale', getLocale())
+                    const {data: datacard, error: errorcard} = await req;
+
+                    if(errorcard)
+                    {
+                        console.log(errorcard)
+                    }
+                    else datacard.forEach(card => 
                     {
                         var realcardeck = data[0].CardsDeck.find(carddeck => carddeck.cardRef == card.reference)
-                        zedeck.cards.push($.extend(card, {quantite: realcardeck.quantity}));
+
+                        $.extend(card, {quantite: realcardeck.quantity})
+                        
+                        fusionnerTrad(card)
+
+                        zedeck.cards.push(card);
                     });
                 }
                 
@@ -476,6 +503,29 @@ export default {
                 pcallback(zedeck);                
             }
             else pcallback(null);
+        }
+        
+        function fusionnerTrad(pcard, pcardtrad)
+        {
+            if(!pcard) return
+
+            var cardtrad = pcardtrad
+            if(!cardtrad) cardtrad = pcard.CardTrad
+            
+            if(!cardtrad || !(cardtrad instanceof Array)) return
+
+            pcard.name = cardtrad[0].name
+            pcard.imagePath = cardtrad[0].imagePath
+            pcard.imageS3 = cardtrad[0].imageS3
+            pcard.main_effect = cardtrad[0].main_effect
+            pcard.reserve_effect = cardtrad[0].reserve_effect
+            pcard.static_effect = cardtrad[0].static_effect
+            pcard.echo_effect = cardtrad[0].echo_effect
+            pcard.etb_effect = cardtrad[0].etb_effect
+            pcard.hand_effect = cardtrad[0].hand_effect
+            pcard.exhaust_effect = cardtrad[0].exhaust_effect
+
+            delete pcard.CardTrad
         }
 
         app.config.globalProperties.g_fetchDeck = function(params, pcallback)
@@ -587,6 +637,14 @@ export default {
             return image.publicUrl;
         }
 
+        function getLocale()
+        {
+            return app.config.globalProperties.g_getLocale()
+        }
+        function isLocaleFrench()
+        {
+            return getLocale() == 'fr'
+        }
         /**
          * preference : référence de la card à rechercher en base
          * 
@@ -594,13 +652,25 @@ export default {
          */
         async function fetchCard(preference, onFetchedCard)
         {
-            const { data: fetched, error: erreur } = await anonSupabase
-                .from('Card')
-                .select()
-                .eq('reference', preference);
+            var select = '*'
+            if(!isLocaleFrench()) select += ', CardTrad!inner(*)'
 
-            if(onFetchedCard) 
-                onFetchedCard(!erreur && fetched.length > 0 ? fetched[0] : null);
+            var req = anonSupabase
+                .from('Card')
+                .select(select)
+                .eq('reference', preference)
+
+            if(!isLocaleFrench()) req = req.eq('CardTrad.locale', getLocale())
+
+            const { data: fetched, error: erreur } = await req;
+
+            var card = (erreur ? null : fetched[0])
+
+            if(!isLocaleFrench())
+            {
+                fusionnerTrad(card)
+            }
+            if(onFetchedCard) onFetchedCard(card);
         }
 
         /**
@@ -860,10 +930,16 @@ export default {
             {
                 var refs = cards.map(pcard => pcard.cardRef);
 
-                const { data: cardlist, error } = await anonSupabase
-                    .from('Card')
+                var req = anonSupabase
+                    .from('Card' + (!isLocaleFrench() ? ', CardTrad!inner(*)' : ''))
                     .select()
-                    .in('reference', refs);
+                    .in('reference', refs)
+
+                if(!isLocaleFrench())
+                {
+                    req = req.eq('CardTrad.locale', getLocale())
+                }
+                const { data: cardlist, error } = await req;
 
                 if(!error && cardlist.length > 0)
                 {
@@ -994,11 +1070,14 @@ export default {
         async function updateCardFromApi(preference, paddfavorite, onUpdatedCard)
         {
             try {
-                const { data, error } = await axios.get(API_BASEURL + '/card/getfromapi/' + preference, hparams())
+                const apiparams = {
+                    locale: getFormattedLocale()
+                }
+                const { data, error } = await axios.post(API_BASEURL + '/card/getfromapi/' + preference, apiparams, hparams())
 
+                console.log(data)
                 if(error) 
                 {
-                    console.error(error)
                     if(onUpdatedCard) onUpdatedCard(null)
                 }
                 else 
@@ -1050,11 +1129,12 @@ export default {
                     return;
                 }
             }
-            
+
             var card = {
                 reference: params.apicard.reference,
                 name: params.apicard.name,
-                imagePath: params.apicard.imagePath,
+                imagePath: params.apicard.allImagePath['fr-fr'],
+                imageLocale: params.apicard.allImagePath[getFormattedLocale()],
                 //cardSet: "COREKS",
                 mainFaction: params.apicard.mainFaction.reference,
                 cardType: params.apicard.cardType.reference,
@@ -1144,7 +1224,7 @@ export default {
             card.mountainPower = parseInt(card.mountainPower);
             card.oceanPower = parseInt(card.oceanPower);
 
-            card.locale = app.config.globalProperties.g_getLocale()
+            card.locale = getLocale()
 
             try {
                 const { data, error } = await axios.post(API_BASEURL + '/card/update', card, hparams())
@@ -1394,6 +1474,7 @@ export default {
 
         function getFormattedLocale(plocale)
         {
+            if(!plocale) plocale = getLocale()
             if(plocale == 'en') return 'en-us'
             return plocale + '-' + plocale
         }
@@ -1424,8 +1505,7 @@ export default {
             if (params.currentEditions.length > 0) $.extend(apiparams, { cardSet: params.currentEditions });
             if (params.currentSoustypes.length > 0) $.extend(apiparams, { cardSubTypes: params.currentSoustypes });
     
-            var locale = app.config.globalProperties.g_getLocale()
-            $.extend(apiparams, { locale: getFormattedLocale(locale)});
+            $.extend(apiparams, { locale: getFormattedLocale()});
 
             var headers = hparams()
 
