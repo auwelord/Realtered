@@ -469,5 +469,12 @@ export default {
                 if (this.g_isPermanent(b)) return -1;
             });
         }
+
+        app.config.globalProperties.g_decodeHTMLEntities = function(encodedStr)
+        {
+            const div = document.createElement('div');
+            div.innerHTML = encodedStr;
+            return div.innerText || div.textContent;
+        }
     }
 };

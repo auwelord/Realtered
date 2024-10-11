@@ -158,19 +158,18 @@ export default {
 
         async function getPreviewArticle(purl, pcallback)
         {
-            if(!purl) return null
-
-            try 
+            if(purl) try 
             {
                 var headparams = hparams()
                 headparams.params = {url: purl}
                 const { data, error } = await axios.get(API_BASEURL + '/tools/previewarticle', headparams)
 
                 pcallback(data)
+                return
             } catch (error) {
                 console.error("Error fetching URL preview:", error);
-                pcallback(null)
             }
+            pcallback(null)
         }
 
         async function fetchCardsFromDatabase(params, pcallback)

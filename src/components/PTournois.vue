@@ -74,12 +74,12 @@
                         <h3 class="card-title">Article</h3>
                     </div>
                     <div class="card-body" v-if="previewexturl">
-                        <a :href="currentTournoi.exturl" target="_blank" class="fs-6">{{ decodeHTMLEntities(previewexturl.ogTitle) }}</a>
+                        <a :href="currentTournoi.exturl" target="_blank" class="fs-6">{{ g_decodeHTMLEntities(previewexturl.ogTitle) }}</a>
                         <div class="d-flex justify-content-center">
                             <a :href="currentTournoi.exturl" target="_blank" class="d-flex justify-content-center">                                
                                 <img :src="previewexturl.ogImage[0].url" alt="URL Preview" class="img-fluid w-25"/>
                             </a>
-                        </div>                            
+                        </div>                      
                     </div>
                     <div class="card-header">
                         <h3 class="card-title">Decks</h3>
@@ -232,11 +232,6 @@ export default {
         })
     },
     methods:{
-        decodeHTMLEntities(encodedStr) {
-            const div = document.createElement('div');
-            div.innerHTML = encodedStr;
-            return div.innerText || div.textContent;
-        },
         e_afficherstat(pafficher)
         {
             this.afficherstats = pafficher

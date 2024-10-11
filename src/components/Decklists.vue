@@ -68,6 +68,9 @@
                         <div v-b-toggle.awid-probadeck class="aw-collapsible ms-3">
                             Probas <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse mt-1" />
                         </div>
+                        <div v-b-toggle.awid-urlextdeck class="aw-collapsible ms-3" v-if="previewexturl">
+                            Liens <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse mt-1" />
+                        </div>
                     </div>
 
                 </div>
@@ -81,6 +84,16 @@
             </BCollapse>   
             <BCollapse id="awid-probadeck">
                 <DeckProba :deck="currentdeck"/>                     
+            </BCollapse>
+            <BCollapse id="awid-urlextdeck">
+                <div v-if="previewexturl" class="d-flex flex-column align-items-center mb-3">
+                    <a :href="currentdeck.exturl" target="_blank" class="fs-6 ">{{ g_decodeHTMLEntities(previewexturl.ogTitle) }}</a>
+                    <div class="d-flex justify-content-center">
+                        <a :href="currentdeck.exturl" target="_blank" class="d-flex justify-content-center">                                
+                            <img :src="previewexturl.ogImage[0].url" alt="URL Preview" class="img-fluid w-25"/>
+                        </a>
+                    </div> 
+                </div>
             </BCollapse>
             <div class="row">
                 <template v-for="card in currentdeck.cards">
@@ -96,6 +109,7 @@
 
 <script setup>
 import MarkdownIt from "markdown-it";
+import { watch, getCurrentInstance } from 'vue'
 
 const props = defineProps({
     deckid: { 
@@ -107,6 +121,18 @@ const props = defineProps({
     currentdeck: { type: Object }
 });
 
+const instance = getCurrentInstance();
+
+watch(() => props.currentdeck, async (newval, oldval) => 
+{
+    instance.proxy.g_getPreviewArticle(props.currentdeck.exturl, 
+    
+        pdata => {
+            console.log(pdata)
+            instance.proxy.previewexturl = pdata
+        }
+    )
+})
 const emit = defineEmits(['mouseentercard', 'mouseleavecard', 'onafficherstat']);
 
 const mouseEnterCard = (pcard) => {
@@ -136,11 +162,13 @@ export default
                 imagePathFullsize: null,
                 mousetimeout: null,
                 router: null,
+                previewexturl: null,
             }
         },
         mounted() 
         {
-            this.router = useRouter();
+            this.router = useRouter()
+            this.g_getPreviewArticle(this.currentdeck.exturl, pdata => this.previewexturl = pdata)
         },
         watch:{
         },
