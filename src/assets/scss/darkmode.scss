@@ -14,6 +14,16 @@ body.aw-darkmode {
     color: rgb(158, 150, 137);
 }
 .aw-darkmode {
+    & a {
+        color: rgb(51, 162, 255);
+        text-decoration-color: initial;
+        background-color: transparent;
+    }
+    & a:hover {
+        color: rgb(97, 183, 255);
+        text-decoration-color: initial;
+    }
+
     & .navbar-area{
         background-image: initial;
         background-color: rgb(24, 26, 27);

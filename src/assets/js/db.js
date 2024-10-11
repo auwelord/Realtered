@@ -151,6 +151,28 @@ export default {
             return puser && puser.admin
         }
         
+        app.config.globalProperties.g_getPreviewArticle = function(purl, pcallback)
+        {
+            getPreviewArticle(purl, pcallback)
+        }
+
+        async function getPreviewArticle(purl, pcallback)
+        {
+            if(!purl) return null
+
+            try 
+            {
+                var headparams = hparams()
+                headparams.params = {url: purl}
+                const { data, error } = await axios.get(API_BASEURL + '/tools/previewarticle', headparams)
+
+                pcallback(data)
+            } catch (error) {
+                console.error("Error fetching URL preview:", error);
+                pcallback(null)
+            }
+        }
+
         async function fetchCardsFromDatabase(params, pcallback)
         {
             const { data } = await anonSupabase.auth.getUser()

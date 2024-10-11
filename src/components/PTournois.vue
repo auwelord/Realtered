@@ -70,6 +70,17 @@
                     </div>
                 </div>
                 <div class="card card-outline card-info" v-if="currentTournoi && !show_formtournoi">
+                    <div class="card-header" v-if="previewexturl">
+                        <h3 class="card-title">Article</h3>
+                    </div>
+                    <div class="card-body" v-if="previewexturl">
+                        <a :href="currentTournoi.exturl" target="_blank" class="fs-6">{{ decodeHTMLEntities(previewexturl.ogTitle) }}</a>
+                        <div class="d-flex justify-content-center">
+                            <a :href="currentTournoi.exturl" target="_blank" class="d-flex justify-content-center">                                
+                                <img :src="previewexturl.ogImage[0].url" alt="URL Preview" class="img-fluid w-25"/>
+                            </a>
+                        </div>                            
+                    </div>
                     <div class="card-header">
                         <h3 class="card-title">Decks</h3>
                     </div>
@@ -151,6 +162,7 @@ export default {
             showImageFullsize: false,
             imagePathFullsize: null,
             mousetimeout: null,
+            previewexturl: null,
             chartFaction: {
                 chartData: {
                     labels: null,
@@ -220,6 +232,11 @@ export default {
         })
     },
     methods:{
+        decodeHTMLEntities(encodedStr) {
+            const div = document.createElement('div');
+            div.innerHTML = encodedStr;
+            return div.innerText || div.textContent;
+        },
         e_afficherstat(pafficher)
         {
             this.afficherstats = pafficher
@@ -326,6 +343,8 @@ export default {
             this.currentDeck = null
             this.loadedCharts = false
 
+            this.g_getPreviewArticle(this.currentTournoi.exturl, pdata => this.previewexturl = pdata)
+            
             this.g_fetchDecksTournoi(ptournoi, pdecks => {
                 this.decks = pdecks
                 this.setDataCharts()
@@ -374,7 +393,7 @@ export default {
                 return "le " + datedeb
             }
             return "du " + datedeb + " au " + datefin
-        }
+        },
     }
 }
 
