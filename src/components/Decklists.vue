@@ -125,8 +125,8 @@ const instance = getCurrentInstance();
 
 watch(() => props.currentdeck, async (newval, oldval) => 
 {
-    instance.proxy.g_getPreviewArticle(props.currentdeck.exturl, 
-    
+    instance.proxy.previewexturl = null
+    instance.proxy.g_getPreviewArticle(newval.exturl,    
         pdata => {
             instance.proxy.previewexturl = pdata
         }

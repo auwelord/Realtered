@@ -87,14 +87,14 @@
                     <DeckStats v-if="currentdeck && afficherstats" :currentDeck="currentdeck" />
                 </div>
 
-                <div class="col-lg-8 col-12" v-if="isDecklist()">
-                    <Decklists :user="user" :currentdeck="currentdeck" :deckid="deckid" 
+                <div class="col-lg-8 col-12" v-if="isDecklist() && currentdeck">
+                    <Decklists :user="user" :currentdeck="currentdeck" :deckid="deckid"
                         @mouseentercard="mouseEnterCard" 
                         @mouseleavecard="mouseLeaveCard"
                         @onafficherstat="pafficher => afficherstats = pafficher"/>
                 </div>
 
-                <Decktest :user="user" :currentdeck="currentdeck" v-if="isDeckTest()" 
+                <Decktest :user="user" :currentdeck="currentdeck" v-if="isDeckTest() && currentdeck" 
                     @mouseentercard="mouseEnterCard" 
                     @mouseleavecard="mouseLeaveCard"
                     @togglefullscreen="togglefullscreen" />
@@ -282,6 +282,8 @@ export default
             },
             onShowDeck(pdeck, pcallback) 
             {
+                this.setCurrentDeck(null)
+
                 var zedeckid = pdeck ? pdeck.id : this.deckid
 
                 var params = {

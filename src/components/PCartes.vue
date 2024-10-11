@@ -1105,7 +1105,6 @@ export default {
     proprietingdeck(newValue, oldValue) {
         if(newValue)
         {
-          console.log(this.currentDeck)
           this.newDeckName = this.currentDeck.name
           this.taDescDeck = this.currentDeck.description
           this.newDeckExturl = this.currentDeck.exturl

@@ -164,6 +164,7 @@ export default {
                 headparams.params = {url: purl}
                 const { data, error } = await axios.get(API_BASEURL + '/tools/previewarticle', headparams)
 
+                console.log(data)
                 pcallback(data)
                 return
             } catch (error) {
