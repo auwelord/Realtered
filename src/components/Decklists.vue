@@ -88,7 +88,7 @@
             <BCollapse id="awid-urlextdeck">
                 <div v-if="previewexturl" class="d-flex flex-column align-items-center mb-3">
                     <a :href="currentdeck.exturl" target="_blank" class="fs-6 ">{{ g_decodeHTMLEntities(previewexturl.ogTitle) }}</a>
-                    <div class="d-flex justify-content-center">
+                    <div class="d-flex justify-content-center" v-if="previewexturl.ogImage && previewexturl.ogImage.length > 0">
                         <a :href="currentdeck.exturl" target="_blank" class="d-flex justify-content-center">                                
                             <img :src="previewexturl.ogImage[0].url" alt="URL Preview" class="img-fluid w-25"/>
                         </a>
