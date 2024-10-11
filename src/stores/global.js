@@ -11,7 +11,7 @@ export const useGlobalStore = defineStore('global', {
   actions: 
   {
     isFrenchLanguage() {
-      this.language == 'fr';
+      return this.language == 'fr';
     },
   },
   persist: {

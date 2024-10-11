@@ -82,6 +82,8 @@
     ,"ui.title.deletedeck": "Delete deck"
     ,"ui.title.deleteversion": "Delete version"
     ,"ui.title.decknodesc": "This deck has no description"
+    ,"ui.title.uniquefound": "Card found and imported"
+
     ,"ui.alert.selectfaction": "Select a faction and set filters to search cards"
     ,"ui.alert.selectdeckdl": "Select a deck to see the decklist"
 
@@ -117,5 +119,6 @@
     ,"ui.action.removecounter": "Remove a counter"
     ,"ui.action.addcounter": "Add a counter"
     ,"ui.action.addfav": "Add to favorites"
+    ,"ui.action.addcardtodeck": "Add card to deck"
 
 }

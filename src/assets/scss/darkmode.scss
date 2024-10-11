@@ -1,6 +1,14 @@
 //@forward "darkvars";
 @import "darkvars";
 
+:root
+{
+    --darkreader-border--bs-border-width: 1px;
+    --darkreader-border--bs-border-color-translucent: rgba(140, 130, 115, 0.17);
+    --darkreader-border--bs-modal-border-width: var(--darkreader-border--bs-border-width)
+    --darkreader-border--bs-modal-border-color: var(--darkreader-border--bs-border-color-translucent);
+}
+
 body.aw-darkmode {
     background-color: rgb(24, 26, 27);
     color: rgb(158, 150, 137);
@@ -250,6 +258,18 @@ body.aw-darkmode {
 
     & .portfolio {
         border: 1px solid rgb(60, 65, 68);
+    }
+
+    
+    & .modal-content {
+        background-color: rgb(24, 26, 27);
+        box-shadow: rgba(0, 0, 0, 0.5) 0px 0.25rem 0.5rem;
+        outline-color: initial;
+        color: #e8e6e3;
+        border: var(--darkreader-border--bs-modal-border-width) solid var(--darkreader-border--bs-modal-border-color);
+    }
+    & .modal-header {
+        border-bottom-color: rgb(53, 58, 60);
     }
 }
 

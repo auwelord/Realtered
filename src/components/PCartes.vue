@@ -810,7 +810,7 @@
       v-if="currentCardDetail"
       @addcard="addCard" @removecard="removeCard" />
   </BModal>
-  <BModal v-model="showModalImportUnique" size="md" hide-footer @cancel="closeModalImportUnique" @ok="importerUnique" title="Importer une Unique" cancel-title="Annnuler" ok-title="Importer" ok-variant="unique">
+  <BModal v-model="showModalImportUnique" size="md" hide-footer @cancel="closeModalImportUnique" @ok="importerUnique" :title="$t('ui.action.importunique')" cancel-title="Annnuler" ok-title="Importer" ok-variant="unique">
     <BInputGroup>
       <BFormInput v-model="codeImportUnique" placeholder="Code" />
       
@@ -818,10 +818,10 @@
     </BInputGroup>
 
     <div  v-if="importedUnique" class="d-flex flex-column justify-content-center mt-2">
-      <div class="text-center fs-5 p-2">Carte trouvée et importée</div>
+      <div class="text-center fs-5 p-2">{{$t('ui.title.uniquefound')}}</div>
       <img :src="g_getImageCardPublicUrl(importedUnique)" class="img-fluid"/>
       <BButton variant="primary" @click="addUniqueToDeck" class="mt-2"  v-if="!g_isOOF(importedUnique, currentDeck)">
-          <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>Ajouter la carte au deck
+          <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>{{ $t('ui.action.addcardtodeck')}}
       </BButton>
     </div>
   </BModal>
@@ -1293,7 +1293,7 @@ export default {
     {
       this.cptupdatecard = 0
 
-      this.g_downloadImages(this.fetchedCards,
+      this.g_downloadImages(this.fetchedCards, null,
         //onDownloadingImage
         pcard => {
           this.cptupdatecard++
@@ -1342,34 +1342,38 @@ export default {
         {
           this.g_updateCardFromApi(this.codeImportUnique, true,
             //onUpdatedCard: 
-            ppcard => 
+            (ppcard, palreadyexists, pforcedlocale) => 
             {
               if(!ppcard)
               {
-                this.callHideWaitingScreen()
+                if(!pforcedlocale) this.callHideWaitingScreen()
                 toast("Une erreur s'est produite lors de l'import de la carte", { type: TYPE.ERROR })
                 return
               }
 
               if(this.g_isUnique(ppcard))
               {
-                this.g_downloadImages([ppcard], 
+                this.g_downloadImages([ppcard], pforcedlocale,
                   //onDownloadingImage
                   pppcard => console.log("Téléchargement de l'image " + pppcard.imagePath),
                   //onDownloadedImages
-                  pcards => {
-                    this.callHideWaitingScreen()
-                    this.importedUnique = pcards[0]
+                  pcards => 
+                  {
+                    if(!pforcedlocale) {
+                      this.callHideWaitingScreen()
+                      this.importedUnique = pcards[0]
+                    }
                   },
                   //onUpdatedImageS3
-                  pppcard => 
+                  (pppcard, palreadyexists, pref, ppforcedlocale) => 
                   {
-                    if(!pppcard) toast("La carte a été importée mais l'upload de l'image a échoué", { type: TYPE.ERROR })
+                    if(!pppcard && !ppforcedlocale) toast("La carte a été importée mais l'upload de l'image a échoué", { type: TYPE.ERROR })
                     else console.log("maj base Card.imageS3 : " + pppcard.imageS3)
                   }
                 )
               }
-              else{
+              else if(!pforcedlocale) 
+              {
                 this.callHideWaitingScreen()
                 toast("Cette carte n'est pas une unique", { type: TYPE.ERROR });
               }
@@ -2602,76 +2606,6 @@ export default {
       if (this.isSelectedRare) rarities.push("RARE");
       if (this.isSelectedUnique) rarities.push("UNIQUE");
       return rarities;
-    },
-    async fetchCardsFromDatabase()
-    {
-      var req = supabase
-            .from('Card')
-            .select()
-            .eq('mainFaction', this.currentFaction);
-
-      if (this.currentName != '') req = req.ilike('name', '%' + this.currentName + '%');
-
-      var calculatedrarity = this.calcRarities();
-      if (calculatedrarity.length > 0) req = req.in("rarity", calculatedrarity);
-
-      var calculatedmaincost = this.calcMainCost();
-      if (calculatedmaincost.length > 0) req = req.in("mainCost", calculatedmaincost);
-      var calculatedrecallcost = this.calcReserveCost();
-      if (calculatedrecallcost.length > 0) req = req.in("recallCost", calculatedrecallcost);
-      
-      var calculatedforest = this.calcForest();
-      if (calculatedforest.length > 0) req = req.in("forestPower", calculatedforest);
-      var calculatedmountain = this.calcMountain();
-      if (calculatedmountain.length > 0) req = req.in("mountainPower", calculatedmountain);
-      var calculatedwater = this.calcWater();
-      if (calculatedwater.length > 0) req = req.in("oceanPower", calculatedwater);
-
-      var calculatedtype = this.calcType();
-      if (calculatedtype.length > 0) req = req.in("cardType", calculatedtype);
-
-      if (this.currentEditions.length > 0) req = req.in("cardSet", this.currentEditions);
-
-      var streq = [];
-      if (this.currentSoustypes.length > 0)
-      {
-        this.currentSoustypes.forEach(st => streq.push('cardSubtypes.cs.\{' + st + '\}'));
-      }
-      if(streq.length > 0) req = req.or(streq.join(','));
-
-      var keywords = [];
-      this.currentKeywords.forEach(kw => {
-        var label = this.g_getKeywordLabel(kw);
-        keywords.push('main_effect.ilike.%' + label + '%,echo_effect.ilike.%' + label + '%');
-      });
-      if(keywords.length > 0) req = req.or(keywords.join(','));
-      
-      this.currentSort.forEach(sortref => {
-        var tab = sortref.split(',');
-        req = req.order(tab[0] == 'translations.name' ? 'name' : tab[0], { ascending: tab.length == 1 })
-      });      
-      req = req.range((this.currentPage - 1) * 12, (this.currentPage * 12) );
-      const { data: cards, error } = await req;
-        
-
-      this.currentPage++;
-      this.hasMore = cards.length > 12;
-      if(this.hasMore) cards.pop(); //on vire le dernier élément qui ne sert qy'à savoir si il y a d'autres cartes à fetch
-      
-      cards.forEach(card => 
-      {
-        if (!this.emptyplayset || (this.emptyplayset && card.inMyCollection < 3)) 
-        {
-          var zecard = this.deckbuilder ? this.g_getCardInDeck(card.reference, this.currentDeck) : card;
-          if (zecard) this.fetchedCards.push(zecard);
-          else 
-          {
-            card.quantite = 0;
-            this.fetchedCards.push(card);
-          }
-        }
-      });
-      this.loading = false;
     },
     fetchCards() 
     {

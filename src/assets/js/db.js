@@ -168,7 +168,7 @@ export default {
                 select += ', CardTrad!inner(*)'
                 effectPrefix = 'CardTrad.'
             }
-            //verif de la syntaxe de params.currentName
+
             var req = anonSupabase
                 .from('Card')
                 .select(select)
@@ -305,21 +305,34 @@ export default {
                     if(deck.CardsDeck)
                     {
                         var refs = deck.CardsDeck.map(card => card.cardRef);
-                                            
-                        var req = await anonSupabase
+                        var select = '*' + (isLocaleFrench() ? '' : ', CardTrad!inner(*)')                    
+
+                        var req = anonSupabase
                             .from('Card')
-                            .select()
+                            .select(select)
                             .in('reference', refs)
                             .order('cardType')
                             .order('mainCost')
                             .order('recallCost')
                             .order('name');
 
-                        req.data.forEach(card => 
+                        if(!isLocaleFrench()) req = req.eq('CardTrad.locale', getLocale())
+                        const {data: datacard, error: errorcard} = await req;
+
+                        if(errorcard)
+                        {
+                            console.log(errorcard)
+                        }
+                        else datacard.forEach(card => 
                         {
                             var realcardeck = deck.CardsDeck.find(carddeck => carddeck.cardRef == card.reference)
-                            deck.cards.push($.extend(card, {quantite: realcardeck.quantity}));
-                        });
+    
+                            $.extend(card, {quantite: realcardeck.quantity})
+                            
+                            fusionnerTrad(card)
+    
+                            deck.cards.push(card);
+                        })
                         delete deck.CardsDeck
                     }
                 }
@@ -455,54 +468,57 @@ export default {
                 if(dataUser.user) req = req.eq('DeckFav.userId', dataUser.user.id);
             }
             
-            const { data } = await req;
+            const { data: decks } = await req;
 
-            var found = data && data.length > 0;
-            if(found)
+            if(!decks || decks.length == 0)
             {
-                var zedeck = $.extend(data[0], {cards: []});
-
-                if(params.withversions) zedeck.versions = versions
-                
-                if(params.withfavs) 
-                {
-                    zedeck.favori = (zedeck.DeckFav.length > 0)
-                    delete zedeck.DeckFav
-                }
-
-                if(params.withcards && data[0].CardsDeck)
-                {
-                    var refs = data[0].CardsDeck.map(card => card.cardRef);
-
-                    req = anonSupabase
-                        .from('Card')
-                        .select('*' + (!isLocaleFrench() ? ', CardTrad!inner(*)' : ''))
-                        .in('reference', refs);
-
-                    if(!isLocaleFrench()) req = req.eq('CardTrad.locale', getLocale())
-                    const {data: datacard, error: errorcard} = await req;
-
-                    if(errorcard)
-                    {
-                        console.log(errorcard)
-                    }
-                    else datacard.forEach(card => 
-                    {
-                        var realcardeck = data[0].CardsDeck.find(carddeck => carddeck.cardRef == card.reference)
-
-                        $.extend(card, {quantite: realcardeck.quantity})
-                        
-                        fusionnerTrad(card)
-
-                        zedeck.cards.push(card);
-                    });
-                }
-                
-                if(params.withcards) delete zedeck.CardsDeck
-
-                pcallback(zedeck);                
+                pcallback(null)
+                return
             }
-            else pcallback(null);
+
+            const deck = decks[0]
+            var zedeck = $.extend(deck, {cards: []});
+
+            if(params.withversions) zedeck.versions = versions
+            
+            if(params.withfavs) 
+            {
+                zedeck.favori = (zedeck.DeckFav.length > 0)
+                delete zedeck.DeckFav
+            }
+
+            if(params.withcards && deck.CardsDeck)
+            {
+                var refs = deck.CardsDeck.map(card => card.cardRef);
+                var selectCard = '*' + (!isLocaleFrench() ? ', CardTrad!inner(*)' : '')
+
+                req = anonSupabase
+                    .from('Card')
+                    .select(selectCard)
+                    .in('reference', refs);
+
+                if(!isLocaleFrench()) req = req.eq('CardTrad.locale', getLocale())
+                const {data: datacard, error: errorcard} = await req;
+
+                if(errorcard)
+                {
+                    console.log(errorcard)
+                }
+                else datacard.forEach(card => 
+                {
+                    var realcardeck = deck.CardsDeck.find(carddeck => carddeck.cardRef == card.reference)
+
+                    $.extend(card, {quantite: realcardeck.quantity})
+                    
+                    fusionnerTrad(card)
+
+                    zedeck.cards.push(card);
+                })
+            }
+            
+            if(params.withcards) delete zedeck.CardsDeck
+
+            pcallback(zedeck);                
         }
         
         function fusionnerTrad(pcard, pcardtrad)
@@ -643,7 +659,7 @@ export default {
         }
         function isLocaleFrench()
         {
-            return getLocale() == 'fr'
+            return app.config.globalProperties.g_isLocaleFrench()
         }
         /**
          * preference : référence de la card à rechercher en base
@@ -652,8 +668,7 @@ export default {
          */
         async function fetchCard(preference, onFetchedCard)
         {
-            var select = '*'
-            if(!isLocaleFrench()) select += ', CardTrad!inner(*)'
+            var select = '*' + (isLocaleFrench() ? '' : ', CardTrad!inner(*)')
 
             var req = anonSupabase
                 .from('Card')
@@ -662,14 +677,11 @@ export default {
 
             if(!isLocaleFrench()) req = req.eq('CardTrad.locale', getLocale())
 
-            const { data: fetched, error: erreur } = await req;
+            const { data: cards, error: erreur } = await req
 
-            var card = (erreur ? null : fetched[0])
+            var card = cards != null && cards.length > 0 ? cards[0] : null
+            fusionnerTrad(card)
 
-            if(!isLocaleFrench())
-            {
-                fusionnerTrad(card)
-            }
             if(onFetchedCard) onFetchedCard(card);
         }
 
@@ -686,45 +698,25 @@ export default {
         {
             var req = anonSupabase
                 .from('Card')
-                .select()
+                .select('*' + (isLocaleFrench() ? '' : ', CardTrad!inner(*)'))
                 .eq('cardSet', 'COREKS')
                 .eq('cardType', 'HERO');
 
             if(params.faction) req = req.eq('mainFaction', params.faction)
+            if(!isLocaleFrench()) req = req.eq('CardTrad.locale', getLocale())
 
             const { data: heroes, erreur } = await req;
 
-            if(!erreur && heroes.length > 0 && params.callback)
-            {
-                params.callback(heroes);
-            }
-            else if(params.callback) params.callback(null);
+            if(heroes) heroes.forEach(hero => fusionnerTrad(hero))
+            
+            if(erreur) console.error(erreur)
+
+            params.callback(heroes)
         }
 
         app.config.globalProperties.g_fetchHeroes = function(params)
         {
             fetchHeroes(params)
-        }
-
-        async function fetchFactionCards(pfaction, pcallback)
-        {
-            var req = anonSupabase
-                .from('Card')
-                .select();
-
-            if(pfaction) req = req.eq('mainFaction', pfaction);
-
-            const { data: cards, error: erreur } = await req;                
-
-            if(!erreur && cards.length > 0)
-            {
-                if(pcallback) pcallback(cards);
-            }
-        }
-
-        app.config.globalProperties.g_fetchFactionCards = function(pfaction, pcallback)
-        {
-            fetchFactionCards(pfaction, pcallback)
         }
 
         /**
@@ -756,9 +748,9 @@ export default {
          * onDownloadedImages() : callback de fin de traitement
          * onUpdatedImageS3(card) : callback de fin de mise à jour de la base
          */
-        app.config.globalProperties.g_downloadImages = function(pcards, onDownloadingImage, onDownloadedImages, onUpdatedImageS3)
+        app.config.globalProperties.g_downloadImages = function(pcards, pforcedlocale, onDownloadingImage, onDownloadedImages, onUpdatedImageS3)
         {
-            downloadImages(pcards, onDownloadingImage, onDownloadedImages, onUpdatedImageS3);
+            downloadImages(pcards, pforcedlocale, onDownloadingImage, onDownloadedImages, onUpdatedImageS3);
         }
 
         /**
@@ -768,11 +760,11 @@ export default {
          * onDownloadedImages() : callback de fin de traitement
          * onUpdatedImageS3(card) : callback de fin de mise à jour de la base
         */
-        function importerUniques(preferences, paddfavorite, onDownloadingImage, onDownloadedImages, onUpdatedImageS)
+        function importerUniques(preferences, paddfavorite, onDownloadingImage, onDownloadedImages, onUpdatedImageS3)
         {
             for(let ref of preferences)
             {
-                importerUnique(ref, paddfavorite, onDownloadingImage, onDownloadedImages, onUpdatedImageS)
+                importerUnique(ref, paddfavorite, onDownloadingImage, onDownloadedImages, onUpdatedImageS3)
             }
         }
 
@@ -790,19 +782,14 @@ export default {
                 return
             }
 
-            var onUpdatedCard = (pcard, palreadyexists) => 
+            var onUpdatedCard = (pcard, palreadyexists, pforcedlocale) => 
             {
                 //si la carte n'est pas unique => ras
                 if(app.config.globalProperties.g_isUnique(pcard))
                 {
-                    if(palreadyexists)
-                    {
-                        //on appelle le trigger de fin
-                        if(onUpdatedImageS3) onUpdatedImageS3(pcard, palreadyexists, preference)
-                    }
-                    else downloadImages([pcard], onDownloadingImage, onDownloadedImages, onUpdatedImageS3);
+                    downloadImages([pcard], pforcedlocale, onDownloadingImage, onDownloadedImages, onUpdatedImageS3);
                 }
-                else if(onUpdatedImageS3) onUpdatedImageS3(pcard, false, preference)
+                else if(onUpdatedImageS3) onUpdatedImageS3(pcard, false, preference, pforcedlocale)
             }
 
             var onFetchedCard = pcard => 
@@ -812,7 +799,7 @@ export default {
                 {
                     updateCardFromApi(preference, paddfavorite, onUpdatedCard)
                 }
-                else onUpdatedCard(pcard, true)
+                else onUpdatedCard(pcard, true, null)
             }
 
             fetchCard(preference, onFetchedCard)
@@ -899,10 +886,10 @@ export default {
                 return
             }
 
-            var cards;
+            var cardsRefs;
             if(params.deck) 
             {
-                cards = tmpcards.map(pcard => 
+                cardsRefs = tmpcards.map(pcard => 
                 {
                     return {
                         cardRef: pcard.reference,
@@ -913,7 +900,7 @@ export default {
             }
             else
             {
-                cards = tmpcards.map(pcard => 
+                cardsRefs = tmpcards.map(pcard => 
                 {
                     return {
                         cardRef: pcard.ref,
@@ -926,19 +913,16 @@ export default {
             var importingUniques = false
             //recup auto de la faction à partir de la liste des cartes pour update du deck
             //si on est en import de deck de la base, pas besoin le champ est déjà rempli
-            if(cards.length > 0 && !params.deck)
+            if(cardsRefs.length > 0 && !params.deck)
             {
-                var refs = cards.map(pcard => pcard.cardRef);
+                var refs = cardsRefs.map(pcard => pcard.cardRef);
 
+                //NB: ici pas besoin de la trad, on veut juste recup le hero pour avoir la faction
                 var req = anonSupabase
-                    .from('Card' + (!isLocaleFrench() ? ', CardTrad!inner(*)' : ''))
+                    .from('Card' )
                     .select()
                     .in('reference', refs)
 
-                if(!isLocaleFrench())
-                {
-                    req = req.eq('CardTrad.locale', getLocale())
-                }
                 const { data: cardlist, error } = await req;
 
                 if(!error && cardlist.length > 0)
@@ -950,7 +934,7 @@ export default {
                         saveddeck.hero_id = hero[0].reference;
 
                         try {
-                            const { data, error } = await axios.post(API_BASEURL + '/deck/update', saveddeck, hparams())
+                            const { dataUpdated, error } = await axios.post(API_BASEURL + '/deck/update', saveddeck, hparams())
             
                             if(error) console.error(error)
                         }
@@ -964,7 +948,7 @@ export default {
                 //dans le cas d'un import à partir d'une liste ref/qte, il peut y avoir des uniques
                 //lancer le traitement d'import
                 //NB: ici l'enregistrement Card n'a pas encore été créé
-                var uniques = cards
+                var uniques = cardsRefs
                     .filter(pcard => app.config.globalProperties.g_isUniqueFromReference(pcard.cardRef))
                     .map(pcard => pcard.cardRef)
 
@@ -979,36 +963,38 @@ export default {
                         //onDownloadedImage
                         null,
                         //onUpdatedImageS3
-                        (ppcard, palreadyexists, pref) => 
+                        (ppcard, palreadyexists, pref, pforcedlocale) => 
                         {
                             if(ppcard && !palreadyexists) console.log("Upload de " + ppcard.imageS3)
                             else if(!ppcard && !palreadyexists)
                             {
-                                faileduniques.push(pref)
-                                console.log("Echec de l'import de l'unique")
+                                if(!pforcedlocale) faileduniques.push(pref)
+                                console.log("Echec de l'import de l'unique : " + pref)
                             }
-                            cptUniques++
-
-                            if(cptUniques == uniques.length)
+                            if(!pforcedlocale) 
                             {
-                                if(faileduniques.length > 0)
+                                cptUniques++
+                                if(cptUniques == uniques.length)
                                 {
-                                    cards = cards.filter(pcard => !faileduniques.find(pref => pref == pcard.cardRef))
+                                    if(faileduniques.length > 0)
+                                    {
+                                        cardsRefs = cardsRefs.filter(pcard => !faileduniques.find(ppref => ppref == pcard.cardRef))
+                                    }
+                                    runSetCardsDecks(saveddeck, cardsRefs, onImportedDeck, faileduniques)
                                 }
-                                runSetCardsDecks(saveddeck, cards, onImportedDeck, faileduniques)
                             }
                         }
                     )
                 }
             }
 
-            if(!importingUniques) runSetCardsDecks(saveddeck, cards, onImportedDeck)
+            if(!importingUniques) runSetCardsDecks(saveddeck, cardsRefs, onImportedDeck)
         }
 
-        async function runSetCardsDecks(pdeck, pcards, onImportedDeck, pfaileduniques)
+        async function runSetCardsDecks(pdeck, pcardsRefs, onImportedDeck, pfaileduniques)
         {
             try {
-                const { data, error } = await axios.post(API_BASEURL + '/cardsdeck/set', pcards, hparams())
+                const { data, error } = await axios.post(API_BASEURL + '/cardsdeck/set', pcardsRefs, hparams())
 
                 if(error) console.error(error)
                 onImportedDeck(error ? null : pdeck, pfaileduniques);
@@ -1069,13 +1055,62 @@ export default {
          */
         async function updateCardFromApi(preference, paddfavorite, onUpdatedCard)
         {
-            try {
-                const apiparams = {
-                    locale: getFormattedLocale()
+            //si la locale n'est pas fr, vérifier la présence de la carte en fr avant de mettre à jour
+            //si la carte n'existe pas, il faut la créer
+            if(!isLocaleFrench())
+            {
+                const { data: cardsfr } = await anonSupabase
+                    .from('Card')
+                    .select('reference')
+                    .eq('reference', preference)
+
+                if(cardsfr == null || cardsfr.length == 0) 
+                {
+                    _updateCardFromApi(preference, paddfavorite, 'fr', onUpdatedCard, () => {
+                        _updateCardFromApi(preference, false, null, onUpdatedCard)
+                    })
+                    return
                 }
+            }
+
+            if(!isLocaleFrench())
+            {
+                //ici la carte est en anglais mais la fr existe : on la met juste à jour
+                _updateCardFromApi(preference, paddfavorite, null, onUpdatedCard)
+                return
+            }
+
+            //carte en français, on la met à jour, puis on vérifie si l'anglais existe
+            _updateCardFromApi(preference, paddfavorite, null, onUpdatedCard, () => 
+            {
+                fetchEnglishCard(preference, pcard => 
+                {
+                    if(!pcard) _updateCardFromApi(preference, paddfavorite, 'en', onUpdatedCard)
+                })
+            })          
+        }
+
+        async function fetchEnglishCard(preference, pcallback)
+        {
+            const { data: cards } = await anonSupabase
+                .from('CardTrad')
+                .select('reference')
+                .eq('reference', preference)
+                .eq('locale', 'en')
+
+            pcallback(cards && cards.length > 0 ? cards[0] : null)
+        }
+
+        async function _updateCardFromApi(preference, paddfavorite, pforcedlocale, onUpdatedCard, pthen)
+        {
+            try {
+                const zelocale = pforcedlocale ? pforcedlocale : getLocale()
+                const apiparams = {
+                    locale: getFormattedLocale(zelocale)
+                }
+
                 const { data, error } = await axios.post(API_BASEURL + '/card/getfromapi/' + preference, apiparams, hparams())
 
-                console.log(data)
                 if(error) 
                 {
                     if(onUpdatedCard) onUpdatedCard(null)
@@ -1088,7 +1123,7 @@ export default {
                         forceupdate: true,
                         addfavorite: paddfavorite,
                     }
-                    upsertCard(params, onUpdatedCard)
+                    upsertCard(params, pforcedlocale, onUpdatedCard, pthen)
                 }
             }
             catch (error) 
@@ -1108,22 +1143,23 @@ export default {
          * 
          * onUpdatedCard(card) : callback de card mise à jour
          */
-        async function upsertCard(params, onUpdatedCard)
+        async function upsertCard(params, pforcedlocale, onUpdatedCard, pthen)
         {
             //pcard, pdetail, pforceupdate, pcallback
             const { data: fetched, error: erreur } = await anonSupabase
                 .from('Card')
                 .select('detail')
-                .eq('reference', params.apicard.reference);
+                .eq('reference', params.apicard.reference)
 
             if(!params.forceupdate)
             {
-                if(fetched && fetched.length > 0 && fetched[0].detail)
+                const hasresult = fetched != null && fetched.length > 0
+                if(hasresult && fetched[0].detail)
                 {
                     //si la carte est déjà en base et détaillée, pas besoin de maj
                     return;
                 }
-                if(!params.detail && fetched && fetched.length > 0)
+                if(!params.detail && hasresult)
                 {
                     //si on veut pas les détails et que l'enregistrement existe, pas besoin de maj
                     return;
@@ -1134,7 +1170,7 @@ export default {
                 reference: params.apicard.reference,
                 name: params.apicard.name,
                 imagePath: params.apicard.allImagePath['fr-fr'],
-                imageLocale: params.apicard.allImagePath[getFormattedLocale()],
+                imageLocale: params.apicard.allImagePath[pforcedlocale ? getFormattedLocale(pforcedlocale) : getFormattedLocale()],
                 //cardSet: "COREKS",
                 mainFaction: params.apicard.mainFaction.reference,
                 cardType: params.apicard.cardType.reference,
@@ -1224,7 +1260,7 @@ export default {
             card.mountainPower = parseInt(card.mountainPower);
             card.oceanPower = parseInt(card.oceanPower);
 
-            card.locale = getLocale()
+            card.locale = pforcedlocale ? pforcedlocale : getLocale()
 
             try {
                 const { data, error } = await axios.post(API_BASEURL + '/card/update', card, hparams())
@@ -1234,12 +1270,14 @@ export default {
                 {
                     addCardFavori(card)
                 }
-                if(onUpdatedCard) onUpdatedCard(error ? null : data)
+                if(onUpdatedCard) onUpdatedCard(error ? null : data, true, pforcedlocale)
+                if(pthen) pthen()
             }
             catch (error) 
             {
                 handleApiError(error)
-                if(onUpdatedCard) onUpdatedCard(null)
+                if(onUpdatedCard) onUpdatedCard(null, true, pforcedlocale)
+                if(pthen) pthen()
             }
         }
 
@@ -1255,7 +1293,7 @@ export default {
          */
         app.config.globalProperties.g_upsertCard = function(params, onUpdatedCard)
         {
-            return upsertCard(params, onUpdatedCard);
+            return upsertCard(params, null, onUpdatedCard);
         }
 
         /**
@@ -1316,12 +1354,12 @@ export default {
          * params.onDownloadedImages() : callback de fin de traitement
          * params.onUpdatedImageS3(card) : callback de fin de mise à jour de la base
          */
-        async function downloadImages(pcards, onDownloadingImage, onDownloadedImages, onUpdatedImageS3)
+        async function downloadImages(pcards, pforcedlocale, onDownloadingImage, onDownloadedImages, onUpdatedImageS3)
         {
             for(let card of pcards)
             {
                 if(onDownloadingImage) onDownloadingImage(card)
-                downloadBlob(card, onUpdatedImageS3);
+                downloadBlob(card, pforcedlocale, onUpdatedImageS3);
                 if(pcards.length > 3) await sleep(300) //pas d'attente pour l'import de deck
             }
             if(onDownloadedImages) onDownloadedImages(pcards)
@@ -1332,7 +1370,7 @@ export default {
          * 
          * onUpdatedImageS3(card) : callback de fin de mise à jour de la base
          */
-        async function downloadBlob(pcard, onUpdatedImageS3)
+        async function downloadBlob(pcard, pforcedlocale, onUpdatedImageS3)
         {
             fetch(PROXY_BASEURL + `?url=${encodeURIComponent(pcard.imagePath)}`)
                 .then(response => response.blob())
@@ -1341,7 +1379,7 @@ export default {
                   convertJpgToWebp(jpgBlob)
                     .then(webpBlob => 
                     {
-                        uploadFile(pcard, webpBlob, onUpdatedImageS3) 
+                        uploadFile(pcard, webpBlob, pforcedlocale, onUpdatedImageS3) 
                     })
                     .catch(error => console.error('Conversion error:', error))
                 })
@@ -1391,9 +1429,9 @@ export default {
          * 
          * onUpdatedImageS3(card) : callback de fin de mise à jour de la base
          */
-        async function uploadFile(pcard, pblob, onUpdatedImageS3) 
+        async function uploadFile(pcard, pblob, pforcedlocale, onUpdatedImageS3) 
         {
-            var locale = app.config.globalProperties.g_getLocale()
+            var locale = pforcedlocale ? pforcedlocale : getLocale()
 
             var v_path = "cards/";
             var v_faction = pcard.mainFaction.reference;
@@ -1425,7 +1463,7 @@ export default {
                 else 
                 {
                     //update Card.imageS3
-                    updateImageS3(pcard, v_path, locale, onUpdatedImageS3)
+                    updateImageS3(pcard, v_path, pforcedlocale, onUpdatedImageS3)
                 }
             } 
             catch (error) 
@@ -1441,14 +1479,17 @@ export default {
          * 
          * onUpdatedImageS3(card) : callback de fin de mise à jour de la base
          */
-        async function updateImageS3(pcard, ppath, plocale, onUpdatedImageS3)
+        async function updateImageS3(pcard, ppath, pforcedlocale, onUpdatedImageS3)
         {
-            try {
+            try 
+            {
+                var locale = pforcedlocale ? pforcedlocale : getLocale()
+
                 //req.body: {card, path}
                 const apiparams = {
                     card: pcard,
                     path: ppath,
-                    locale: plocale
+                    locale: locale
                 }
                 //res.data: card
                 const { data, error } = await axios.post(API_BASEURL + '/image/s3', apiparams, hparams())
@@ -1457,13 +1498,13 @@ export default {
                 else 
                 {
                     pcard.imageS3 = ppath //maj du champ car pcard est retourné dans les autres callback 
-                    if(onUpdatedImageS3) onUpdatedImageS3(error ? null : data)
+                    if(onUpdatedImageS3) onUpdatedImageS3(error ? null : data, true, pcard.reference, pforcedlocale)
                 }
             } 
             catch (error) 
             {
                 handleApiError(error)
-                if(onUpdatedImageS3) onUpdatedImageS3(null)
+                if(onUpdatedImageS3) onUpdatedImageS3(null, true, pcard.reference, pforcedlocale)
             }
         }
 

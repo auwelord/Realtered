@@ -82,6 +82,8 @@
     ,"ui.title.deletedeck": "Supprimer un deck"
     ,"ui.title.deleteversion": "Supprimer une version"
     ,"ui.title.decknodesc": "Ce deck ne possède pas de description"
+    ,"ui.title.uniquefound": "Carte trouvée et importée"
+
     ,"ui.alert.selectfaction": "Sélectionnez une faction et paramétrez vos filtres pour lancer la recherche"
     ,"ui.alert.selectdeckdl": "Sélectionnez un deck pour voir la decklist"
 
@@ -117,4 +119,6 @@
     ,"ui.action.removecounter": "Retirer un marqueur"
     ,"ui.action.addcounter": "Ajouter un marqueur"
     ,"ui.action.addfav": "Ajouter aux favoris"
+    ,"ui.action.addcardtodeck": "Ajouter la carte au deck"
+    
 }
