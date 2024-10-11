@@ -128,7 +128,6 @@ watch(() => props.currentdeck, async (newval, oldval) =>
     instance.proxy.g_getPreviewArticle(props.currentdeck.exturl, 
     
         pdata => {
-            console.log(pdata)
             instance.proxy.previewexturl = pdata
         }
     )
@@ -168,7 +167,8 @@ export default
         mounted() 
         {
             this.router = useRouter()
-            this.g_getPreviewArticle(this.currentdeck.exturl, pdata => this.previewexturl = pdata)
+            this.previewexturl = null
+            if(this.currentdeck) this.g_getPreviewArticle(this.currentdeck.exturl, pdata => this.previewexturl = pdata)
         },
         watch:{
         },

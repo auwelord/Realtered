@@ -84,6 +84,9 @@
                 <BInputGroup class="ms-1 mt-2" v-if="isImporting()">
                   <BFormCheckbox v-model="cbsetuniquefav">Ajouter les uniques en favori</BFormCheckbox>
                 </BInputGroup>
+                <BInputGroup class="mt-2">
+                  <BFormInput required v-model="newDeckExturl" type="text" class="form-control" placeholder="Url article" />
+                </BInputGroup>
                 <div class="input-group mt-2" v-if="isImporting() && !proprietingdeck">
                   <BFormTextarea v-model="newDecklist" placeholder="Collez ici la decklist..." rows="15" />
                 </div>
@@ -953,6 +956,7 @@ export default {
       currentSelectedDeck: null,
       creatingDeck: false,
       newDeckName: null,
+      newDeckExturl: null,
       fIdAlteredDeck: null,
       newDecklist: null,
       currentCardDetail: null,
@@ -1101,8 +1105,10 @@ export default {
     proprietingdeck(newValue, oldValue) {
         if(newValue)
         {
+          console.log(this.currentDeck)
           this.newDeckName = this.currentDeck.name
           this.taDescDeck = this.currentDeck.description
+          this.newDeckExturl = this.currentDeck.exturl
 
           setTimeout(() => $('#awid-fdeckname').trigger('select')) //.trigger('focus'), 50)
         }
@@ -2084,6 +2090,7 @@ export default {
     {
       this.currentDeck.name = this.newDeckName
       this.currentDeck.description = this.taDescDeck
+      this.currentDeck.exturl = this.newDeckExturl
 
       this.callShowWaitingScreen(500)
       this.g_saveProprietesDeck(this.currentDeck, pdeck => 
