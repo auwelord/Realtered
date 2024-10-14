@@ -100,11 +100,28 @@
                     <div class="col-12 col-lg-4 col-xl-3 col-xxl-2 aw-decklistcard" v-if="!g_isHero(card)" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
                         <img v-for="index in card.quantite" :src="g_getImageCardPublicUrl(card)"
                             :title="card.name" class="img-fluid aw-alteredcard" />
+                        <div :class="['aw-cardoptions', 'aw-cardpos' + card.quantite]">
+                            <div class="d-flex align-items-center">
+                                <div class="d-flex flex-column align-items-center flex-fill">
+                                    <div class="aw-tools aw-raritycompare aw-cursor-pointer d-flex flex-column align-items-center" title="Comparer les raretés" @click="e_showCardDetail(card)">
+                                        <font-awesome-icon :icon="['fas', 'code-compare']" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </template>
             </div>
         </div>
     </div>
+
+    <BModal v-model="afficherDetails" size="fullscreen" hide-footer id="awid-carddetail" @hidden="e_hideModalDetail" class="aw-modalecarddet">
+    <CardDetail v-if="currentCardDetail"
+        :card="currentCardDetail" 
+        :currentDeck="currentdeck" 
+        :deckbuilder="false"
+    />
+    </BModal>
 </template>
 
 <script setup>
@@ -162,6 +179,8 @@ export default
                 mousetimeout: null,
                 router: null,
                 previewexturl: null,
+                currentCardDetail: null,
+                afficherDetails: false,
             }
         },
         mounted() 
@@ -174,6 +193,16 @@ export default
         },
         methods:
         {
+            e_hideModalDetail()
+            {
+                this.currentCardDetail = null
+                this.afficherDetails = false
+            },
+            e_showCardDetail(pcard)
+            {
+                this.currentCardDetail = pcard
+                this.afficherDetails = true
+            },
             getClassDeck(pdeck)
             {
                 return this.currentdeck && this.currentdeck.id == pdeck.id ? 'active' : ''
@@ -231,6 +260,11 @@ export default
 </script>
 
 <style scope>
+.aw-cardoptions
+{
+    margin-left: 5px !important;
+    margin-right: 5px !important;
+}
 
 .aw-titledeck
 {
@@ -315,10 +349,12 @@ export default
     padding-right: 7.5px;
     padding-left: 7.5px;
 }
-.aw-decklistcard img:nth-child(2) {
+.aw-decklistcard img:nth-child(2),
+.aw-cardoptions.aw-cardpos2 {
     top: 1.6vw;
 }
-.aw-decklistcard img:nth-child(3) {
+.aw-decklistcard img:nth-child(3),
+.aw-cardoptions.aw-cardpos3 {
     top: 3.2vw;
 }
 
@@ -330,19 +366,24 @@ export default
 .aw-imgherobanner:hover{
     transform: translateX(-25px);
 }
+
 @media (max-width: 1399px) {
-    .aw-decklistcard img:nth-child(2) {
+    .aw-decklistcard img:nth-child(2),
+    .aw-cardoptions.aw-cardpos2 {
         top: 2.4vw;
     }
-    .aw-decklistcard img:nth-child(3) {
+    .aw-decklistcard img:nth-child(3),
+    .aw-cardoptions.aw-cardpos3 {
         top: 4.8vw;
     }   
 }
 @media (max-width: 1199px) {
-    .aw-decklistcard img:nth-child(2) {
+    .aw-decklistcard img:nth-child(2),
+    .aw-cardoptions.aw-cardpos2 {
         top: 5vw;
     }
-    .aw-decklistcard img:nth-child(3) {
+    .aw-decklistcard img:nth-child(3),
+    .aw-cardoptions.aw-cardpos3 {
         top: 10vw;
     } 
     .aw-decklistcard:first-child {
@@ -358,10 +399,12 @@ export default
 
 }
 @media (max-width: 991px) {
-    .aw-decklistcard img:nth-child(2) {
+    .aw-decklistcard img:nth-child(2),
+    .aw-cardoptions.aw-cardpos2 {
         top: 14.5vw;
     }
-    .aw-decklistcard img:nth-child(3) {
+    .aw-decklistcard img:nth-child(3),
+    .aw-cardoptions.aw-cardpos3 {
         top: 29vw;
     }
     .aw-decklistcard:first-child {

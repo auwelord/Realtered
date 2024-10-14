@@ -906,6 +906,8 @@ input:checked+.slider:before {
   bottom: 0;
   transition: .5s ease;
   opacity: 0;
+  z-index: 99;
+  height: 100%;
 }
 .aw-cardoptions:hover {
   opacity: 1;
