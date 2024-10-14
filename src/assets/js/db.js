@@ -1554,7 +1554,7 @@ export default {
                 apiparams["order[" + (tabs[0] == 'name' ? 'translations.name' : tabs[0]) + "]"] = (tabs.length == 1 ? "ASC" : "DESC");
             });
     
-            if (bearer) $.extend(apiparams, { collection: true });
+            //if (bearer) $.extend(apiparams, { collection: true });
             if (params.currentName != '') $.extend(apiparams, { "translations.name": params.currentName });
             if (params.calculatedforest.length > 0) $.extend(apiparams, { forestPower: params.calculatedforest });
             if (params.calculatedmountain.length > 0) $.extend(apiparams, { mountainPower: params.calculatedmountain });
@@ -1571,9 +1571,11 @@ export default {
 
             var headers = hparams()
 
+            /*
             if (bearer) {
                 $.extend(headers, { 'Authorization': "Bearer " + bearer });
             }
+            */
     
             try {
                 const { data, error } = await axios.post(API_BASEURL + '/cards/getfromapi/', apiparams, {headers: headers})
@@ -1724,6 +1726,46 @@ export default {
             {
                 handleApiError(error)
             }
+        }
+        
+        async function getCollection(pcards, pcallback)
+        {
+            try 
+            {
+                var headers = hparams()
+                if (bearer) {
+                    $.extend(headers.headers, { 'Authorization': "Bearer " + bearer });
+                }
+
+                const { data, error } = await axios.post(API_BASEURL + '/cards/stats', pcards, headers)
+                
+                if(error) console.error(error)
+                else
+                {
+                    var tmpcards = data["hydra:member"].map(pcard => {
+                        return {
+                            reference: pcard.reference,
+                            inMyCollection: pcard.inMyCollection,
+                            inMyWantlist: pcard.inMyWantlist,
+                            inMyTradelist: pcard.inMyTradelist,
+                            foiled: pcard.foiled
+                        }
+                    })
+                    
+                    pcallback(tmpcards)
+                    return
+                }
+            }
+            catch(error)
+            {
+                handleApiError(error)
+            }
+            pcallback(null)
+        }
+
+        app.config.globalProperties.g_getCollection = function(pcards, pcallback)
+        {
+            getCollection(pcards, pcallback)
         }
     }
 }

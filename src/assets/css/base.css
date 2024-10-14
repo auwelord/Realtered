@@ -60,8 +60,11 @@
   --c-uniqued1: #e7a411;
   --c-uniqued2: #aa7708;  
   --c-forest: #B4BF4D;
+  --c-foresttp: #B4BF4DCC;
   --c-mountain: #BE8049;
+  --c-mountaintp: #BE8049CC;
   --c-ocean: #648AB9;
+  --c-oceantp: #648AB9CC;
 
   --ms-max-height: 30rem;
   --ms-group-label-bg: var(--c-unique);

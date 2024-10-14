@@ -1,18 +1,14 @@
 <template>
 
-  <div class="aw-playset" role="rowgroup" v-if="arrayview">
-    <div>{{ card.cardType.name }}</div>
-    <div>{{ card.rarity.name }}</div>
-    <div>{{ card.mainFaction.name }}</div>
-    <div>{{ card.name }}</div>
-    <div>{{ emptyplayset ? 3 - card.inMyCollection : card.inMyCollection }}</div>
-  </div>
-
-  <div :class="getGridClass()" v-else>
+  <div :class="getGridClass()">
     <div class="d-flex flex-column align-items-center aw-card" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
       <div>
         <img :src="g_getImageCardPublicUrl(card)" :title="card.name" class="img-fluid aw-alteredcard" />
-        <div class="aw-collection" v-if="collection">{{ card.inMyCollection }}</div>
+        <div :class="['aw-collection', getClassCardCollection()]" v-if="!deckbuilder && g_isBearer()">
+          Collection: {{ card.inMyCollection }} <br>
+          Wantlist: {{ card.inMyWantlist ? 'Oui' : 'Non' }}<br>
+          Tradelist: {{ card.inMyTradelist }}
+        </div>
         <div class="aw-cardoptions" v-if="!g_isToken(card)">
           <div class="d-flex align-items-center">
             <div class="d-flex flex-column align-items-center flex-fill">
@@ -28,7 +24,7 @@
               <div class="mt-2 aw-tools aw-raritycompare d-flex flex-column align-items-center" @click="onShowCardDetail(card)" :title="$t('ui.action.comparerraretes')">
                 <font-awesome-icon :icon="['fas', 'code-compare']" class="fs-6" />
               </div>
-              <div class="mt-2 aw-tools aw-raritycompare d-flex flex-column align-items-center" @click="e_onToggleFavori(card)" title="Ajouter / retirer l'unique des favoris pour la rendre disponible ou non dans le deckbuilder" v-if="user && !deckbuilder && g_isUnique(card)">
+              <div class="mt-2 aw-tools aw-raritycompare d-flex flex-column align-items-center" @click="e_onToggleFavori(card)" :title="$t('ui.action.addorremovefav')" v-if="user && !deckbuilder && g_isUnique(card)">
                 <font-awesome-icon :icon="['fas', 'heart']" style="color: red" v-if="card.favori" />
                 <font-awesome-icon :icon="['fas', 'heart']" v-else />
               </div>
@@ -78,16 +74,27 @@ export default {
       type: Object,
       required: false
     },
-    arrayview: Boolean,
+    affmissingcollection: Boolean,
+    affmissingtrade: Boolean,
+    affmissingwant: Boolean,
     emptyplayset: Boolean,
     deckbuilder: Boolean,
-    collection: Boolean,
   },
   methods: {
     getGridClass() {
       if (this.deckbuilder)
         return "col-12 col-xl-6 col-xxl-4 mb-3";
       return "col-12 col-md-6 col-lg-4 col-xxl-2 mb-3";
+    },
+    getClassCardCollection()
+    {
+      if(!this.deckbuilder)
+      {
+        if(this.card.inMyCollectionTotal < 3 && this.affmissingcollection && this.affmissingcollection) return 'aw-missingcard'
+        if(this.card.inMyCollectionTotal - 3 > this.card.inMyTradelistTotal && this.affmissingtrade) return 'aw-missingtradelist'
+        if(this.card.inMyCollectionTotal < 3 && !this.card.inMyWantlist && this.affmissingwant) return 'aw-missingwantlist'
+      }
+      return ''
     },
     e_onToggleFavori(pcard)
     {
@@ -118,15 +125,26 @@ export default {
   position: absolute;
   left: 3px;
   bottom: 3px;
-  color: black;
-  font-size: 1.5rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  right: 3px;
   border-radius: 3px;
   border: 3px solid black;
-  background-color: white;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.8);
   padding: 0 15px;
+  height: auto;
+}
+
+.aw-card .aw-collection.aw-missingcard
+{
+  background-color: rgba(255, 0, 0, 0.7);
+}
+.aw-card .aw-collection.aw-missingtradelist
+{
+  background-color: var(--c-oceantp);
+}
+.aw-card .aw-collection.aw-missingwantlist
+{
+  background-color: var(--c-mountaintp);
 }
 
 img {
@@ -136,30 +154,5 @@ img {
 .aw-cardname {
   text-align: center;
   font-size: 13px;
-}
-
-@media screen and (max-width: 1920px) {
-  .aw-card .aw-collection {
-    width: 3vw;
-    height: 2vw;
-  }
-}
-
-@media screen and (max-width: 1200px) {
-  .aw-card .aw-collection {
-    width: 4vw;
-    height: 3vw;
-  }
-}
-
-@media screen and (max-width: 992px) {
-  .aw-cardname {
-    font-size: 33px;
-  }
-
-  .aw-card .aw-collection {
-    width: 6vw;
-    height: 5vw;
-  }
 }
 </style>

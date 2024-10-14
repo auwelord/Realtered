@@ -120,5 +120,6 @@
     ,"ui.action.addcounter": "Add a counter"
     ,"ui.action.addfav": "Add to favorites"
     ,"ui.action.addcardtodeck": "Add card to deck"
+    ,"ui.action.addorremovefav": "Add to / remove from favorites to show / hide the card in the deckbuilder"
 
 }

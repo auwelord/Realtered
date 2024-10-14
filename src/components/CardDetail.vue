@@ -21,7 +21,7 @@
                 <div class="aw-button d-flex align-items-center" v-visible="carddet.quantite > 0" @click="removeCardFromDeck(carddet)">
                   <font-awesome-icon :icon="['fa', 'circle-minus']" class="fs-1" />
                 </div>
-                <div class="fs-1" v-if="deckbuilder">{{ carddet.quantite }}</div>              
+                <div class="fs-1">{{ carddet.quantite }}</div>              
                 <div class="aw-button d-flex align-items-center" v-visible="g_canAddCardToDeck(carddet, currentDeck)" @click="addCardToDeck(carddet)">
                   <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-1" />
                 </div>

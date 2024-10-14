@@ -27,7 +27,7 @@
   </div>
   <div v-else-if="!g_isHero(card)" class="col-12 col-xxxl-6 aw-carddecklist">
         <div class="d-flex justify-content-between">
-          <div class="aw-comparecard" title="Comparer les raretés" @click="onShowCardDetail(card)">
+          <div class="aw-comparecard" :title="$t('ui.action.comparerraretes')" @click="onShowCardDetail(card)">
             <font-awesome-icon :icon="['fas', 'code-compare']" />
           </div>
           <div :class="['d-flex justify-content-between flex-fill aw-carddeck', getClassCardDeckList()]">

@@ -127,11 +127,22 @@
                   <BButton @click="clearFilters" variant="light" size="sm" class="me-2" title="Supprimer tous les filtres (hors factions/éditions/tris)">
                     <font-awesome-icon :icon="['fas', 'eraser']" />
                   </BButton>
+                  <BDropdown v-model="showDDOptionsCardSearch" v-if="!deckbuilder && g_isBearer()" variant="secondary" class="me-2 aw-cardssearchoptions">
+                    <template #button-content>
+                      <font-awesome-icon :icon="['fas', 'gear']" />
+                    </template>
+                    <BDropdownItem id="awid-affmissingcollection" @click="e_showMissingCollection" v-if="!affmissingcollection">
+                      <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Indiquer les cartes manquantes
+                    </BDropdownItem>
+                    <BDropdownItem id="awid-affmissingtrade" @click="e_showMissingTrade" v-if="!affmissingtrade">
+                      <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Indiquer les trades manquants
+                    </BDropdownItem>
+                    <BDropdownItem id="awid-affmissingwant" @click="e_showMissingWant" v-if="!affmissingwant">
+                      <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Indiquer les wants manquants
+                    </BDropdownItem>
+                  </BDropdown>
                   <BButton @click="searchCardsBtnRechercher()" variant="unique" size="sm">
                     <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="me-2" />{{$t('ui.action.rechercher')}}
-                  </BButton>
-                  <BButton @click="searchPlayset" variant="common" size="sm" class="ms-2" v-if="g_isBearer() && !deckbuilder">
-                    <font-awesome-icon :icon="['fas', 'magnifying-glass-arrow-right']" class="me-2" />Playset
                   </BButton>
                 </div>
               </div> <!-- /.card-header -->
@@ -185,14 +196,14 @@
                   <div class="d-flex flex-column flex-fill align-items-center">
                     <input type="text" class="form-control" :placeholder="$t('ui.lib.nomcarte')" 
                       v-model="currentName" 
-                      @keyup.enter="searchCards(false, false, false)" />
+                      @keyup.enter="searchCards(false, false)" />
                   </div>
                 </div>
 
                 <hr>
                 <div class="d-flex justify-content-between mt-3">
                   <div>
-                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechRarete && currentFaction">
+                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechRarete && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
                     {{$t('ui.lib.rarete')}}
@@ -219,7 +230,7 @@
                 <hr>
                 <div class="d-flex justify-content-between mt-3">
                   <div>
-                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechType && currentFaction">
+                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechType && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
                     Type
@@ -261,7 +272,7 @@
                 <hr>
                 <div class="d-flex justify-content-between mt-3">
                   <div>
-                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechMaincost && currentFaction">
+                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechMaincost && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
                     {{$t('ui.lib.maincost')}}
@@ -293,7 +304,7 @@
                 <hr>
                 <div class="d-flex justify-content-between mt-3 mb-2">
                   <div>
-                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechRecallcost && currentFaction">
+                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechRecallcost && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
                     {{$t('ui.lib.recallcost')}}
@@ -324,7 +335,7 @@
                   <hr>
                   <div class="d-flex justify-content-between mt-3">
                     <div>
-                      <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechPower && currentFaction">
+                      <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechPower && currentFaction">
                         <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                       </BButton>
                       {{$t('ui.lib.patates')}}
@@ -381,7 +392,7 @@
                 <hr>
                 <div class="d-flex justify-content-between mt-3">
                   <div class="mb-1">
-                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechKeyword && currentFaction">
+                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechKeyword && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
                     {{$t('ui.lib.motscles')}} / {{$t('ui.lib.capacites')}}
@@ -409,7 +420,7 @@
                     <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
                         :disabled="cbCapaStatic"
                         v-model="fCapaStatic"
-                        @keyup.enter="searchCards(false, false, false)" />
+                        @keyup.enter="searchCards(false, false)" />
                   </BInputGroup>
                   <BInputGroup class="mt-2 ms-5">
                     <BFormCheckbox v-model="cbCapaEtb">{{$t('ui.lib.capacite')}} <i class="altered-etb"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
@@ -421,7 +432,7 @@
                     <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
                         :disabled="cbCapaEtb"
                         v-model="fCapaEtb"
-                        @keyup.enter="searchCards(false, false, false)" />
+                        @keyup.enter="searchCards(false, false)" />
                   </BInputGroup>
                   <BInputGroup class="mt-2 ms-5">
                     <BFormCheckbox v-model="cbCapaHand">{{$t('ui.lib.capacite')}} <i class="altered-hand"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
@@ -433,7 +444,7 @@
                     <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
                         :disabled="cbCapaHand"
                         v-model="fCapaHand"
-                        @keyup.enter="searchCards(false, false, false)" />
+                        @keyup.enter="searchCards(false, false)" />
                   </BInputGroup>
                   <BInputGroup class="mt-2 ms-5">
                     <BFormCheckbox v-model="cbCapaReserve">{{$t('ui.lib.capacite')}} <i class="altered-reserve"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
@@ -445,7 +456,7 @@
                     <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
                         :disabled="cbCapaReserve"
                         v-model="fCapaReserve"
-                        @keyup.enter="searchCards(false, false, false)" />
+                        @keyup.enter="searchCards(false, false)" />
                   </BInputGroup>
                   <BInputGroup class="mt-2 ms-5">
                     <BFormCheckbox v-model="cbCapaExhaust">{{$t('ui.lib.capacite')}} <i class="altered-exhaust"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
@@ -457,7 +468,7 @@
                     <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
                         :disabled="cbCapaExhaust"
                         v-model="fCapaExhaust"
-                        @keyup.enter="searchCards(false, false, false)" />
+                        @keyup.enter="searchCards(false, false)" />
                   </BInputGroup>
                   <BInputGroup class="mt-2 ms-5">
                     <BFormCheckbox v-model="cbCapaSupport">{{$t('ui.lib.capacite')}} <i class="altered-support"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
@@ -469,14 +480,14 @@
                     <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
                         :disabled="cbCapaSupport"
                         v-model="fCapaSupport"
-                        @keyup.enter="searchCards(false, false, false)" />
+                        @keyup.enter="searchCards(false, false)" />
                   </BInputGroup>                  
                 </BCollapse>
 
                 <hr>
                 <div class="d-flex justify-content-between mt-3">
                   <div class="mb-1">
-                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechSubtype && currentFaction">
+                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechSubtype && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
                     {{$t('ui.lib.soustypes')}}
@@ -497,7 +508,7 @@
                 <hr>
                 <div class="d-flex justify-content-between mt-3">
                   <div class="mb-1">
-                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechEdition && currentFaction">
+                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechEdition && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
                     Editions
@@ -517,7 +528,7 @@
                 <hr>
                 <div class="d-flex justify-content-between mt-3">
                   <div class="mb-1">
-                    <BButton @click="searchCards(false, false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechSort && currentFaction">
+                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechSort && currentFaction">
                       <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
                     </BButton>
                     {{$t('ui.lib.trierpar')}}
@@ -556,12 +567,13 @@
                 <Card v-for="card in fetchedCards" 
                   :key="card.id" 
                   :card="card" 
-                  :arrayview="arrayview"
                   :emptyplayset="emptyplayset" 
                   :deckbuilder="deckbuilder && currentSelectedDeck != null"
                   :user="user"
-                  :collection="g_isBearer()" 
                   :currentDeck="currentDeck" 
+                  :affmissingcollection='affmissingcollection'
+                  :affmissingtrade='affmissingtrade'
+                  :affmissingwant='affmissingwant'
                   @addcard="addCard" 
                   @removecard="removeCard"
                   @onshowcarddetail="onshowcarddetail" 
@@ -575,11 +587,6 @@
                 <div v-if="loading">
                   <Loader />
                 </div>
-              </div>
-              <div class="row float-end p-2" v-if="arrayview">
-                <BButton v-if="!loading && hasResult()" @click="exportCSV" variant="common" size="sm">
-                  <font-awesome-icon :icon="['far', 'circle-down']" class="me-2" />Exporter (.csv)
-                </BButton>
               </div>
             </div>
           </div>
@@ -909,7 +916,6 @@ export default {
       currentSort: ["mainCost", "recallCost", "name"],
       fetchedCards: [],
       itemsPerPage: 12,
-      arrayview: false,
       loading: false,
       currentPage: 1,
       hasMore: true,
@@ -1033,6 +1039,10 @@ export default {
       fPosTournoi: 0,
       cbsetuniquefav: true,
       cptupdatecard: 0,
+      showDDOptionsCardSearch: false,
+      affmissingcollection: true,
+      affmissingtrade: false,
+      affmissingwant: false,
     };
   },
   mounted() 
@@ -1159,6 +1169,24 @@ export default {
   },
   inject: ['callShowWaitingScreen', 'callHideWaitingScreen'], // Injecter la méthode de App.vue
   methods: {
+    e_showMissingCollection()
+    {
+      this.affmissingcollection = true
+      this.affmissingtrade = false
+      this.affmissingwant = false
+    },
+    e_showMissingTrade()
+    {
+      this.affmissingcollection = false
+      this.affmissingtrade = true
+      this.affmissingwant = false
+    },
+    e_showMissingWant()
+    {
+      this.affmissingcollection = false
+      this.affmissingtrade = false
+      this.affmissingwant = true
+    },
     canSelectFaction()
     {
       return !this.deckbuilder || !this.currentDeck || !this.currentDeck.hero_id
@@ -2040,7 +2068,7 @@ export default {
           
           if (factionDeck) {
             if (this.currentFaction != factionDeck) {
-              this.searchCards(false, true, true); //faction différente -> on reset le résultat de la recherche
+              this.searchCards(true, true); //faction différente -> on reset le résultat de la recherche
             }
             this.currentFaction = factionDeck;
             this.setCurrentFaction($("#" + this.currentFaction));
@@ -2383,9 +2411,6 @@ export default {
     isCurrentYzmir() {
       return this.currentFaction == "YZ";
     },
-    searchPlayset() {
-      this.searchCards(true, false, false);
-    },
     searchCardsBtnRechercher()
     {
       if(!this.currentFaction)
@@ -2393,15 +2418,13 @@ export default {
         toast('Veuillez sélectionner une faction pour pouvoir lancer la recherche', { type: TYPE.ERROR }) 
         return
       }
-      this.searchCards(false, false, false)
+      this.searchCards(false, false)
     },
-    searchCards(pArrayView, pdontfetch, pshowstat) {
+    searchCards(pdontfetch, pshowstat) {
       this.fetchedCards = [];
       this.hasMore = true;
       this.currentPage = 1;
-      if(pArrayView) this.itemsPerPage = 100000
-      else this.itemsPerPage = this.deckbuilder ? 12 : 24
-      this.arrayview = pArrayView;
+      this.itemsPerPage = this.deckbuilder ? 12 : 24
       this.uiparams.afficherstats = pshowstat;
 
       if(this.deckbuilder)
@@ -2666,22 +2689,58 @@ export default {
           
           pcards.forEach(card => 
           {
-              if (!this.emptyplayset || (this.emptyplayset && card.inMyCollection < 3)) 
+              var zecard = this.deckbuilder ? this.g_getCardInDeck(card.reference, this.currentDeck) : card;
+              if (zecard) this.fetchedCards.push(zecard);
+              else 
               {
-                var zecard = this.deckbuilder ? this.g_getCardInDeck(card.reference, this.currentDeck) : card;
-                if (zecard) this.fetchedCards.push(zecard);
-                else 
-                {
-                    card.quantite = 0;
-                    this.fetchedCards.push(card);
-                }
+                  card.quantite = 0;
+                  this.fetchedCards.push(card);
               }
           });
+
+          //récup des quantités
+          if(this.g_isBearer())
+          {
+            this.g_getCollection(pcards, ppcards => {
+              this.fetchedCards.forEach(pcard => {
+                const cardstat = ppcards.find(pcardstat => pcardstat.reference == pcard.reference)
+                if(cardstat)
+                {
+                  $.extend(pcard, cardstat)
+                }
+              })
+
+              this.fetchedCards.forEach(pcard => 
+              {
+                pcard.inMyCollectionTotal = 0
+                pcard.inMyTradelistTotal = 0
+                const ext = pcard.reference.split('_')[1]
+                const otherext = this.getAllSetsOtherCodes(ext)
+
+                if(otherext)
+                {
+                  const otherref = pcard.reference.replace(ext, otherext)
+                  const cardstat = this.fetchedCards.find(pcardstat => pcardstat.reference == otherref)
+                  if(cardstat)
+                  {
+                    pcard.inMyCollectionTotal = pcard.inMyCollection + cardstat.inMyCollection
+                    pcard.inMyTradelistTotal = pcard.inMyTradelist + cardstat.inMyTradelist
+                  }
+                }
+              })
+            })
+          }
         }
         else toast("Une erreur s'est produite lors de la recherche de cartes", { type: TYPE.ERROR })    
 
         this.loading = false;
       })
+    },
+    getAllSetsOtherCodes(psetcode)
+    {
+      if(psetcode == 'CORE') return 'COREKS'
+      if(psetcode == 'COREKS') return 'CORE'
+      return null
     },
     fetchCardsFromApi(calcparams)
     {

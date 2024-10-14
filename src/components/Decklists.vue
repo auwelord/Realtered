@@ -103,7 +103,7 @@
                         <div :class="['aw-cardoptions', 'aw-cardpos' + card.quantite]">
                             <div class="d-flex align-items-center">
                                 <div class="d-flex flex-column align-items-center flex-fill">
-                                    <div class="aw-tools aw-raritycompare aw-cursor-pointer d-flex flex-column align-items-center" title="Comparer les raretés" @click="e_showCardDetail(card)">
+                                    <div class="aw-tools aw-raritycompare aw-cursor-pointer d-flex flex-column align-items-center" :title="$t('ui.action.comparerraretes')" @click="e_showCardDetail(card)">
                                         <font-awesome-icon :icon="['fas', 'code-compare']" />
                                     </div>
                                 </div>

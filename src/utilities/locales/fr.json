@@ -120,5 +120,6 @@
     ,"ui.action.addcounter": "Ajouter un marqueur"
     ,"ui.action.addfav": "Ajouter aux favoris"
     ,"ui.action.addcardtodeck": "Ajouter la carte au deck"
+    ,"ui.action.addorremovefav": "Ajouter / retirer l'unique des favoris pour la rendre disponible ou non dans le deckbuilder"
     
 }
