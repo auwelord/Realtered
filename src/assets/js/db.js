@@ -1759,8 +1759,8 @@ export default {
             catch(error)
             {
                 handleApiError(error)
+                pcallback(null, error)
             }
-            pcallback(null)
         }
 
         app.config.globalProperties.g_getCollection = function(pcards, pcallback)

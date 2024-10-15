@@ -711,7 +711,7 @@
                 </div>
                 <div>
                   <div class="row">
-                    <div class="col-12">
+                    <div class="col-12 color-white">
                       <div class="aw-herodeck d-flex flex-column justify-content-start">
                         <div class="d-flex mb-2 ps-1 pe-1">
                           <div class="d-flex flex-column align-items-center">
@@ -773,21 +773,21 @@
                     
                   </div>
                   <div class="row mt-2 pb-2 aw-decklistpersos">
-                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">{{ $t('ui.lib.personnages')}}</div>
+                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist color-white">{{ $t('ui.lib.personnages')}}</div>
                     <CardDecklist v-for="card in getPersosCurrentDeck()" :card="card" @addcard="addCard"
                       @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
                       @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
                       :currentDeck="currentDeck" />
                   </div>
                   <div class="row mt-2 pb-2 aw-decklistsorts">
-                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">{{ $t('ui.lib.sorts')}}</div>
+                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist color-white">{{ $t('ui.lib.sorts')}}</div>
                     <CardDecklist v-for="card in getSortsCurrentDeck()" :card="card" @addcard="addCard"
                       @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
                       @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
                       :currentDeck="currentDeck"/>
                   </div>
                   <div class="row mt-2 pb-2 aw-decklistpermas">
-                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist">{{ $t('ui.lib.permanents')}}</div>
+                    <div class="col-12 fs-4 d-flex justify-content-center aw-titletypedecklist color-white">{{ $t('ui.lib.permanents')}}</div>
                     <CardDecklist v-for="card in getPermanentsCurrentDeck()" :card="card" @addcard="addCard"
                       @removecard="removeCard" @mouseentercard="mouseenterCard" @mouseleavecard="mouseleaveCard"
                       @onshowcarddetail="onshowcarddetail" :modeliste="uiparams.modeliste"
@@ -2701,7 +2701,12 @@ export default {
           //récup des quantités
           if(this.g_isBearer())
           {
-            this.g_getCollection(pcards, ppcards => {
+            this.g_getCollection(pcards, (ppcards, perror) => {
+
+              if(perror)
+              {
+                toast(perror.response.data.message, { type: TYPE.ERROR })    
+              }
               this.fetchedCards.forEach(pcard => {
                 const cardstat = ppcards.find(pcardstat => pcardstat.reference == pcard.reference)
                 if(cardstat)
