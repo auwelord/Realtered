@@ -78,6 +78,7 @@
     ,"ui.lib.illegal": "Non Légal"
     ,"ui.lib.factiondistrib": "Répartition par faction"
     ,"ui.lib.herodistrib": "Répartition par Héro"
+    ,"ui.lib.deckidaltered": "Id. / URL Altered"
 
     ,"ui.title.deletedeck": "Supprimer un deck"
     ,"ui.title.deleteversion": "Supprimer une version"
@@ -121,5 +122,5 @@
     ,"ui.action.addfav": "Ajouter aux favoris"
     ,"ui.action.addcardtodeck": "Ajouter la carte au deck"
     ,"ui.action.addorremovefav": "Ajouter / retirer l'unique des favoris pour la rendre disponible ou non dans le deckbuilder"
-    
+    ,"ui.action.updatealtid": "Mettre à jour à partir du site Altered"
 }

@@ -78,6 +78,7 @@
     ,"ui.lib.illegal": "Illegal"
     ,"ui.lib.factiondistrib": "Faction distribution"
     ,"ui.lib.herodistrib": "Hero distribution"
+    ,"ui.lib.deckidaltered": "Altered Id / URL"
 
     ,"ui.title.deletedeck": "Delete deck"
     ,"ui.title.deleteversion": "Delete version"
@@ -121,5 +122,5 @@
     ,"ui.action.addfav": "Add to favorites"
     ,"ui.action.addcardtodeck": "Add card to deck"
     ,"ui.action.addorremovefav": "Add to / remove from favorites to show / hide the card in the deckbuilder"
-
+    ,"ui.action.updatealtid": "Update from Altered website"
 }

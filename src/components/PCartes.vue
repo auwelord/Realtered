@@ -14,8 +14,8 @@
             <div class="card-header">
               <h3 class="card-title">{{$t('ui.lib.mesdecks')}}</h3>
               <div class="card-tools d-flex">
-                  <div v-if="g_isAdmin(user)">
-                    {{$t('ui.lib.tournois')}}
+                <div v-if="g_isAdmin(user) && !creatingDeck && !proprietingdeck">
+                  {{$t('ui.lib.tournois')}}
                   <label class="switch me-2">
                     <input type="checkbox" v-model="cbdeckstournois">
                     <span class="slider round"></span>
@@ -34,7 +34,7 @@
                     <font-awesome-icon :icon="['fas', 'file-arrow-down']" class="me-2" />{{$t('ui.action.importer')}}
                   </BDropdownItem>
                 </BDropdown>
-                <BDropdown v-model="showDeckoptions" start size="md" variant="outline-secondary" v-if="currentDeck">
+                <BDropdown v-model="showDeckoptions" start size="md" variant="outline-secondary" v-if="currentDeck && !creatingDeck && !proprietingdeck">
                   <template #button-content>
                     <font-awesome-icon :icon="['fas', 'gear']" />
                   </template>
@@ -63,13 +63,14 @@
                 @select="onSelectCurrentDeck" 
                 @clear="onClearCurrentDeck" />
               <div v-else>
-                <div class="input-group mb-2" v-if="isImporting()">
-                  <input type="text" class="form-control" placeholder="Id. / URL deck Altered (optionnel)" v-model="fIdAlteredDeck">
-                  <span class="input-group-append">
-                    <BButton variant="primary" @click="searchAlteredDeck"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></BButton>
+                <div class="input-group mb-2" v-if="isImporting() || proprietingdeck"> <!--v-if="isImporting()"-->
+                  <input type="text" class="form-control" :placeholder="$t('ui.lib.deckidaltered')" v-model="fIdAlteredDeck">
+                  <span class="input-group-append" v-if="!proprietingdeck">
+                    <BButton variant="primary" @click="e_searchAlteredDeck"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></BButton>
                   </span>
                 </div>
-                <Multiselect class="me-2 aw-selecttournoi w-100 mb-2" v-if="tournois && g_isAdmin(user)"
+
+                <Multiselect class="me-2 aw-selecttournoi w-100 mb-2" v-if="tournois && g_isAdmin(user) && !proprietingdeck"
                           v-model="cbtournoi" 
                           :close-on-select="true" 
                           :options="tournois"
@@ -676,6 +677,9 @@
                     <BButton @click="e_hideVersionsEvol" variant="secondary" class="me-2" :title="$t('ui.lib.backtodl')" v-if="showVersionsEvol">
                       <font-awesome-icon :icon="['far', 'square-caret-left']" class="me-2"/>{{$t('ui.lib.back')}}
                     </BButton>
+                    <BButton @click="e_updateFromIdAltered" variant="info" class="me-2" :title="$t('ui.action.updatealtid')" v-if="currentDeck.idaltered">
+                      <font-awesome-icon :icon="['fas', 'rotate-right']" />
+                    </BButton>
                 </div>
               </div>
             </div> <!-- /.card-header -->
@@ -706,7 +710,7 @@
               <div v-else>
                 <div class="ribbon-wrapper ribbon-lg">
                   <div :class="['ribbon text-white', currentDeck.valide ? 'bg-success' : 'bg-danger']">
-                  {{ currentDeck.valide ? 'Légal' : 'Non Légal'}}
+                  {{ currentDeck.valide ? $t('ui.lib.legal') : $t('ui.lib.illegal')}}
                   </div>
                 </div>
                 <div>
@@ -1118,6 +1122,7 @@ export default {
           this.newDeckName = this.currentDeck.name
           this.taDescDeck = this.currentDeck.description
           this.newDeckExturl = this.currentDeck.exturl
+          this.fIdAlteredDeck = this.currentDeck.idaltered
 
           setTimeout(() => $('#awid-fdeckname').trigger('select')) //.trigger('focus'), 50)
         }
@@ -1232,15 +1237,38 @@ export default {
         capaSupport: '',        
       }
     },
-    searchAlteredDeck()
+    extractIdAltered(purlorid)
+    {
+      var tab = purlorid.split('/')
+      return tab[tab.length - 1]
+    },
+    e_searchAlteredDeck()
     {
       if(this.fIdAlteredDeck)
       {
-        var tab = this.fIdAlteredDeck.split('/')
-        var id = tab[tab.length - 1]
-        this.fIdAlteredDeck = id
-        
-        this.gaa_fetchDeck(this.fIdAlteredDeck, pdeck => 
+        this.fIdAlteredDeck = this.extractIdAltered(this.fIdAlteredDeck)
+        this.searchAlteredDeck(this.fIdAlteredDeck, pdeck => 
+        {
+          this.newDeckName = pdeck.name
+
+          var cards = []
+          if(pdeck.cardIndexes) for (let key in pdeck.cardIndexes) 
+          {
+            cards.push(pdeck.cardIndexes[key] + ' ' + key.split('/').pop());
+          }
+
+          this.newDecklist = ''
+          if(pdeck.alterator) //corresponda au héro
+          {
+            this.newDecklist = '1 ' + pdeck.alterator.reference + '\n'
+          }
+          this.newDecklist += cards.join('\n')
+        })
+      }
+    },
+    searchAlteredDeck(pidaltered, pcallback)
+    {
+        this.gaa_fetchDeck(pidaltered, pdeck => 
         {
           if(!pdeck)
           {
@@ -1249,22 +1277,8 @@ export default {
           }
 
           toast("Le deck a été trouvé", { type: TYPE.SUCCESS })    
-          this.newDeckName = pdeck.name
-
-          this.newDecklist = ""
-          var cards = []
-          if(pdeck.cardIndexes) for (let key in pdeck.cardIndexes) 
-          {
-            cards.push(pdeck.cardIndexes[key] + ' ' + key.split('/').pop());
-          }
-          this.newDecklist = ''
-          if(pdeck.alterator)
-          {
-            this.newDecklist = '1 ' + pdeck.alterator.reference + '\n'
-          }
-          this.newDecklist += cards.join('\n')
+          pcallback(pdeck)
         })
-      }
     },
     onCopierLienDecklist()
     {
@@ -1580,7 +1594,7 @@ export default {
       //remettre à null permet de remounted à chaque affichage du detail car component v-if sur l'objet carddetail
       this.currentCardDetail = null;
     },
-    onFetchedDecks(pdecks, pidDft)
+    onFetchedDecks(pdecks, pidDft, pvrsdft)
     {
       //alim de la combo:
       this.decks = pdecks.map(deck => {
@@ -1614,7 +1628,8 @@ export default {
         this.currentDeck = null;
         localStorage.removeItem("currentDeck");
 
-        var storedDeck = this.decks.find(deck => deck.id = pidDft);
+        var storedDeck = pdecks.find(deck => deck.id == pidDft);
+
         if(storedDeck)
         {
           const params = {
@@ -1624,10 +1639,15 @@ export default {
             withversions: true,
           }
 
+          if(pvrsdft) {
+            params.version = pvrsdft
+            params.lastversion = false
+          }
+
           this.g_fetchDeck(params, deck => 
           {
-            this.currentSelectedDeck = deck.id;
-            this.currentDeck = deck;
+            this.currentSelectedDeck = deck.refid > 0 ? deck.refid : deck.id
+            this.currentDeck = deck
             this.versions = deck.versions.map(version => {
               return {
                   value: version,
@@ -1651,11 +1671,13 @@ export default {
 
         if (storedDeck) 
         {          
-          if (!pdecks.some(zedeck => zedeck.id == storedDeck.id)) 
+          const storedDeckrefid = storedDeck.refid > 0 ? storedDeck.refid : storedDeck.id
+          
+          if (!pdecks.some(zedeck => zedeck.id == storedDeckrefid)) 
           {
-            this.decks.unshift({ value: storedDeck.id, label: storedDeck.name })
+            this.decks.unshift({ value: storedDeckrefid, label: storedDeck.name })
           }
-          this.currentSelectedDeck = storedDeck.refid > 0 ? storedDeck.refid : storedDeck.id
+          this.currentSelectedDeck = storedDeckrefid
           this.currentDeck = storedDeck
 
           if(!storedDeck.versions) storedDeck.versions = [1]
@@ -1680,7 +1702,7 @@ export default {
         }
       }
     },
-    loadDecks(pidDft, ondeconnect) 
+    loadDecks(pidDft, ondeconnect, pvrsdft) 
     {
       this.deckModified = false;
 
@@ -1701,7 +1723,7 @@ export default {
         withhero: true,
         withfavs: false,
         tournois: this.cbdeckstournois,
-        callback : pdecks => this.onFetchedDecks(pdecks, pidDft)
+        callback : pdecks => this.onFetchedDecks(pdecks, pidDft, pvrsdft)
       });
     },
     updateCurrentDeck(pdeck)
@@ -1904,6 +1926,39 @@ export default {
     onSelectCurrentDeck() 
     {
       this.m_setCurrentDeck(0)
+    },
+    e_updateFromIdAltered()
+    {
+      if(!this.currentDeck.idaltered) return
+
+      this.searchAlteredDeck(this.currentDeck.idaltered, pdeck => 
+      {
+        if(!pdeck) return
+          
+        const newcards = []
+        if(pdeck.alterator) //corresponda au héro
+        {
+          newcards.push({
+            deckId: this.currentDeck.id,
+            cardRef: pdeck.alterator.reference,
+            quantity: 1,
+          })
+        }
+        if(pdeck.cardIndexes) for (let key in pdeck.cardIndexes) 
+        {
+          const qte = pdeck.cardIndexes[key]
+          const ref = key.split('/').pop()
+          newcards.push({
+            deckId: this.currentDeck.id,
+            cardRef: ref,
+            quantity: qte,
+          })
+        }
+
+        this.g_updateDeckFromAltered(this.currentDeck, newcards, ppdeck => {
+          if(ppdeck) this.loadDecks(ppdeck.refid > 0 ? ppdeck.refid : ppdeck.id, false, this.currentVersion) 
+        })
+      })
     },
     e_onDeleteVersion()
     {
@@ -2115,9 +2170,12 @@ export default {
     },
     saveProprietesCurrentDeck()
     {
+      this.fIdAlteredDeck = this.extractIdAltered(this.fIdAlteredDeck)
+
       this.currentDeck.name = this.newDeckName
       this.currentDeck.description = this.taDescDeck
       this.currentDeck.exturl = this.newDeckExturl
+      this.currentDeck.idaltered = this.fIdAlteredDeck
 
       this.callShowWaitingScreen(500)
       this.g_saveProprietesDeck(this.currentDeck, pdeck => 
@@ -2171,7 +2229,8 @@ export default {
             cards: decklist,
             tournoi: this.cbtournoi,
             postournoi: this.fPosTournoi,
-            setuniquefav: this.cbsetuniquefav
+            setuniquefav: this.cbsetuniquefav,
+            idaltered: this.fIdAlteredDeck,
           }
           this.g_importDeck(params,
             //onImportedDeck: 

@@ -882,6 +882,7 @@ export default {
             else
             {
                 deck.tournoiId = params.tournoi
+                deck.idaltered = params.idaltered
                 if(deck.tournoiId)
                 {
                     deck.tournoiPos = params.postournoi
@@ -1767,5 +1768,35 @@ export default {
         {
             getCollection(pcards, pcallback)
         }
+
+        async function updateDeckFromAltered(pdeck, pcards, pcallback)
+        {
+            try 
+            {
+                const { data, error } = await axios.post(API_BASEURL + '/deck/updatealtered/' + pdeck.id, pcards, hparams())
+                
+                if(error) 
+                {
+                    console.error(error)
+                    pcallback(null)
+                    return
+                }
+
+                pcallback(pdeck) //on retourne le deck mais il sera reload par la méthode de chargement de la page
+                return
+            }
+            catch(error)
+            {
+                handleApiError(error)
+                pcallback(null)
+            }
+        }
+
+        app.config.globalProperties.g_updateDeckFromAltered = function(pdeck, pcards, pcallback)
+        {
+            updateDeckFromAltered(pdeck, pcards, pcallback)
+        }
+
+        
     }
 }
