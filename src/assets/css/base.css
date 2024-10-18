@@ -955,7 +955,7 @@ input:checked+.slider:before {
   border-bottom-style: solid;
 }
 
-.aw-factionsel a.aw-axiom::after {
+a.aw-axiom::after {
   border-bottom-color: var(--c-axiom);
 }
 

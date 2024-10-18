@@ -26,6 +26,9 @@
                                         <router-link to="/cartes" class="page-scroll" href="#">{{ $t('ui.menu.cartes')}}</router-link>
                                     </li>
                                     <li class="nav-item">
+                                        <router-link to="/uniques" class="page-scroll" href="#">Uniques</router-link>
+                                    </li>
+                                    <li class="nav-item">
                                         <router-link to="/tournois" class="page-scroll" href="#">{{ $t('ui.menu.tournois')}}</router-link>
                                     </li>
                                     <li class="nav-item">

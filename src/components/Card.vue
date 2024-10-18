@@ -77,7 +77,6 @@ export default {
     affmissingcollection: Boolean,
     affmissingtrade: Boolean,
     affmissingwant: Boolean,
-    emptyplayset: Boolean,
     deckbuilder: Boolean,
   },
   methods: {

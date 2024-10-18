@@ -3,6 +3,7 @@ import factions from '../rsc/factions.json'
 import formats from '../rsc/formats.json'
 import heros from '../rsc/heros.json'
 import keywords from '../rsc/keywords.json'
+import types from '../rsc/types.json'
 import { useGlobalStore } from '@/stores/global'
 
 const altered = {
@@ -358,6 +359,14 @@ export default {
             var name = factions[pfaction].fr;
             return plc ? name.toLowerCase() : name;
         }
+        app.config.globalProperties.g_getTypeName = function (ptype, plc)
+        {
+            var name = types[ptype].fr;
+            return plc ? name.toLowerCase() : name;
+        }
+        app.config.globalProperties.g_isTypeCodeCharacter = function (ptype) {
+            return ptype == 'CHARACTER'
+        };
         app.config.globalProperties.g_getFactionColorFromDeck = function (pdeck)
         {
             return this.g_getFactionColor(this.g_getFactionFromDeck(pdeck));

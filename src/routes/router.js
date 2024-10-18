@@ -5,6 +5,7 @@ import PCartes from '../components/PCartes.vue';
 import PDecks from '../components/PDecks.vue';
 import PDecktest from '../components/PDecktest.vue';
 import PTournois from '../components/PTournois.vue';
+import PUnique from '../components/PUnique.vue';
 import Test from '../components/Test.vue';
 import { useGlobalStore } from '@/stores/global'
 
@@ -77,6 +78,13 @@ const routes = [
         component: PTournois,
         history: true,
         props: route => ({ tournoiid: convertIntegerParam(route.params.tournoiid)})
+    },
+    {
+        path: '/uniques',
+        name: 'Uniques',
+        component: PUnique,
+        history: true,
+        props: true
     },
     {
         path: '/test',

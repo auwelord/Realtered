@@ -114,443 +114,16 @@
               </div>
             </div> <!-- /.card-body -->
           </div>
-          <div v-if="!imageRechPathFullsize">
-            <div class="card card-outline card-warning">
-              <div class="card-header">
-                <div class="d-flex justify-content-end">
-                  <div v-if="g_isAdmin(user) && currentFaction != ''" class="mt-2">
-                    BDD
-                    <label class="switch me-2">
-                      <input type="checkbox" v-model="database">
-                      <span class="slider round"></span>
-                    </label>
-                  </div>
-                  <BButton @click="clearFilters" variant="light" size="sm" class="me-2" title="Supprimer tous les filtres (hors factions/éditions/tris)">
-                    <font-awesome-icon :icon="['fas', 'eraser']" />
-                  </BButton>
-                  <BDropdown v-model="showDDOptionsCardSearch" v-if="!deckbuilder && g_isBearer()" variant="secondary" class="me-2 aw-cardssearchoptions">
-                    <template #button-content>
-                      <font-awesome-icon :icon="['fas', 'gear']" />
-                    </template>
-                    <BDropdownItem id="awid-affmissingcollection" @click="e_showMissingCollection" v-if="!affmissingcollection">
-                      <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Indiquer les cartes manquantes
-                    </BDropdownItem>
-                    <BDropdownItem id="awid-affmissingtrade" @click="e_showMissingTrade" v-if="!affmissingtrade">
-                      <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Indiquer les trades manquants
-                    </BDropdownItem>
-                    <BDropdownItem id="awid-affmissingwant" @click="e_showMissingWant" v-if="!affmissingwant">
-                      <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Indiquer les wants manquants
-                    </BDropdownItem>
-                  </BDropdown>
-                  <BButton @click="searchCardsBtnRechercher()" variant="unique" size="sm">
-                    <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="me-2" />{{$t('ui.action.rechercher')}}
-                  </BButton>
-                </div>
-              </div> <!-- /.card-header -->
-              <div class="card-header" v-if="g_isAdmin(user)">
-                <div v-if="!database && fetchedCards && currentFaction != ''">
-                  <BButton @click="updateDetailFromApi" variant="secondary" size="sm" class="me-2" v-if="g_isLocaleFrench()">
-                    <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Details <span v-if="cptupdatecard > 0">{{  cptupdatecard }} / {{fetchedCards.length}}</span>
-                  </BButton>
-                </div>
-                <BButton @click="onClickDownloadImages" variant="secondary" size="sm" class="me-2">
-                  <font-awesome-icon :icon="['fas', 'file-import']" class="me-2" />Images <span v-if="cptupdatecard > 0">{{  cptupdatecard }} / {{fetchedCards.length}}</span>
-                </BButton>
-                <BButton @click="updateDetailFromApi" variant="secondary" size="sm" class="me-2" title="Mettre à jour les uniques" v-if="g_isAdmin(user) && database">
-                  <font-awesome-icon :icon="['fas', 'pen-clip']" class="me-2" />Update uniques <span v-if="cptupdatecard > 0">{{  cptupdatecard }} / {{fetchedCards.length}}</span>
-                </BButton>
-              </div>
-              <div class="card-body">
-                <div class="card-group justify-content-between aw-factionsel mb-4">
-                  <a href="#" id="AX" :title="canSelectFaction() ? 'Sélection de la faction Axiom' : 'La sélection des factions n\'est pas possible tant que le héro du deck a été choisi'"
-                      :class="['mb-2 aw-axiom', isCurrentAxiom() ? 'aw-selected' : '', canSelectFaction() ? '' : 'aw-opacity25 aw-cursor-notallowed']"
-                      @click="changeFaction">
-                        <img src="@/assets/img/altered/factions/axiom.webp" class="aw-faction" />
-                  </a>
-                  <a href="#" id="BR" :title="canSelectFaction() ? 'Sélection de la faction Bravos' : 'La sélection des factions n\'est pas possible tant que le héro du deck a été choisi'"
-                      :class="['mb-2 aw-bravos', isCurrentBravos() ? 'aw-selected' : '', canSelectFaction() ? '' : 'aw-opacity25 aw-cursor-notallowed']"
-                      @click="changeFaction">
-                        <img src="@/assets/img/altered/factions/bravos.webp" class="aw-faction" />
-                  </a>
-                  <a href="#" id="LY" :title="canSelectFaction() ? 'Sélection de la faction Lyra' : 'La sélection des factions n\'est pas possible tant que le héro du deck a été choisi'"
-                      :class="['mb-2 aw-lyra', isCurrentLyra() ? 'aw-selected' : '', canSelectFaction() ? '' : 'aw-opacity25 aw-cursor-notallowed']"
-                      @click="changeFaction">
-                        <img src="@/assets/img/altered/factions/lyra.webp" class="aw-faction" />
-                  </a>
-                  <a href="#" id="MU" :title="canSelectFaction() ? 'Sélection de la faction Muna' : 'La sélection des factions n\'est pas possible tant que le héro du deck a été choisi'"
-                      :class="['mb-2 aw-muna', isCurrentMuna() ? 'aw-selected' : '', canSelectFaction() ? '' : 'aw-opacity25 aw-cursor-notallowed']"
-                      @click="changeFaction">
-                        <img src="@/assets/img/altered/factions/muna.webp" class="aw-faction" />
-                  </a>
-                  <a href="#" id="OR" :title="canSelectFaction() ? 'Sélection de la faction Ordis' : 'La sélection des factions n\'est pas possible tant que le héro du deck a été choisi'"
-                      :class="['mb-2 aw-ordis', isCurrentOrdis() ? 'aw-selected' : '', canSelectFaction() ? '' : 'aw-opacity25 aw-cursor-notallowed']"
-                      @click="changeFaction">
-                        <img src="@/assets/img/altered/factions/ordis.webp" class="aw-faction" />
-                  </a>
-                  <a href="#" id="YZ" :title="canSelectFaction() ? 'Sélection de la faction Yzmir' : 'La sélection des factions n\'est pas possible tant que le héro du deck a été choisi'"
-                      :class="['mb-2 aw-yzmir', isCurrentYzmir() ? 'aw-selected' : '', canSelectFaction() ? '' : 'aw-opacity25 aw-cursor-notallowed']"
-                      @click="changeFaction">
-                        <img src="@/assets/img/altered/factions/yzmir.webp" class="aw-faction" />
-                  </a>
-                </div>
-                <div class="input-group">
-                  <div class="d-flex flex-column flex-fill align-items-center">
-                    <input type="text" class="form-control" :placeholder="$t('ui.lib.nomcarte')" 
-                      v-model="currentName" 
-                      @keyup.enter="searchCards(false, false)" />
-                  </div>
-                </div>
-
-                <hr>
-                <div class="d-flex justify-content-between mt-3">
-                  <div>
-                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechRarete && currentFaction">
-                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-                    </BButton>
-                    {{$t('ui.lib.rarete')}}
-                  </div>
-                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtresrarity>
-                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-                  </div>
-                </div>
-                <BCollapse id="awid-filtresrarity" v-model="uiparams.filtreRarity" @hide="storeUiparams" @show="storeUiparams">
-                  <div class="d-flex justify-content-evenly aw-raritysel mt-2">
-                    <a href="javascript:" id="COMMON" :class="['aw-common', isSelectedCommon ? 'aw-selected' : '']"
-                      @click="selectCommon"><Common :width="40" class="aw-rarity" /></a>
-                    <a href="javascript:" id="RARE" :class="['aw-rare', isSelectedRare ? 'aw-selected' : '']"
-                      @click="selectRare"><Rare :width="40" class="aw-rarity" /></a>
-
-                    <a href="javascript:" id="UNIQUE" v-if="user"
-                      :class="['aw-unique', isSelectedUnique ? 'aw-selected' : '']" 
-                      @click="selectUnique"><Unique :width="40" class="aw-rarity" /></a>
-                    <img v-else class="aw-cursor-notallowed" src="@/assets/img/altered/rarities/unique.png" title="Connectez-vous pour rechercher vos uniques ajoutées à vos favoris"/>
-                  </div>
-
-                </BCollapse>
-
-                <hr>
-                <div class="d-flex justify-content-between mt-3">
-                  <div>
-                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechType && currentFaction">
-                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-                    </BButton>
-                    Type
-                  </div>
-                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrestype>
-                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-                  </div>
-                </div>
-                <BCollapse id="awid-filtrestype" v-model="uiparams.filtreType" @hide="storeUiparams" @show="storeUiparams">
-                  <div class="card-group justify-content-between aw-type mt-2">
-                    <a href="javascript:" id="CHARACTER" title="Sélection du type Personnage"
-                        :class="['aw-character d-flex flex-column align-items-center mb-3', isSelectedCharacter ? 'aw-selected' : '']"
-                        @click="selectCharacter">
-                          <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-4" /><span>{{$t('ui.lib.personnage')}}</span>
-                    </a>
-                    <a href="javascript:" id="SPELL" :title="isSelectedUnique ? 'Le type Sort ne peut pas être activé pour une rareté Unique' : 'Sélection du type Sort'"
-                        :class="['aw-spell d-flex flex-column align-items-center mb-3', isSelectedSpell ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
-                        @click="selectSpell">
-                          <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-4" /><span>{{$t('ui.lib.sort')}}</span>
-                    </a>
-                    <a href="javascript:" id="PERMANENT" :title="isSelectedUnique ? 'Le type Permanent ne peut pas être activé pour une rareté Unique' : 'Sélection du type Permanent'"
-                        :class="['aw-permanent d-flex flex-column align-items-center mb-3', isSelectedPermanent ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
-                        @click="selectPermanent">
-                          <font-awesome-icon :icon="['fas', 'building-shield']" class="fs-4" /><span>{{$t('ui.lib.permanent')}}</span>
-                    </a>
-                    <a href="javascript:" id="HERO" :title="isSelectedUnique ? 'Le type Héro ne peut pas être activé pour une rareté Unique' : 'Sélection du type Héro'"
-                        :class="['aw-hero d-flex flex-column align-items-center mb-3', isSelectedHero ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
-                        @click="selectHero">
-                          <font-awesome-icon :icon="['fas', 'mask']" class="fs-4" /><span>{{$t('ui.lib.hero')}}</span>
-                    </a>
-                    <a href="javascript:" v-if="g_isAdmin(user)" id="TOKEN" :title="isSelectedUnique ? 'Le type Token ne peut pas être activé pour une rareté Unique' : 'Sélection du type Token'"
-                        :class="['aw-token d-flex flex-column align-items-center mb-3', isSelectedToken ? 'aw-selected' : '', isSelectedUnique ? 'aw-opacity25 aw-cursor-notallowed': '']"
-                        @click="selectToken">
-                          <font-awesome-icon :icon="['fas', 'robot']" class="fs-4" /><span>{{$t('ui.lib.token')}}</span>
-                    </a>
-                  </div>
-                </BCollapse>
-                
-                <hr>
-                <div class="d-flex justify-content-between mt-3">
-                  <div>
-                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechMaincost && currentFaction">
-                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-                    </BButton>
-                    {{$t('ui.lib.maincost')}}
-                  </div>
-                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrescoutmain>
-                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-                  </div>
-                </div>
-                <BCollapse id="awid-filtrescoutmain" v-model="uiparams.filtreMainCost" @hide="storeUiparams" @show="storeUiparams">
-                <div class="d-flex flex-column ">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="fs-3">{{ handCost }}</div>
-                    <div>
-                      <BFormCheckbox v-model="handCostOrMore" value="ouplus" @change="onChangeMainCostOrMore">{{$t('ui.lib.etplus')}}
-                      </BFormCheckbox>
-                    </div>
-                    <div>
-                      <BFormCheckbox v-model="handCostOrMore" value="oumoins" @change="onChangeMainCostOrMore">{{$t('ui.lib.etmoins')}}
-                      </BFormCheckbox>
-                    </div>
-                  </div>
-                  <div class="aw-slider aw-handcost">
-                    <input type="range" id="handCost" v-model="handCost" class="w-100 mt-0" min="0" max="10" step="1"
-                      value="1" @change="onChangeMaincost" />
-                  </div>
-                </div>
-                </BCollapse>
-
-                <hr>
-                <div class="d-flex justify-content-between mt-3 mb-2">
-                  <div>
-                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechRecallcost && currentFaction">
-                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-                    </BButton>
-                    {{$t('ui.lib.recallcost')}}
-                  </div>
-                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrescoutreserve>
-                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-                  </div>
-                </div>
-                <BCollapse id="awid-filtrescoutreserve" v-model="uiparams.filtreRecallCost" @hide="storeUiparams" @show="storeUiparams">
-                  <div class="d-flex flex-column ">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="fs-3">{{ reserveCost }}</div>
-                    <div>
-                      <BFormCheckbox v-model="reserveCostOrMore" value="ouplus" @change="onChangeRecallCostOrMore">{{$t('ui.lib.etplus')}}</BFormCheckbox>
-                    </div>
-                    <div>
-                      <BFormCheckbox v-model="reserveCostOrMore" value="oumoins" @change="onChangeRecallCostOrMore">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
-                    </div>
-                  </div>
-                  <div class="aw-slider aw-reservecost">
-                    <input type="range" id="reserveCost" v-model="reserveCost" class="w-100 mt-0" min="0" max="10"
-                      step="1" value="1" @change="onChangeRecallCost" />
-                  </div>
-                </div>
-                </BCollapse>
-
-                <div v-if="isSelectedCharacter">
-                  <hr>
-                  <div class="d-flex justify-content-between mt-3">
-                    <div>
-                      <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechPower && currentFaction">
-                        <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-                      </BButton>
-                      {{$t('ui.lib.patates')}}
-                    </div>
-                    <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrespower>
-                      <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-                    </div>
-                  </div>
-                  <BCollapse id="awid-filtrespower" v-model="uiparams.filtrePower" @hide="storeUiparams" @show="storeUiparams">
-                    <div class="d-flex flex-column aw-stats">
-                      <div class="card-group justify-content-between align-items-center">
-                        <div><i class="altered-forest fs-5 me-2"></i><span class="fs-3">{{ forest }}</span></div>
-                        <div>
-                          <BFormCheckbox v-model="forestOrMore" value="ouplus" @change="onChangeForestOrMore">{{$t('ui.lib.etplus')}}</BFormCheckbox>
-                        </div>
-                        <div>
-                          <BFormCheckbox v-model="forestOrMore" value="oumoins" @change="onChangeForestOrMore">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
-                        </div>
-                      </div>
-                      <div class="aw-slider">
-                        <input type="range" id="forest" v-model="forest" class="w-100" min="0" max="10" step="1" value="0"
-                          @change="onChangeStat" />
-                      </div>
-                      <div class="card-group justify-content-between align-items-center mt-2">
-                        <div><i class="altered-mountain fs-5 me-2"></i><span class="fs-3">{{ mountain }}</span></div>
-                        <div>
-                          <BFormCheckbox v-model="mountainOrMore" value="ouplus" @change="onChangeMountainOrMore">{{$t('ui.lib.etplus')}}</BFormCheckbox>
-                        </div>
-                        <div>
-                          <BFormCheckbox v-model="mountainOrMore" value="oumoins" @change="onChangeMountainOrMore">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
-                        </div>
-                      </div>
-                      <div class="aw-slider">
-                        <input type="range" id="mountain" v-model="mountain" class="w-100" min="0" max="10" step="1"
-                          value="0" @change="onChangeStat" />
-                      </div>
-                      <div class="card-group justify-content-between align-items-center mt-2">
-                        <div><i class="altered-ocean fs-5 me-2"></i><span class="fs-3">{{ water }}</span></div>
-                        <div>
-                          <BFormCheckbox v-model="waterOrMore" value="ouplus" @change="onChangeWaterOrMore">{{$t('ui.lib.etplus')}}</BFormCheckbox>
-                        </div>
-                        <div>
-                          <BFormCheckbox v-model="waterOrMore" value="oumoins" @change="onChangeWaterOrMore">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
-                        </div>
-                      </div>
-                      <div class="aw-slider">
-                        <input type="range" id="ocean" v-model="water" class="w-100" min="0" max="10" step="1" value="0"
-                          @change="onChangeStat" />
-                      </div>
-                    </div>
-                  </BCollapse>
-                </div>
-
-                <hr>
-                <div class="d-flex justify-content-between mt-3">
-                  <div class="mb-1">
-                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechKeyword && currentFaction">
-                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-                    </BButton>
-                    {{$t('ui.lib.motscles')}} / {{$t('ui.lib.capacites')}}
-                  </div>
-                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtreskeyword>
-                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-                  </div>
-                </div>
-                <BCollapse id="awid-filtreskeyword" v-model="uiparams.filtreKeyword" @hide="storeUiparams" @show="storeUiparams">
-                  <Multiselect v-model="currentKeywords" mode="tags" class="mb-2"
-                    :close-on-select="true" 
-                    :create-option="true" 
-                    :searchable="false"
-                    :options="keywords" 
-                    @change="onChangeKeywords" />
-
-
-                  <BInputGroup class="mt-2 ms-5">
-                    <BFormCheckbox v-model="cbCapaStatic">{{$t('ui.lib.staticabilnotempty')}}</BFormCheckbox>
-                  </BInputGroup>
-                  <BInputGroup>
-                    <template #prepend>
-                      <BInputGroupText><font-awesome-icon :icon="['fas', 'ban']" /></BInputGroupText>
-                    </template>
-                    <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
-                        :disabled="cbCapaStatic"
-                        v-model="fCapaStatic"
-                        @keyup.enter="searchCards(false, false)" />
-                  </BInputGroup>
-                  <BInputGroup class="mt-2 ms-5">
-                    <BFormCheckbox v-model="cbCapaEtb">{{$t('ui.lib.capacite')}} <i class="altered-etb"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
-                  </BInputGroup>
-                  <BInputGroup>
-                    <template #prepend>
-                      <BInputGroupText><i class="altered-etb"></i></BInputGroupText>
-                    </template>
-                    <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
-                        :disabled="cbCapaEtb"
-                        v-model="fCapaEtb"
-                        @keyup.enter="searchCards(false, false)" />
-                  </BInputGroup>
-                  <BInputGroup class="mt-2 ms-5">
-                    <BFormCheckbox v-model="cbCapaHand">{{$t('ui.lib.capacite')}} <i class="altered-hand"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
-                  </BInputGroup>
-                  <BInputGroup>
-                    <template #prepend>
-                      <BInputGroupText>	<i class="altered-hand"></i></BInputGroupText>
-                    </template>
-                    <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
-                        :disabled="cbCapaHand"
-                        v-model="fCapaHand"
-                        @keyup.enter="searchCards(false, false)" />
-                  </BInputGroup>
-                  <BInputGroup class="mt-2 ms-5">
-                    <BFormCheckbox v-model="cbCapaReserve">{{$t('ui.lib.capacite')}} <i class="altered-reserve"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
-                  </BInputGroup>
-                  <BInputGroup>
-                    <template #prepend>
-                      <BInputGroupText><i class="altered-reserve"></i></BInputGroupText>
-                    </template>
-                    <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
-                        :disabled="cbCapaReserve"
-                        v-model="fCapaReserve"
-                        @keyup.enter="searchCards(false, false)" />
-                  </BInputGroup>
-                  <BInputGroup class="mt-2 ms-5">
-                    <BFormCheckbox v-model="cbCapaExhaust">{{$t('ui.lib.capacite')}} <i class="altered-exhaust"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
-                  </BInputGroup>
-                  <BInputGroup>
-                    <template #prepend>
-                      <BInputGroupText><i class="altered-exhaust"></i></BInputGroupText>
-                    </template>
-                    <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
-                        :disabled="cbCapaExhaust"
-                        v-model="fCapaExhaust"
-                        @keyup.enter="searchCards(false, false)" />
-                  </BInputGroup>
-                  <BInputGroup class="mt-2 ms-5">
-                    <BFormCheckbox v-model="cbCapaSupport">{{$t('ui.lib.capacite')}} <i class="altered-support"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
-                  </BInputGroup>
-                  <BInputGroup>
-                    <template #prepend>
-                      <BInputGroupText><i class="altered-support"></i></BInputGroupText>
-                    </template>
-                    <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
-                        :disabled="cbCapaSupport"
-                        v-model="fCapaSupport"
-                        @keyup.enter="searchCards(false, false)" />
-                  </BInputGroup>                  
-                </BCollapse>
-
-                <hr>
-                <div class="d-flex justify-content-between mt-3">
-                  <div class="mb-1">
-                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechSubtype && currentFaction">
-                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-                    </BButton>
-                    {{$t('ui.lib.soustypes')}}
-                  </div>
-                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtressubtype>
-                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-                  </div>
-                </div>
-                <BCollapse id="awid-filtressubtype" v-model="uiparams.filtreSubtype" @hide="storeUiparams" @show="storeUiparams">
-                <Multiselect v-model="currentSoustypes" mode="tags" class="mb-2"
-                  :close-on-select="true" 
-                  :create-option="true" 
-                  :searchable="true"
-                  :options="soustypes" 
-                  @change="onChangeSoustypes" />
-                </BCollapse>
-
-                <hr>
-                <div class="d-flex justify-content-between mt-3">
-                  <div class="mb-1">
-                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechEdition && currentFaction">
-                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-                    </BButton>
-                    Editions
-                  </div>
-                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtresedition>
-                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-                  </div>
-                </div>
-                <BCollapse id="awid-filtresedition" v-model="uiparams.filtreEdition" @hide="storeUiparams" @show="storeUiparams"> 
-                <Multiselect v-model="currentEditions" mode="tags" class="mb-2"
-                  :close-on-select="true" 
-                  :create-option="true" 
-                  :options="editions" 
-                  @change="onChangeEditions" />
-                </BCollapse>
-
-                <hr>
-                <div class="d-flex justify-content-between mt-3">
-                  <div class="mb-1">
-                    <BButton @click="searchCards(false, false)" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechSort && currentFaction">
-                      <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-                    </BButton>
-                    {{$t('ui.lib.trierpar')}}
-                  </div>
-                  <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrestri>
-                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-                  </div>
-                </div>
-                <BCollapse id="awid-filtrestri" v-model="uiparams.filtreSort" @hide="storeUiparams" @show="storeUiparams">              
-                  <Multiselect v-model="currentSort" mode="tags" :close-on-select="true" :create-option="true"
-                    :options="sortingTypes" @change="onChangeSorting" class="mb-2"/>
-                </BCollapse>
-
-                <div class="mt-3" v-if="g_isBearer() && !deckbuilder">
-                  <b-form-checkbox id="emptyplayset" v-model="emptyplayset" name="emptyplayset">Playsets non complet
-                    uniquement</b-form-checkbox>
-                </div>
-              </div>
-            </div>
-            <!-- /.card-body -->
-          </div> <!-- /.card -->
+          <CardFilter 
+            :user="user" 
+            :deckbuilder="deckbuilder" 
+            :canselectfaction="canSelectFaction()"
+            :affmissingcollection="affmissingcollection"
+            :affmissingtrade="affmissingtrade"
+            :affmissingwant="affmissingwant"
+            @searchcards="e_searchCards"
+          />
+          <!-- /.card-body -->
         </div>
         <div :class="['col-12', deckbuilder && currentSelectedDeck != null ? 'col-xl-4' : 'col-xl-9']">
           <div class="container-fluid">
@@ -568,7 +141,6 @@
                 <Card v-for="card in fetchedCards" 
                   :key="card.id" 
                   :card="card" 
-                  :emptyplayset="emptyplayset" 
                   :deckbuilder="deckbuilder && currentSelectedDeck != null"
                   :user="user"
                   :currentDeck="currentDeck" 
@@ -897,6 +469,7 @@ export default {
   name: 'Collection',
   data() {
     return {
+      globalStore: useGlobalStore(),
       cbTriggerCapa: null,
       optTriggers: [
         {value: 'etb', label: 'More space battles!', ico: 'altered-etb'},
@@ -904,62 +477,21 @@ export default {
         {value: 'reserve', label: 'Discovering new species!', ico: 'altered-reserve'},
         {value: 'exhaust', label: 'We need to go deeper!', ico: 'altered-exhaust'}
       ],
-      database: true,
       renderStatComponent: true,
       isSelected: true,
-      currentFaction: '',
-      isSelectedCharacter: false,
-      isSelectedPermanent: false,
-      isSelectedSpell: false,
-      isSelectedHero: false,
-      isSelectedToken: false,
-      isSelectedCommon: false,
-      isSelectedRare: false,
-      isSelectedUnique: false,
-      currentName: '',
-      currentSort: ["mainCost", "recallCost", "name"],
       fetchedCards: [],
       itemsPerPage: 12,
       loading: false,
       currentPage: 1,
       hasMore: true,
-      handCost: 0,
-      handCostOrMore: "ouplus",
-      reserveCost: 0,
-      reserveCostOrMore: "ouplus",
-      forest: 0,
-      forestOrMore: "ouplus",
-      water: 0,
-      waterOrMore: "ouplus",
-      mountain: 0,
-      mountainOrMore: "ouplus",
-      emptyplayset: false,
       modalDeleteDeck: false,
       uiparams: {
         modeliste: false,
         afficherstats: false,
-        filtreRarity: true,
-        filtreRecallCost: true,
-        filtreMainCost: true,
-        filtreSort: true,
-        filtreKeyword: true,
-        filtreEdition: true,
-        filtreSubtype: true,
-        filtreType: true,
-        filtrePower: true
       },
       imagePathFullsize: null,
-      imageRechPathFullsize: null,
       afficherDetails: false,
       oldAfficherStats: false,
-      sortingTypes: [
-        { value: 'name', label: 'Nom Asc.' },
-        { value: 'mainCost', label: 'Mana Asc.' },
-        { value: 'recallCost', label: 'Réserve Asc.' },
-        { value: 'name,0', label: 'Nom Desc.' },
-        { value: 'mainCost,0', label: 'Mana Desc.' },
-        { value: 'recallCost,0', label: 'Réserve Desc.' },
-      ],
       csv: [],
       decks: [],
       currentDeck: null,
@@ -970,18 +502,9 @@ export default {
       fIdAlteredDeck: null,
       newDecklist: null,
       currentCardDetail: null,
-      currentKeywords: null,
-      currentEditions:  ["COREKS"],
-      currentSoustypes: null,
-      keywords :this.g_getKeywordsOptions(),
-      editions :[
-        { value: 'COREKS', label: 'Au-delà des portes - KS' },
-        { value: 'CORE', label: 'Au-delà des portes' },
-      ],
       versions :[
         { value: '1', label: 'Version 1' },
       ],
-      soustypes : this.g_getSubtypesOptions(),
       qtesuccessproba: null,
       showModalImportUnique: false,
       codeImportUnique: null,
@@ -990,46 +513,13 @@ export default {
       showModalImportUnique: false,
       showModalConfirmChangeDeck: false,
       actionOriConfirmChangeDeck: null,
-      updatingname: null,
       proprietingdeck: false,
       taDescDeck: null,
       mousetimeout: null,
-      mouserechtimeout: null,
       showDeckoptions: false,
       showDecklistoptions: false,
       showDDCreateDeck: false,
       router: null,
-      dureeTimeoutRech: 4000,
-      showRechRarete: false,
-      timeoutRechRarete: null,
-      showRechType: false,
-      timeoutRechType: null,
-      showRechMaincost: false,
-      timeoutRechMaincost: null,
-      showRechRecallcost: false,
-      timeoutRechRecallcost: null,
-      showRechPower: false,
-      timeoutRechPower: null,
-      showRechKeyword: false,
-      timeoutRechKeyword: null,
-      showRechSubtype: false,
-      timeoutRechSubtype: null,
-      showRechEdition: false,
-      timeoutRechEdition: null,
-      showRechSort: false,
-      timeoutRechSort: null,
-      cbCapaStatic: false,
-      fCapaStatic: null,
-      cbCapaEtb: false,
-      fCapaEtb: null,
-      cbCapaHand: false,
-      fCapaHand: null,
-      cbCapaReserve: false,
-      fCapaReserve: null,
-      cbCapaExhaust: false,
-      fCapaExhaust: null,
-      cbCapaSupport: false,
-      fCapaSupport: null,
       starting: true,
       currentVersion: undefined,
       showVersionsOptions: false,
@@ -1042,8 +532,7 @@ export default {
       cbtournoi: null,
       fPosTournoi: 0,
       cbsetuniquefav: true,
-      cptupdatecard: 0,
-      showDDOptionsCardSearch: false,
+      
       affmissingcollection: true,
       affmissingtrade: false,
       affmissingwant: false,
@@ -1051,7 +540,6 @@ export default {
   },
   mounted() 
   { 
-    const globalStore = useGlobalStore();
     this.router = useRouter();
 
     this.tournois = []
@@ -1066,56 +554,14 @@ export default {
 
     const storeduiparams = localStorage.getItem('uiparams');
     if(storeduiparams) this.uiparams = JSON.parse(storeduiparams);
-    
-    this.database = globalStore.database
-    var filters = JSON.parse(localStorage.getItem('filters.db' + this.deckbuilder));
-    if (!filters) 
-    {
-      filters = this.getInitialFilters()
-      localStorage.setItem('filters.db' + this.deckbuilder, JSON.stringify(filters));
-    }
 
-    this.currentName = filters.currentName
-    this.isSelectedCharacter = filters.isSelectedCharacter
-    this.isSelectedPermanent = filters.isSelectedPermanent
-    this.isSelectedSpell = filters.isSelectedSpell
-    this.isSelectedHero = filters.isSelectedHero
-    this.isSelectedToken = filters.isSelectedToken
-    this.isSelectedCommon = filters.isSelectedCommon
-    this.isSelectedRare = filters.isSelectedRare
-    this.isSelectedUnique = filters.isSelectedUnique
-    this.currentSort = filters.currentSort
-    this.currentKeywords = filters.currentKeywords
-    this.currentEditions = filters.currentEditions
-    this.currentSoustypes = filters.currentSoustypes
-    this.handCost = filters.handCost
-    this.handCostOrMore = filters.handCostOrMore
-    this.reserveCost = filters.reserveCost
-    this.reserveCostOrMore = filters.reserveCostOrMore
-    this.forest = filters.forest
-    this.forestOrMore = filters.forestOrMore
-    this.water = filters.water
-    this.waterOrMore = filters.waterOrMore
-    this.mountain = filters.mountain
-    this.mountainOrMore = filters.mountainOrMore
-    this.cbCapaStatic = filters.cbCapaStatic
-    this.cbCapaEtb = filters.cbCapaEtb
-    this.cbCapaHand = filters.cbCapaHand
-    this.cbCapaReserve = filters.cbCapaReserve
-    this.cbCapaExhaust = filters.cbCapaExhaust
-    this.cbCapaSupport = filters.cbCapaSupport
-
-    if(!this.deckbuilder) this.currentFaction = filters.currentFaction
-    else this.loadDecks();
+    if(this.deckbuilder) this.loadDecks();
 
     setTimeout(() => this.starting = false, 300)
     //this.loadMore(); // Charger les premiers éléments
     //window.addEventListener('scroll', this.handleScroll); // Ajouter l'écouteur d'événements pour le scroll
   },
   watch:{
-    currentFaction(newValue, oldValue){
-      this.onChangeFilter()
-    },
     proprietingdeck(newValue, oldValue) {
         if(newValue)
         {
@@ -1126,37 +572,6 @@ export default {
 
           setTimeout(() => $('#awid-fdeckname').trigger('select')) //.trigger('focus'), 50)
         }
-    },
-    database(newValue, oldValue){localStorage.setItem('database', newValue)},
-    cbCapaStatic(newValue, oldValue){
-      if(newValue) this.fCapaStatic = ''
-      this.onChangeFilter()
-      if(!this.starting) this.setTimeoutRechKeyword()
-    },
-    cbCapaEtb(newValue, oldValue){
-      if(newValue) this.fCapaEtb = ''
-      this.onChangeFilter()
-      if(!this.starting) this.setTimeoutRechKeyword()
-    },
-    cbCapaHand(newValue, oldValue){
-      if(newValue) this.fCapaHand = ''
-      this.onChangeFilter()
-      if(!this.starting) this.setTimeoutRechKeyword()
-    },
-    cbCapaReserve(newValue, oldValue){
-      if(newValue) this.fCapaReserve = ''
-      this.onChangeFilter()
-      if(!this.starting) this.setTimeoutRechKeyword()
-    },
-    cbCapaExhaust(newValue, oldValue){
-      if(newValue) this.fCapaExhaust = ''
-      this.onChangeFilter()
-      if(!this.starting) this.setTimeoutRechKeyword()
-    },
-    cbCapaSupport(newValue, oldValue){
-      if(newValue) this.fCapaSupport = ''
-      this.onChangeFilter()
-      if(!this.starting) this.setTimeoutRechKeyword()
     },
     currentVersion(newValue, oldValue){
       if(!oldValue) return //chargement de la page
@@ -1174,68 +589,9 @@ export default {
   },
   inject: ['callShowWaitingScreen', 'callHideWaitingScreen'], // Injecter la méthode de App.vue
   methods: {
-    e_showMissingCollection()
-    {
-      this.affmissingcollection = true
-      this.affmissingtrade = false
-      this.affmissingwant = false
-    },
-    e_showMissingTrade()
-    {
-      this.affmissingcollection = false
-      this.affmissingtrade = true
-      this.affmissingwant = false
-    },
-    e_showMissingWant()
-    {
-      this.affmissingcollection = false
-      this.affmissingtrade = false
-      this.affmissingwant = true
-    },
     canSelectFaction()
     {
       return !this.deckbuilder || !this.currentDeck || !this.currentDeck.hero_id
-    },
-    getInitialFilters()
-    {
-      return {
-        isSelectedCharacter: false,
-        isSelectedPermanent: false,
-        isSelectedSpell: false,
-        isSelectedHero: false,
-        isSelectedToken: false,
-        isSelectedCommon: false,
-        isSelectedRare: false,
-        isSelectedUnique: false,
-        currentFaction: '',
-        currentName: '',
-        currentSort: ["translations.name"],
-        currentEditions: ["COREKS"],
-        currentSoustypes: [],
-        currentKeywords: [],
-        handCost: 0,
-        handCostOrMore: "ouplus",
-        reserveCost: 0,
-        reserveCostOrMore: "ouplus",
-        forest: 0,
-        forestOrMore: "ouplus",
-        water: 0,
-        waterOrMore: "ouplus",
-        mountain: 0,
-        mountainOrMore: "ouplus",
-        cbCapaStatic: false,
-        capaStatic: '',
-        cbCapaEtb: false,
-        capaEtb: '',
-        cbCapaHand: false,
-        capaHand: '',
-        cbCapaReserve: false,
-        capaReserve: '',
-        cbCapaExhaust: false,
-        capaExhaust: '',
-        cbCapaSupport: false,
-        capaSupport: '',        
-      }
     },
     extractIdAltered(purlorid)
     {
@@ -1316,44 +672,6 @@ export default {
       window.open(route.href, '_blank');
 
       //this.$router.push('/decklists/' + this.currentDeck.id)
-    },
-    updateDetailFromApi()
-    {
-      this.cptupdatecard = 0
-
-      this.g_updateCardsFromApi(this.fetchedCards,
-        //onUpdatingCard: 
-        pcard => {
-          this.cptupdatecard++
-          this.updatingname = pcard.reference
-        },
-        //onUpdatedCard: 
-        null,
-        //onUpdatedCards: 
-        () => {
-          this.updatingname = null
-          this.cptupdatecard = 0
-        }
-      )
-    },
-    onClickDownloadImages()
-    {
-      this.cptupdatecard = 0
-
-      this.g_downloadImages(this.fetchedCards, null,
-        //onDownloadingImage
-        pcard => {
-          this.cptupdatecard++
-          this.updatingname = pcard.reference
-        },
-        //onDownloadedImages
-        () => {
-          this.cptupdatecard = 0
-          this.updatingname = null
-        },
-        //onUpdatedImageS3
-        pcard => console.log(pcard.imageS3)
-      );
     },
     dontChangeDeck()
     {
@@ -1441,46 +759,6 @@ export default {
       this.codeImportUnique = '';
       this.showModalImportUnique = true;
     },
-    onChangeFilter() {
-      var filters = JSON.parse(localStorage.getItem('filters.db' + this.deckbuilder))
-      filters.water = this.water
-      filters.mountain = this.mountain
-      filters.forest = this.forest
-      filters.handCost = this.handCost
-      filters.reserveCost = this.reserveCost
-      filters.isSelectedCharacter = this.isSelectedCharacter
-      filters.isSelectedSpell = this.isSelectedSpell
-      filters.isSelectedPermanent = this.isSelectedPermanent
-      filters.isSelectedHero = this.isSelectedHero
-      filters.isSelectedToken = this.isSelectedToken
-      filters.handCostOrMore = this.handCostOrMore
-      filters.reserveCostOrMore = this.reserveCostOrMore
-      filters.forestOrMore = this.forestOrMore
-      filters.mountainOrMore = this.mountainOrMore
-      filters.waterOrMore = this.waterOrMore
-      filters.currentSort = this.currentSort
-      filters.currentFaction = this.currentFaction
-      filters.currentKeywords = this.currentKeywords
-      filters.currentEditions = this.currentEditions
-      filters.currentSoustypes = this.currentSoustypes
-      filters.isSelectedCommon = this.isSelectedCommon
-      filters.isSelectedRare = this.isSelectedRare
-      filters.isSelectedUnique = this.isSelectedUnique
-      filters.cbCapaStatic = this.cbCapaStatic
-      filters.capaStatic = this.fCapaStatic
-      filters.cbCapaEtb = this.cbCapaEtb
-      filters.capaEtb = this.fCapaEtb
-      filters.cbCapaHand = this.cbCapaHand
-      filters.capaHand = this.fCapaHand
-      filters.cbCapaReserve = this.cbCapaReserve
-      filters.capaReserve = this.fCapaReserve
-      filters.cbCapaExhaust = this.cbCapaExhaust
-      filters.capaExhaust = this.fCapaExhaust
-      filters.cbCapaSupport = this.cbCapaSupport
-      filters.capaSupport = this.fCapaSupport      
-      
-      localStorage.setItem('filters.db' + this.deckbuilder, JSON.stringify(filters))
-    },
     async refreshStatComponent()
     {
       this.renderStatComponent = false;
@@ -1489,49 +767,6 @@ export default {
       // Add MyComponent back in
       this.renderStatComponent = true;
     },
-    clearFilters()
-    {
-      var filters = this.getInitialFilters()
-
-      this.currentName = 
-      this.isSelectedCharacter = filters.isSelectedCharacter
-      this.isSelectedPermanent = filters.isSelectedPermanent
-      this.isSelectedSpell = filters.isSelectedSpell
-      this.isSelectedHero = filters.isSelectedHero
-      this.isSelectedToken = filters.isSelectedToken
-      this.isSelectedCommon = filters.isSelectedCommon
-      this.isSelectedRare = filters.isSelectedRare
-      this.isSelectedUnique = filters.isSelectedUnique
-      this.currentName = filters.currentName
-      //this.currentSort = filters.currentSort
-      this.currentKeywords = filters.currentKeywords
-      //this.currentEditions = filters.currentEditions
-      this.currentSoustypes = filters.currentSoustypes
-      this.handCost = filters.handCost
-      this.handCostOrMore = filters.handCostOrMore
-      this.reserveCost = filters.reserveCost
-      this.reserveCostOrMore = filters.reserveCostOrMore
-      this.forest = filters.forest
-      this.forestOrMore = filters.forestOrMore
-      this.water = filters.water
-      this.waterOrMore = filters.waterOrMore
-      this.mountain = filters.mountain
-      this.mountainOrMore = filters.mountainOrMore
-      this.cbCapaStatic = filters.cbCapaStatic
-      this.fCapaStatic = filters.capaStatic
-      this.cbCapaEtb = filters.cbCapaEtb
-      this.fCapaEtb = filters.capaEtb
-      this.cbCapaHand = filters.cbCapaHand
-      this.fCapaHand = filters.capaHand
-      this.cbCapaReserve = filters.cbCapaReserve
-      this.fCapaReserve = filters.capaReserve
-      this.cbCapaSupport = filters.cbCapaSupport
-      this.fCapaSupport = filters.capaSupport
-      this.cbCapaExhaust = filters.cbCapaExhaust
-      this.fCapaExhaust = filters.capaExhaust      
-
-      this.onChangeFilter()
-    },
     storeUiparams()
     {
       var uiparams = JSON.parse(localStorage.getItem('uiparams'));
@@ -1539,46 +774,12 @@ export default {
 
       uiparams.modeliste = this.uiparams.modeliste;
       uiparams.afficherstats = this.uiparams.afficherstats;
-      uiparams.filtreRarity = this.uiparams.filtreRarity;
-      uiparams.filtreRecallCost = this.uiparams.filtreRecallCost;
-      uiparams.filtreMainCost = this.uiparams.filtreMainCost;
-      uiparams.filtreSort = this.uiparams.filtreSort;
-      uiparams.filtreKeyword = this.uiparams.filtreKeyword;
-      uiparams.filtreEdition = this.uiparams.filtreEdition;
-      uiparams.filtreSubtype = this.uiparams.filtreSubtype;
-      uiparams.filtreType = this.uiparams.filtreType;
-      uiparams.filtrePower = this.uiparams.filtrePower;
 
       localStorage.setItem('uiparams', JSON.stringify(uiparams));
     },
     changeModeStats(){
       this.uiparams.afficherstats = !this.uiparams.afficherstats
       this.storeUiparams();
-    },
-    onChangeMainCostOrMore() 
-    {
-      this.setTimeoutRechMaincost()
-      this.onChangeFilter()
-    },
-    onChangeRecallCostOrMore() 
-    {
-      this.setTimeoutRechRecallcost()
-      this.onChangeFilter()
-    },
-    onChangeForestOrMore() 
-    {
-      this.setTimeoutRechPower()
-      this.onChangeFilter()
-    },
-    onChangeMountainOrMore() 
-    {
-      this.setTimeoutRechPower()
-      this.onChangeFilter()
-    },
-    onChangeWaterOrMore() 
-    {
-      this.setTimeoutRechPower()
-      this.onChangeFilter()
     },
     changeModeListe() {
       this.uiparams.modeliste = !this.uiparams.modeliste
@@ -1692,7 +893,7 @@ export default {
           this.currentVersion = this.currentDeck.version
 
           if (this.currentDeck.main_faction) {
-            this.setCurrentFaction($("#" + this.currentDeck.main_faction));
+            this.globalStore.cardfilter.faction = this.currentDeck.main_faction
           }
           // si un héro est présent dans le deck, on récupère sa faction pour préselectionner le filtre faction
         }
@@ -1903,26 +1104,6 @@ export default {
       this.saveCurrentDeckToLocalStorage()
       this.refreshStatComponent()
     },
-    onChangeSorting()
-    {
-      this.setTimeoutRechSort()
-      setTimeout(() => this.onChangeFilter(), 500)
-    },
-    onChangeKeywords()
-    {
-      this.setTimeoutRechKeyword()
-      setTimeout(() => this.onChangeFilter(), 500)
-    },
-    onChangeEditions()
-    {
-      this.setTimeoutRechEdition()
-      setTimeout(() => this.onChangeFilter(), 500)
-    },
-    onChangeSoustypes()
-    {
-      this.setTimeoutRechSubtype()
-      setTimeout(() => this.onChangeFilter(), 500)
-    },
     onSelectCurrentDeck() 
     {
       this.m_setCurrentDeck(0)
@@ -2120,13 +1301,11 @@ export default {
             var hero = this.getHeroCurrentDeck();
             factionDeck = hero && hero.length == 1 ? hero[0].mainFaction : null;
           }
-          
           if (factionDeck) {
-            if (this.currentFaction != factionDeck) {
+            if (this.globalStore.cardfilter.faction != factionDeck) {
               this.searchCards(true, true); //faction différente -> on reset le résultat de la recherche
             }
-            this.currentFaction = factionDeck;
-            this.setCurrentFaction($("#" + this.currentFaction));
+            this.globalStore.cardfilter.faction = factionDeck;
           }
         }
 
@@ -2387,96 +1566,11 @@ export default {
     hasResult() {
       return this.fetchedCards.length > 0;
     },
-    onChangeStat(event) 
-    {
-      var rangePercent = this.forest;
-
-      if ($(event.target).attr("id") == "mountain") rangePercent = this.mountain;
-      else if ($(event.target).attr("id") == "ocean") rangePercent = this.water;
-      // : this.forest);
-      $(event.target).css('filter', 'grayscale(' + (50 - (5 * rangePercent)) + '%)');
-
-      this.setTimeoutRechPower()
-      this.onChangeFilter();
-    },
-    onChangeMaincost(event)
-    {
-      var rangePercent = this.handCost * 10;
-      $(event.target).css('filter', 'hue-rotate(-' + rangePercent + 'deg)');
-
-      this.setTimeoutRechMaincost()
-      this.onChangeFilter();
-    },
-    onChangeRecallCost(event) 
-    {
-      var rangePercent = this.reserveCost * 10;
-      $(event.target).css('filter', 'hue-rotate(-' + rangePercent + 'deg)');
-
-      this.setTimeoutRechRecallcost()
-      this.onChangeFilter();
-    },
-    selectCharacter() 
-    {
-      this.isSelectedCharacter = !this.isSelectedCharacter;
-      this.setTimeoutRechType()
-      this.onChangeFilter();
-    },
-    selectSpell() 
-    {
-      if(this.isSelectedUnique) return
-      this.isSelectedSpell = !this.isSelectedSpell;
-      this.setTimeoutRechType()      
-      this.onChangeFilter();
-    },
-    selectPermanent() 
-    {
-      if(this.isSelectedUnique) return
-      this.isSelectedPermanent = !this.isSelectedPermanent;
-      this.setTimeoutRechType()      
-      this.onChangeFilter();
-    },
-    selectHero() 
-    {
-      if(this.isSelectedUnique) return
-      this.setTimeoutRechType()
-      this.isSelectedHero = !this.isSelectedHero;
-      this.onChangeFilter();
-    },
-    selectToken()
-    {
-      if(this.isSelectedUnique) return
-      this.setTimeoutRechType()
-      this.isSelectedToken = !this.isSelectedToken;
-      this.onChangeFilter();
-    },
     isEmptyFetchedCards() {
       return !this.hasResult();
     },
-    isCurrentAxiom() {
-      return this.currentFaction == "AX";
-    },
-    isCurrentBravos() {
-      return this.currentFaction == "BR";
-    },
-    isCurrentLyra() {
-      return this.currentFaction == "LY";
-    },
-    isCurrentMuna() {
-      return this.currentFaction == "MU";
-    },
-    isCurrentOrdis() {
-      return this.currentFaction == "OR";
-    },
-    isCurrentYzmir() {
-      return this.currentFaction == "YZ";
-    },
-    searchCardsBtnRechercher()
+    e_searchCards()
     {
-      if(!this.currentFaction)
-      {
-        toast('Veuillez sélectionner une faction pour pouvoir lancer la recherche', { type: TYPE.ERROR }) 
-        return
-      }
       this.searchCards(false, false)
     },
     searchCards(pdontfetch, pshowstat) {
@@ -2494,246 +1588,18 @@ export default {
         this.fetchCards();
       }
     },
-    changeFaction(event) 
-    {
-      if(!this.canSelectFaction()) return
-
-      var $target = $(event.target);
-      var $a = $target.is("a") ? $target : $target.parents("a:first");
-      this.setCurrentFaction($a);
-    },
-    setCurrentFaction(link) {
-      $(".aw-factionsel a").each(function () {
-        $(this).removeClass("aw-selected");
-      });
-
-      this.currentFaction = link.attr("id");
-      link.addClass("aw-selected")
-    },
-    selectCommon() 
-    {
-      this.isSelectedCommon = !this.isSelectedCommon
-      if(this.deckbuilder)
-      {
-        this.isSelectedUnique = false
-      }
-      this.setTimeoutRechRarete()
-      this.onChangeFilter()
-    },
-    selectRare() 
-    {
-      this.isSelectedRare = !this.isSelectedRare
-      if(this.deckbuilder)
-      {
-        this.isSelectedUnique = false
-      }
-      this.setTimeoutRechRarete()
-      this.onChangeFilter()
-    },
-    selectUnique() 
-    {
-      this.isSelectedUnique = !this.isSelectedUnique
-      if(this.deckbuilder && this.isSelectedUnique)
-      {
-        this.isSelectedCharacter = true;
-        this.isSelectedSpell = false;
-        this.isSelectedPermanent = false;
-        this.isSelectedHero = false;
-        this.isSelectedToken = false;
-
-        this.isSelectedRare = false
-        this.isSelectedCommon = false
-      }
-      this.setTimeoutRechRarete()
-      this.onChangeFilter()
-    },
-    setTimeoutRechRarete()
-    {
-      this.showRechRarete = true
-      clearTimeout(this.timeoutRechRarete)
-
-      this.timeoutRechRarete = setTimeout(() => {
-        this.showRechRarete = false
-      }, this.dureeTimeoutRech)
-    },
-    setTimeoutRechType()
-    {
-      this.showRechType = true
-      clearTimeout(this.timeoutRechType)
-
-      this.timeoutRechType = setTimeout(() => {
-        this.showRechType = false
-      }, this.dureeTimeoutRech)
-    },
-    setTimeoutRechMaincost()
-    {
-      this.showRechMaincost = true
-      clearTimeout(this.timeoutRechMaincost)
-
-      this.timeoutRechMaincost = setTimeout(() => {
-        this.showRechMaincost = false
-      }, this.dureeTimeoutRech)
-    },
-    setTimeoutRechRecallcost()
-    {
-      this.showRechRecallcost = true
-      clearTimeout(this.timeoutRechRecallcost)
-
-      this.timeoutRechRecallcost = setTimeout(() => {
-        this.showRechRecallcost = false
-      }, this.dureeTimeoutRech)
-    },
-    setTimeoutRechPower()
-    {
-      this.showRechPower = true
-      clearTimeout(this.timeoutRechPower)
-
-      this.timeoutRechPower = setTimeout(() => {
-        this.showRechPower = false
-      }, this.dureeTimeoutRech)
-    },
-    setTimeoutRechKeyword()
-    {
-      this.showRechKeyword = true
-      clearTimeout(this.timeoutRechKeyword)
-
-      this.timeoutRechKeyword = setTimeout(() => {
-        this.showRechKeyword = false
-      }, this.dureeTimeoutRech)
-    },
-    setTimeoutRechSubtype()
-    {
-      this.showRechSubtype = true
-      clearTimeout(this.timeoutRechSubtype)
-
-      this.timeoutRechSubtype = setTimeout(() => {
-        this.showRechSubtype = false
-      }, this.dureeTimeoutRech)
-    },
-    setTimeoutRechEdition()
-    {
-      this.showRechEdition = true
-      clearTimeout(this.timeoutRechEdition)
-
-      this.timeoutRechEdition = setTimeout(() => {
-        this.showRechEdition = false
-      }, this.dureeTimeoutRech)
-    },
-    setTimeoutRechSort()
-    {
-      this.showRechSort = true
-      clearTimeout(this.timeoutRechSort)
-
-      this.timeoutRechSort = setTimeout(() => {
-        this.showRechSort = false
-      }, this.dureeTimeoutRech)
-    },
-    calcCost(rangeType, costValue) {
-      var couts = [];
-
-      if (!rangeType) return [Number(costValue)];
-      if (rangeType == "ouplus") {
-        if (costValue == 0) return []; //0 ou plus : ne pas envoyer le param
-        for (let cost = Number(costValue); cost <= 20; cost++) {
-          couts.push(cost);
-        }
-      }
-      else {
-        if (costValue == 10) return []; //10 ou moins : ne pas envoyer le param
-        for (let cost = Number(costValue); cost >= 0; cost--) {
-          couts.push(cost);
-        }
-      }
-      return couts;
-    },
-    calcMainCost() {
-      return this.calcCost(this.handCostOrMore, this.handCost);
-    },
-    calcReserveCost() {
-      return this.calcCost(this.reserveCostOrMore, this.reserveCost);
-    },
-    calcStat(rangeType, statvalue) {
-      var powers = [];
-      if (!this.isSelectedCharacter) return powers; //si pas type perso, power ne sert à rien
-      if (!rangeType) return [Number(statvalue)];
-      if (rangeType == "ouplus") {
-        if (statvalue == 0) return []; //0 ou plus : ne pas envoyer le param
-        for (let power = Number(statvalue); power <= 10; power++) {
-          powers.push(power);
-        }
-      }
-      else {
-        if (statvalue == 10) return []; //10 ou moins : ne pas envoyer le param
-        for (let power = Number(statvalue); power >= 1; power--) {
-          powers.push(power);
-        }
-      }
-      return powers;
-    },
-    calcForest() {
-      return this.calcStat(this.forestOrMore, this.forest);
-    },
-    calcMountain() {
-      return this.calcStat(this.mountainOrMore, this.mountain);
-    },
-    calcWater() {
-      return this.calcStat(this.waterOrMore, this.water);
-    },
-    calcType() {
-      var types = [];
-      if (this.isSelectedCharacter) types.push("CHARACTER");
-      if (this.isSelectedSpell) types.push("SPELL");
-      if (this.isSelectedPermanent) types.push("PERMANENT");
-      if (this.isSelectedHero) types.push("HERO");
-      if (this.isSelectedToken) types.push("TOKEN");
-      return types;
-    },
-    calcRarities() {
-      var rarities = [];
-      if (this.isSelectedCommon) rarities.push("COMMON");
-      if (this.isSelectedRare) rarities.push("RARE");
-      if (this.isSelectedUnique) rarities.push("UNIQUE");
-      return rarities;
-    },
     fetchCards() 
     {
       if (this.currentPage > 1 && !this.hasMore) return;
       
       this.loading = true;
-      if (!this.currentSort || this.currentSort.length == 0) this.currentSort = [database ? 'name' : 'translations.name'];
 
-      var calcparams = {
-        deckbuilder: this.deckbuilder,
-        currentFaction: this.currentFaction,
-        currentName: this.currentName,
-        calculatedrarity: this.calcRarities(),
-        calculatedmaincost: this.calcMainCost(),
-        calculatedrecallcost: this.calcReserveCost(),
-        calculatedforest: this.calcForest(),
-        calculatedmountain: this.calcMountain(),
-        calculatedwater: this.calcWater(),
-        calculatedtype: this.calcType(),
-        currentEditions: this.currentEditions,
-        currentSoustypes: this.currentSoustypes,
-        currentKeywords: this.currentKeywords,
-        currentSort: this.currentSort,
-        currentPage: this.currentPage,
+      var calcparams = $.extend({
         itemsPerPage: this.itemsPerPage,
-        capaStaticNonVide: this.cbCapaStatic,
-        capaStatic: this.fCapaStatic,
-        capaEtbNonVide: this.cbCapaEtb,
-        capaEtb: this.fCapaEtb,
-        capaHandNonVide: this.cbCapaHand,
-        capaHand: this.fCapaHand,
-        capaReserveNonVide: this.cbCapaReserve,
-        capaReserve: this.fCapaReserve,
-        capaSupportNonVide: this.cbCapaSupport,
-        capaSupport: this.fCapaSupport,
-        capaExhaustNonVide: this.cbCapaExhaust,
-        capaExhaust: this.fCapaExhaust,
-      }
+        currentPage: this.currentPage,
+        deckbuilder: this.deckbuilder,}, this.globalStore.getParamsForRequestCards())
 
-      if(this.database) this.fetchCardsFromDatabase(calcparams)
+      if(this.globalStore.database) this.fetchCardsFromDatabase(calcparams)
       else this.fetchCardsFromApi(calcparams)      
     },
     fetchCardsFromDatabase(calcparams)
@@ -3011,185 +1877,5 @@ export default {
   min-height: 130px;
   background-image: url(/src/assets/img/bg.webp);
   background-repeat: repeat;
-}
-
-.aw-raritysel img {
-  width: 50px;
-}
-
-.aw-raritysel a:hover::after,
-.aw-raritysel .aw-selected::after {
-  content: '';
-  width: 50px;
-  display: block;
-  margin: 0 auto;
-  position: absolute;
-  border-bottom-width: 5px;
-  border-bottom-style: solid;
-}
-
-
-.aw-slider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.aw-slider input[type=range] {
-  outline: 0;
-  border: 0;
-  border-radius: 500px;
-  width: 400px;
-  max-width: 100%;
-  margin: 16px 0 0 0px;
-  transition: box-shadow 0.2s ease-in-out;
-}
-
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  .aw-slider input[type=range] {
-    overflow: hidden;
-    -webkit-appearance: none;
-    appearance: none;
-    background-color: #ddd;
-  }
-
-  .aw-slider input[type=range]::-webkit-slider-runnable-track {
-    height: 25px;
-    -webkit-appearance: none;
-    color: #444;
-    -webkit-transition: box-shadow 0.2s ease-in-out;
-    transition: box-shadow 0.2s ease-in-out;
-  }
-
-  .aw-slider input[type=range]::-webkit-slider-thumb {
-    width: 25px;
-    -webkit-appearance: none;
-    height: 25px;
-    cursor: ew-resize;
-    background: #fff;
-    box-shadow: -330px 0 0 320px #1597ff, inset 0 0 0 25px #1597ff;
-    border-radius: 50%;
-    -webkit-transition: box-shadow 0.2s ease-in-out;
-    transition: box-shadow 0.2s ease-in-out;
-    position: relative;
-  }
-
-  .aw-slider input[type=range]:active::-webkit-slider-thumb {
-    background: #fff;
-    box-shadow: -330px 0 0 320px #1597ff, inset 0 0 0 3px #1597ff;
-  }
-}
-
-.aw-slider input[type=range]::-moz-range-progress {
-  background-color: #43e5f7;
-}
-
-.aw-slider input[type=range]::-moz-range-track {
-  background-color: #9a905d;
-}
-
-.aw-slider input[type=range]::-ms-fill-lower {
-  background-color: #c933bc;
-}
-
-.aw-slider input[type=range]::-ms-fill-upper {
-  background-color: #9a905d;
-}
-
-
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  .aw-stats .aw-slider input[type=range] {
-    /*transform:rotate(270deg);*/
-    /*cursor:n-resize;*/
-    filter: grayscale(25%);
-    margin-top: 0;
-  }
-
-  .aw-stats .aw-slider input[type=range] {
-    height: 20px;
-  }
-
-  .aw-stats .aw-slider input[type=range]::-webkit-slider-runnable-track {
-    height: 20px;
-  }
-
-  .aw-stats .aw-slider input[type=range]::-webkit-slider-thumb {
-    height: 20px;
-    width: 20px;
-  }
-
-  .aw-stats .aw-slider input#forest[type=range]::-webkit-slider-thumb {
-    box-shadow: -330px 0 0 320px var(--c-forest), inset 0 0 0 25px var(--c-forest);
-  }
-
-  .aw-stats .aw-slider input#mountain[type=range]::-webkit-slider-thumb {
-    box-shadow: -330px 0 0 320px var(--c-mountain), inset 0 0 0 25px var(--c-mountain);
-  }
-
-  .aw-stats .aw-slider input#water[type=range]::-webkit-slider-thumb {
-    box-shadow: -330px 0 0 320px var(--c-ocean), inset 0 0 0 25px var(--c-ocean);
-  }
-}
-
-.aw-stats .altered-forest {
-  color: var(--c-forest);
-}
-
-.aw-stats .altered-mountain {
-  color: var(--c-mountain);
-}
-
-.aw-stats .altered-ocean {
-  color: var(--c-ocean);
-}
-
-.aw-type a,
-.aw-type a span {
-  color: #5E678C;
-  transition: all .5s;
-  position: relative;
-}
-
-.aw-type a.aw-character:hover,
-.aw-type a.aw-character:hover span,
-.aw-type a.aw-character.aw-selected {
-  color: var(--c-unique);
-}
-
-.aw-type a.aw-spell:hover,
-.aw-type a.aw-spell:hover span,
-.aw-type a.aw-spell.aw-selected {
-  color: var(--c-ocean);
-}
-
-.aw-type a.aw-permanent:hover,
-.aw-type a.aw-permanent:hover span,
-.aw-type a.aw-permanent.aw-selected {
-  color: var(--c-mountain);
-}
-
-.aw-type a.aw-hero:hover,
-.aw-type a.aw-hero:hover span,
-.aw-type a.aw-hero.aw-selected {
-  color: var(--c-forest);
-}
-
-.aw-type a.aw-token:hover,
-.aw-type a.aw-token:hover span,
-.aw-type a.aw-token.aw-selected {
-  color: var(--c-rare);
-}
-
-.aw-type a:hover::after,
-.aw-type a.aw-selected::after {
-  content: '';
-  width: 50px;
-  display: block;
-  margin: 0 auto;
-  position: absolute;
-  border-bottom-width: 5px;
-  border-bottom-style: solid;
-  bottom: -8px;
 }
 </style>
