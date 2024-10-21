@@ -118,6 +118,9 @@ export default {
 
                 if(data.user)
                 {
+                    data.user.admin = false
+                    pcallback(data.user) //appel du callback pour ne pas attendre la récup des roles
+
                     assignRoles(data.user, pcallback)
                 }
                 else pcallback(data.user)
