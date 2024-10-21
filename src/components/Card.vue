@@ -7,7 +7,7 @@
           <img :src="g_getImageCardPublicUrl(card)" :title="card.name" class="img-fluid aw-alteredcard" />
           <img src="@/assets/img/sparkles.gif" alt="" class="image-sparkles mbm-color-dodge" />
         </div>
-        <div :class="['aw-collection', getClassCardCollection()]" v-if="!deckbuilder">
+        <div :class="['aw-collection', getClassCardCollection()]" v-if="user && !deckbuilder">
           Collection: {{ card.inMyCollection }}<br>
           Wantlist: {{ card.inMyWantlist }}<br>
           Tradelist: {{ card.inMyTradelist }}
