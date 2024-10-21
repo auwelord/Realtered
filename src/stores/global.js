@@ -45,6 +45,7 @@ export const useGlobalStore = defineStore('global', {
       notemptysupport: false,
       support: null,
       ui:{
+        showtools: false,
         showrarity: true,
         showkeyword: true,
         showmaincost: true,
@@ -101,7 +102,7 @@ export const useGlobalStore = defineStore('global', {
         this.cardfilter.unique = false
       }
     },
-    controlerFiltreUnique()
+    controlerFiltreUnique(pdeckbuilder)
     {
       if(this.cardfilter.unique)
       {
@@ -110,8 +111,11 @@ export const useGlobalStore = defineStore('global', {
         this.cardfilter.permanent = false
         this.cardfilter.hero = false
         this.cardfilter.token = false
-        this.cardfilter.rare = false
-        this.cardfilter.common = false
+        if(pdeckbuilder)
+        {
+          this.cardfilter.rare = false
+          this.cardfilter.common = false
+        }
       }
     },
     getNotEmptySorts()

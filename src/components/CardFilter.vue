@@ -2,17 +2,13 @@
 <div class="card card-outline card-warning">
   <div class="card-header">
     <div class="d-flex justify-content-end">
-      <div v-if="!gstunique && g_isAdmin(user) && globalStore.cardfilter.faction" class="mt-2">
-        BDD
-        <label class="switch me-2">
-          <input type="checkbox" v-model="globalStore.database">
-          <span class="slider round"></span>
-        </label>
+      <div v-if="!gstunique && g_isAdmin(user) && globalStore.cardfilter.faction" class="mt-2 me-2">
+        <BFormCheckbox v-model="globalStore.database">BDD</BFormCheckbox>
       </div>
       <BButton @click="globalStore.clearCardFilter(gstunique)" variant="light" size="sm" class="me-2" title="Supprimer tous les filtres (hors factions/éditions/tris)">
         <font-awesome-icon :icon="['fas', 'eraser']" />
       </BButton>
-      <BDropdown v-model="showDDOptionsCardSearch" v-if="!gstunique && !deckbuilder && g_isBearer()" variant="secondary" class="me-2">
+      <BDropdown v-model="showDDOptionsCardSearch" size="sm" v-if="!gstunique && !deckbuilder" variant="secondary" class="me-2">
         <template #button-content>
           <font-awesome-icon :icon="['fas', 'gear']" />
         </template>
@@ -29,7 +25,18 @@
       <BButton @click="e_searchCards" variant="unique" size="sm">
         <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="me-2" />{{$t('ui.action.rechercher')}}
       </BButton>
+      <BButton @click="e_showAddUnique" variant="success" size="sm" class="ms-2" title="Ajouter une Unique" v-if="gstunique">
+        <font-awesome-icon :icon="['fas', 'circle-plus']" />
+      </BButton>
+      <div class="aw-collapsible ms-3" v-b-toggle.awid-filtrestools  v-if="g_isBearer()">
+        <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+      </div>
     </div>
+    <BCollapse id="awid-filtrestools" v-model="globalStore.cardfilter.ui.showtools" v-if="g_isBearer()">
+      <BButton @click="e_updateCollection" variant="secondary" size="sm" class="me-2" v-if="user">
+        <font-awesome-icon :icon="['fas', 'database']" class="me-2" />Update Collection
+      </BButton>
+    </BCollapse>
   </div> <!-- /.card-header -->
   <div class="card-header" v-if="!gstunique && g_isAdmin(user)">
     <div v-if="!globalStore.database && globalStore.cardfilter.faction"> <!--&& fetchedCards -->
@@ -408,10 +415,23 @@
     </BCollapse>
   </div>
 </div>
+
+<BModal v-model="showModalImportUnique" size="md" hide-footer @cancel="showModalImportUnique = false" :title="$t('ui.action.importunique')" cancel-title="Annnuler" ok-title="Importer" ok-variant="unique">
+    <BInputGroup>
+      <BFormInput v-model="fCodeImportUnique" placeholder="Code" id="awid-fCodeImportUnique" />
+      
+      <BButton variant="primary" @click="e_importerUnique"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></BButton>
+    </BInputGroup>
+
+    <div v-if="importedUnique" class="d-flex flex-column justify-content-center mt-2">
+      <div class="text-center fs-5 p-2">{{$t('ui.title.uniquefound')}}</div>
+      <img :src="g_getImageCardPublicUrl(importedUnique)" class="img-fluid"/>
+    </div>
+  </BModal>
 </template>
 
 <script setup>
-const emit = defineEmits(['searchcards']);
+const emit = defineEmits(['searchcards', 'updatemissing']);
 </script>
 
 <script>
@@ -447,6 +467,9 @@ export default {
       cptupdatecard: 0,
       updatingname: null,
       showDDOptionsCardSearch: false,
+      showModalImportUnique: false,
+      fCodeImportUnique: null,
+      importedUnique:null,
       //bouton... loupe par type de recherche (pour eviter le scroll jusqu'au bouton Rechercher)
       dureeTimeoutRech: 4000,
       showRechRarete: false,
@@ -491,6 +514,12 @@ export default {
       $('#awid-fmaincost').css('filter', 'hue-rotate(-' + (this.globalStore.cardfilter.maincost  * 10) + 'deg)')
       $('#awid-frecallcost').css('filter', 'hue-rotate(-' + (this.globalStore.cardfilter.recallcost * 10) + 'deg)')
       this.changeColorSlider('forest', this.globalStore.cardfilter.forest)
+
+      if(this.gstunique)
+      {
+        this.globalStore.cardfilter.unique = true
+        this.globalStore.controlerFiltreUnique(true) //true pour forcer rare et common à false
+      }
       setTimeout(() => this.starting = false, 300)
   },
   watch:{
@@ -570,7 +599,92 @@ export default {
       if(!this.starting) this.setTimeoutRechKeyword()
     },
   },
+  inject: ['callShowWaitingScreen', 'callHideWaitingScreen'], // Injecter la méthode de App.vue
   methods: {
+    e_showAddUnique()
+    {
+      this.showModalImportUnique = true
+      this.fCodeImportUnique = null
+      this.importedUnique = null
+
+      setTimeout(() => $('#awid-fCodeImportUnique').trigger('focus'), 250)
+    },
+    e_importerUnique()
+    {
+      if(!this.fCodeImportUnique) return
+
+      var tab = this.fCodeImportUnique.split('/')
+      var id = tab[tab.length - 1]
+      this.fCodeImportUnique = id
+
+      const onFetchedCard = pcard => 
+      {
+        //si la carte a ete trouvé => message d'erreur
+        if(pcard)
+        {
+          this.callHideWaitingScreen()
+          this.importedUnique = pcard
+          toast("Cette carte existe déjà", { type: TYPE.ERROR })
+          return
+        }
+        
+        this.g_updateCardFromApi(this.fCodeImportUnique, false,
+          //onUpdatedCard: 
+          (ppcard, palreadyexists, pforcedlocale) => 
+          {
+            if(!ppcard)
+            {
+              if(!pforcedlocale) this.callHideWaitingScreen()
+              toast("Une erreur s'est produite lors de l'import de la carte", { type: TYPE.ERROR })
+              return
+            }
+
+            if(!this.g_isUnique(ppcard))
+            {
+              this.callHideWaitingScreen()
+              toast("Cette carte n'est pas une unique", { type: TYPE.ERROR });
+              return
+            }
+
+            this.g_downloadImages([ppcard], pforcedlocale,
+              //onDownloadingImage
+              pppcard => console.log("Téléchargement de l'image " + pppcard.imagePath),
+              //onDownloadedImages
+              pcards => 
+              {
+                if(!pforcedlocale) {
+                  this.callHideWaitingScreen()
+                  this.importedUnique = pcards[0]
+                }
+              },
+              //onUpdatedImageS3
+              (pppcard, palreadyexists, pref, ppforcedlocale) => 
+              {
+                if(!pppcard && !ppforcedlocale) toast("La carte a été importée mais l'upload de l'image a échoué", { type: TYPE.ERROR })
+                else console.log("maj base Card.imageS3 : " + pppcard.imageS3)
+              }
+            )
+          }
+        )
+      }
+
+      this.callShowWaitingScreen(500)
+      this.g_fetchCard(this.fCodeImportUnique, onFetchedCard);
+    },
+    e_updateCollection()
+    {
+      if(this.fetchedCards.length == 0) return
+
+      this.g_updateCollection(this.fetchedCards, (pdata, perror) => 
+      {
+        if(perror) 
+        {
+          toast(perror.message, { type: TYPE.ERROR }) 
+          return
+        }
+        toast("Cartes mises à jour : " + pdata.nbupdates, { type: TYPE.SUCCESS }) 
+      })
+    },
     e_searchCards()
     {
       if(!this.globalStore.cardfilter.faction)
@@ -583,21 +697,15 @@ export default {
     },
     e_showMissingCollection()
     {
-      this.affmissingcollection = true
-      this.affmissingtrade = false
-      this.affmissingwant = false
+      this.$emit('updatemissing', true, false, false)
     },
     e_showMissingTrade()
     {
-      this.affmissingcollection = false
-      this.affmissingtrade = true
-      this.affmissingwant = false
+      this.$emit('updatemissing', false, true, false)
     },
     e_showMissingWant()
     {
-      this.affmissingcollection = false
-      this.affmissingtrade = false
-      this.affmissingwant = true
+      this.$emit('updatemissing', false, false, true)
     },
     e_changeFaction(event) 
     {
@@ -658,7 +766,7 @@ export default {
     e_selectUnique() 
     {
       this.globalStore.cardfilter.unique = !this.globalStore.cardfilter.unique
-      if(this.deckbuilder) this.globalStore.controlerFiltreUnique()
+      this.globalStore.controlerFiltreUnique(this.deckbuilder)
       this.setTimeoutRechRarete()
     },
     e_downloadImages()

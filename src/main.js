@@ -14,6 +14,7 @@ import i18n from '@/utilities/i18n';
 import "vue-toastification/dist/index.css";
 import altered from './assets/js/altered';
 import db from './assets/js/db';
+import global from './assets/js/global';
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 import './assets/fonts/AlteredIcons.css'
@@ -36,6 +37,7 @@ const app = createApp(App)
     .use(router)
     .use(pinia)
     .use(altered)
+    .use(global)
     .use(db)
     .use(Toast)
     .use(i18n)

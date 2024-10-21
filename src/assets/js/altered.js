@@ -454,7 +454,7 @@ export default {
         
         app.config.globalProperties.g_isUniqueFromReference = function (preference)
         {
-            return preference && preference.split('_').length == 7            
+            return preference && preference.split('_').length == 7 && preference.split('_')[5] == 'U'
         }
 
         app.config.globalProperties.g_sortDeck = function (pdeck) {

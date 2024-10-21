@@ -121,6 +121,8 @@
             :affmissingcollection="affmissingcollection"
             :affmissingtrade="affmissingtrade"
             :affmissingwant="affmissingwant"
+            :fetchedCards="fetchedCards"
+            @updatemissing="e_updateMissings"
             @searchcards="e_searchCards"
           />
           <!-- /.card-body -->
@@ -1003,7 +1005,7 @@ export default {
             this.currentDeck.hero_id = null
             this.currentDeck.hero = null
             //reset la recherche
-            this.fetchedCards = []
+            this.fetchedCards.length = 0
           }
 
           if (pcard.quantite == 0) 
@@ -1569,30 +1571,36 @@ export default {
     isEmptyFetchedCards() {
       return !this.hasResult();
     },
+    e_updateMissings(pcollec, ptrade, pwant)
+    {
+      this.affmissingcollection = pcollec
+      this.affmissingtrade = ptrade
+      this.affmissingwant = pwant
+    },
     e_searchCards()
     {
       this.searchCards(false, false)
     },
     searchCards(pdontfetch, pshowstat) {
-      this.fetchedCards = [];
-      this.hasMore = true;
-      this.currentPage = 1;
-      this.itemsPerPage = this.deckbuilder ? 12 : 24
-      this.uiparams.afficherstats = pshowstat;
+      this.fetchedCards.length = 0
+      this.hasMore = true
+      this.currentPage = 1
+      this.itemsPerPage = this.deckbuilder ? 12 : 36
+      this.uiparams.afficherstats = pshowstat
 
       if(this.deckbuilder)
       {
-        this.storeUiparams();
+        this.storeUiparams()
       }
       if (!pdontfetch) {
-        this.fetchCards();
+        this.fetchCards()
       }
     },
     fetchCards() 
     {
-      if (this.currentPage > 1 && !this.hasMore) return;
+      if (this.currentPage > 1 && !this.hasMore) return
       
-      this.loading = true;
+      this.loading = true
 
       var calcparams = $.extend({
         itemsPerPage: this.itemsPerPage,
@@ -1604,65 +1612,73 @@ export default {
     },
     fetchCardsFromDatabase(calcparams)
     {
-      this.g_fetchCardsFromDatabase(calcparams, pcards => 
+      this.g_fetchCardsFromDatabase(calcparams, (pcards, phasMore) => 
       {
-        if(pcards)
+        if(!pcards)
         {
-          this.currentPage++;
-          this.hasMore = pcards.length > this.itemsPerPage;
-          if(this.hasMore) pcards.pop(); //on vire le dernier élément qui ne sert qu'à savoir si il y a d'autres cartes à fetch
-          
-          pcards.forEach(card => 
-          {
-              var zecard = this.deckbuilder ? this.g_getCardInDeck(card.reference, this.currentDeck) : card;
-              if (zecard) this.fetchedCards.push(zecard);
-              else 
-              {
-                  card.quantite = 0;
-                  this.fetchedCards.push(card);
-              }
-          });
+          toast("Une erreur s'est produite lors de la recherche de cartes", { type: TYPE.ERROR })
+          this.loading = false
+          return
+        }
 
-          //récup des quantités
+        this.currentPage++
+        this.hasMore = phasMore
+                  
+        pcards.forEach(card => 
+        {
+            var zecard = this.deckbuilder ? this.g_getCardInDeck(card.reference, this.currentDeck) : card;
+            if (zecard) this.fetchedCards.push(zecard);
+            else 
+            {
+                card.quantite = 0;
+                this.fetchedCards.push(card);
+            }
+        });
+
+        //récup des quantités
+        
+        this.g_getCollection(pcards, (ppcards, perror) => 
+        {
+          if(perror)
+          {
+            toast(perror.response ? perror.response.data.message : perror.message, { type: TYPE.ERROR })   
+            this.loading = false
+            return
+          }
+
           if(this.g_isBearer())
           {
-            this.g_getCollection(pcards, (ppcards, perror) => {
-
-              if(perror)
+            this.fetchedCards.forEach(pcard => 
+            {
+              const cardstat = ppcards.find(pcardstat => pcardstat.reference == pcard.reference)
+              if(cardstat)
               {
-                toast(perror.response.data.message, { type: TYPE.ERROR })    
+                cardstat.inMyWantlist = cardstat.inMyWantlist ? 1 : 0
+                $.extend(pcard, cardstat)
               }
-              this.fetchedCards.forEach(pcard => {
-                const cardstat = ppcards.find(pcardstat => pcardstat.reference == pcard.reference)
-                if(cardstat)
-                {
-                  $.extend(pcard, cardstat)
-                }
-              })
-
-              this.fetchedCards.forEach(pcard => 
-              {
-                pcard.inMyCollectionTotal = 0
-                pcard.inMyTradelistTotal = 0
-                const ext = pcard.reference.split('_')[1]
-                const otherext = this.getAllSetsOtherCodes(ext)
-
-                if(otherext)
-                {
-                  const otherref = pcard.reference.replace(ext, otherext)
-                  const cardstat = this.fetchedCards.find(pcardstat => pcardstat.reference == otherref)
-                  if(cardstat)
-                  {
-                    pcard.inMyCollectionTotal = pcard.inMyCollection + cardstat.inMyCollection
-                    pcard.inMyTradelistTotal = pcard.inMyTradelist + cardstat.inMyTradelist
-                  }
-                }
-              })
             })
           }
-        }
-        else toast("Une erreur s'est produite lors de la recherche de cartes", { type: TYPE.ERROR })    
 
+          //traitement de fusion KS/BTG
+          this.fetchedCards.forEach(pcard => 
+          {
+            pcard.inMyCollectionTotal = pcard.inMyCollection
+            pcard.inMyTradelistTotal = pcard.inMyTradelist
+            const ext = pcard.reference.split('_')[1]
+            const otherext = this.getAllSetsOtherCodes(ext)
+
+            if(otherext)
+            {
+              const otherref = pcard.reference.replace(ext, otherext)
+              const cardstat = this.fetchedCards.find(pcardstat => pcardstat.reference == otherref)
+              if(cardstat)
+              {
+                pcard.inMyCollectionTotal += cardstat.inMyCollection
+                pcard.inMyTradelistTotal += cardstat.inMyTradelist
+              }
+            }
+          })
+        })
         this.loading = false;
       })
     },

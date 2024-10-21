@@ -918,21 +918,19 @@ input:checked+.slider:before {
 .aw-cardoptions > div{
   height: 100%;
 }
-.aw-cardoptions .aw-tools.aw-raritycompare
+.aw-cardoptions .aw-tools:hover
 {
-  transition: .5s ease;
-}
-.aw-cardoptions .aw-tools.aw-raritycompare:hover
-{
-  background-color: #FFB410C4;
+  background-color: var(--c-uniqued2);
   cursor: pointer;
 }
 .aw-cardoptions .aw-tools
 {
   width: 100%;
-  background-color: #00000094;
+  background-color: #000000B2;
   padding: 7px calc(0.006* 100vw);
   color: white;
+  transition: .5s ease;
+  border-radius: 4px;
 }
 .aw-cardoptions .aw-button
 {
@@ -992,10 +990,13 @@ a.aw-unique::after {
 }
 
 .aw-cursor-notallowed{
-  cursor: not-allowed;
+  cursor: not-allowed !important;
 }
 .aw-cursor-pointer{
-  cursor: pointer;
+  cursor: pointer !important;
+}
+.aw-cursor-default{
+  cursor: default !important;
 }
 .aw-opacity25{
   opacity: 0.25;
@@ -1057,6 +1058,15 @@ a.aw-unique::after {
 
 .modal-header .btn-close {
   background: transparent url('@/assets/img/modalclosewhite.png') center / 2em auto no-repeat !important;
+}
+
+.aw-hoverscale15
+{
+  transition: scale .2s;
+}
+.aw-hoverscale15:hover
+{
+  scale: 1.5;
 }
 
 @media (prefers-color-scheme: dark) 

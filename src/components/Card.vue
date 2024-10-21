@@ -1,12 +1,15 @@
 <template>
 
   <div :class="getGridClass()">
-    <div class="d-flex flex-column align-items-center aw-card" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
+    <div :class="['d-flex flex-column align-items-center aw-card', getClassCard()]" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
       <div>
-        <img :src="g_getImageCardPublicUrl(card)" :title="card.name" class="img-fluid aw-alteredcard" />
-        <div :class="['aw-collection', getClassCardCollection()]" v-if="!deckbuilder && g_isBearer()">
-          Collection: {{ card.inMyCollection }} <br>
-          Wantlist: {{ card.inMyWantlist ? 'Oui' : 'Non' }}<br>
+        <div class="position-relative">
+          <img :src="g_getImageCardPublicUrl(card)" :title="card.name" class="img-fluid aw-alteredcard" />
+          <img src="@/assets/img/sparkles.gif" alt="" class="image-sparkles mbm-color-dodge" />
+        </div>
+        <div :class="['aw-collection', getClassCardCollection()]" v-if="!deckbuilder">
+          Collection: {{ card.inMyCollection }}<br>
+          Wantlist: {{ card.inMyWantlist }}<br>
           Tradelist: {{ card.inMyTradelist }}
         </div>
         <div class="aw-cardoptions" v-if="!g_isToken(card)">
@@ -16,17 +19,32 @@
                 <div class="aw-button d-flex align-items-center" v-visible="card.quantite > 0" @click="removeCardFromDeck(card)">
                   <font-awesome-icon :icon="['fa', 'circle-minus']" class="fs-3" />
                 </div>
-                <div class="aw-quantite fs-4">{{ card.quantite }}</div>              
+                <div class="aw-quantite fs-4">{{ card.quantite }}</div>
                 <div class="aw-button d-flex align-items-center" v-visible="g_canAddCardToDeck(card, currentDeck)" @click="addCardToDeck(card)">
                   <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-3" />
                 </div>
               </div>
-              <div class="mt-2 aw-tools aw-raritycompare d-flex flex-column align-items-center" @click="onShowCardDetail(card)" :title="$t('ui.action.comparerraretes')">
+              <div class="mt-2 aw-tools d-flex flex-column align-items-center" @click="onShowCardDetail(card)" :title="$t('ui.action.comparerraretes')">
                 <font-awesome-icon :icon="['fas', 'code-compare']" class="fs-6" />
               </div>
-              <div class="mt-2 aw-tools aw-raritycompare d-flex flex-column align-items-center" @click="e_onToggleFavori(card)" :title="$t('ui.action.addorremovefav')" v-if="user && !deckbuilder && g_isUnique(card)">
+              <div class="mt-2 aw-tools d-flex flex-column align-items-center" @click="e_onToggleFavori(card)" :title="$t('ui.action.addorremovefav')" v-if="user && !deckbuilder && g_isUnique(card)">
                 <font-awesome-icon :icon="['fas', 'heart']" style="color: red" v-if="card.favori" />
                 <font-awesome-icon :icon="['fas', 'heart']" v-else />
+              </div>
+              <div class="mt-2 aw-tools aw-cursor-default d-flex justify-content-between align-items-center" v-if="user && !deckbuilder">
+                <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyCollection > 0" @click="e_changeCollection(-1)"/>
+                Collection: {{ card.inMyCollection || 0}}
+                <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="!g_isUnique(card) || !card.inMyCollection" @click="e_changeCollection(1)"/>
+              </div>
+              <div class="mt-2 aw-tools aw-cursor-default d-flex justify-content-between align-items-center" v-if="user && !deckbuilder">
+                <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyTradelist > 0" @click="e_changeTrade(-1)"/>
+                Trade: {{ card.inMyTradelist || 0 }}
+                <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyTradelist < card.inMyCollection && (!g_isUnique(card) || !card.inMyTradelist)" @click="e_changeTrade(1)" />
+              </div>
+              <div class="mt-2 aw-tools aw-cursor-default d-flex justify-content-between align-items-center" v-if="user && !deckbuilder">
+                <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyWantlist > 0" @click="e_changeWant(-1)" />
+                <div>Want: {{ card.inMyWantlist || 0}}</div>
+                <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="!card.inMyWantlist || (!g_isUnique(card) && card.inMyWantlist > 0)" @click="e_changeWant(1)"/>
               </div>
             </div>
           </div>
@@ -78,6 +96,14 @@ export default {
     affmissingtrade: Boolean,
     affmissingwant: Boolean,
     deckbuilder: Boolean,
+    pptUnique: Boolean,
+  },
+  data(){
+    return {
+      timeoutcollection: null,
+      timeouttrade: null,
+      timeoutwant: null,
+    }
   },
   methods: {
     getGridClass() {
@@ -85,15 +111,66 @@ export default {
         return "col-12 col-xl-6 col-xxl-4 mb-3";
       return "col-12 col-md-6 col-lg-4 col-xxl-2 mb-3";
     },
+    getClassCard()
+    {
+      return this.card.foiled ? 'aw-foiled' : ''
+    },
     getClassCardCollection()
     {
       if(!this.deckbuilder)
       {
-        if(this.card.inMyCollectionTotal < 3 && this.affmissingcollection && this.affmissingcollection) return 'aw-missingcard'
-        if(this.card.inMyCollectionTotal - 3 > this.card.inMyTradelistTotal && this.affmissingtrade) return 'aw-missingtradelist'
-        if(this.card.inMyCollectionTotal < 3 && !this.card.inMyWantlist && this.affmissingwant) return 'aw-missingwantlist'
+        if(this.affmissingcollection && this.isMissingPlayset()) return 'aw-missingcard'
+        if(this.affmissingtrade && this.isMissingTrade()) return 'aw-missingtradelist'
+        if(this.affmissingwant && this.isMissingWant()) return 'aw-missingwantlist'
       }
       return ''
+    },
+    isMissingPlayset()
+    {
+      return (this.g_isUnique(this.card) && this.card.inMyCollectionTotal == 0) || (!this.g_isUnique(this.card) && this.card.inMyCollectionTotal < 3)
+    },
+    isMissingTrade()
+    {
+      if(this.g_isUnique(this.card)) return this.card.inMyCollectionTotal > 0 && this.card.inMyTradelistTotal != 1
+      return this.card.inMyCollectionTotal - 3 > this.card.inMyTradelistTotal
+    },
+    isMissingWant()
+    {
+        if(this.g_isUnique(this.card)) return false
+        return this.card.inMyCollectionTotal < 3 && !this.card.inMyWantlist
+    },
+    e_changeCollection(pqte)
+    {
+      if(!this.card.inMyCollection) this.card.inMyCollection = 0
+      this.card.inMyCollection += pqte
+      this.card.inMyCollectionTotal += pqte
+
+      if(this.timeoutcollection) clearTimeout(this.timeoutcollection)
+      this.timeoutcollection = setTimeout(() => 
+      {
+        this.g_updateCollection([this.card], pdata => {
+          if(pdata && pdata.nbupdates == 1) toast("Collection mise à jour pour '" + this.card.name + "'", { type: TYPE.SUCCESS })
+          else toast("Une erreur s'est produite lors de la mise à jur de la collection de '" + this.card.name + "'", { type: TYPE.ERROR })
+        })  
+      }, 1000)
+    },
+    e_changeTrade(pqte)
+    {
+      if(!this.card.inMyTradelist) this.card.inMyTradelist = 0
+      this.card.inMyTradelist += pqte
+      this.card.inMyTradelistTotal += pqte
+
+      if(this.timeouttrade) clearTimeout(this.timeouttrade)
+      this.timeouttrade = setTimeout(() => console.log('trade'), 1000)
+    },
+    e_changeWant(pqte)
+    {
+      if(!this.card.inMyWantlist) this.card.inMyWantlist = 0
+      this.card.inMyWantlist += pqte
+      this.card.inMyWantlistTotal += pqte
+
+      if(this.timeoutwant) clearTimeout(this.timeoutwant)
+      this.timeoutwant = setTimeout(() => console.log('want'), 1000)
     },
     e_onToggleFavori(pcard)
     {
@@ -111,6 +188,22 @@ export default {
 </script>
 
 <style scoped>
+.image-sparkles.mbm-color-dodge {
+    z-index: 11;
+}
+.mbm-color-dodge {
+    mix-blend-mode: color-dodge;
+}
+
+.image-sparkles {
+    position: absolute;
+    left: 0%;
+    top: 0%;
+    right: 0%;
+    bottom: 0%;
+    max-height: 100%;
+}
+
 .aw-playset {
   display: grid;
   grid-template-columns: 150px 80px 80px repeat(auto-fill, 350px) 100%;
@@ -132,7 +225,9 @@ export default {
   padding: 0 15px;
   height: auto;
 }
-
+.aw-card:hover .aw-collection {
+  display: none;
+}
 .aw-card .aw-collection.aw-missingcard
 {
   background-color: rgba(255, 0, 0, 0.7);
@@ -144,6 +239,15 @@ export default {
 .aw-card .aw-collection.aw-missingwantlist
 {
   background-color: var(--c-mountaintp);
+}
+
+.aw-card .image-sparkles
+{
+  display: none;
+}
+.aw-card.aw-foiled .image-sparkles
+{
+  display: block;
 }
 
 img {

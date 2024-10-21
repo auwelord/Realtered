@@ -23,6 +23,7 @@
                             :key="card.id" 
                             :card="card" 
                             :deckbuilder="false"
+                            :pptUnique="true"
                             :user="user"
                             @onshowcarddetail="e_showcarddetail" 
                             @mouseentercard="e_mouseenterCard" 
@@ -54,7 +55,7 @@ export default {
     data() {
         return {
             globalStore: useGlobalStore(),
-            itemsPerPage: 12,
+            itemsPerPage: 36,
             currentPage: 1,
             fetchedCards: [],
             hasMore: false,
@@ -68,7 +69,7 @@ export default {
     mounted(){
         this.globalStore.database = true
         this.globalStore.cardfilter.unique = true
-        this.globalStore.controlerFiltreUnique() //désactivation des autres raretes et selection characters seulement
+        this.globalStore.controlerFiltreUnique(false) //désactivation des autres raretes et selection characters seulement
         
     },
     methods: {
@@ -96,8 +97,24 @@ export default {
 
                     pcards.forEach(card => 
                     {
-                        this.fetchedCards.push(card);
+                        this.fetchedCards.push(card)
                     })
+
+                    if(this.g_isBearer())
+                    {
+                        this.g_getCollection(pcards, (ppcards, perror) => 
+                        {
+                            console.log(ppcards)
+                            this.fetchedCards.forEach(pcard => {
+                                const cardstat = ppcards.find(pcardstat => pcardstat.reference == pcard.reference)
+                                if(cardstat)
+                                {
+                                    cardstat.inMyWantlist = cardstat.inMyWantlist ? 1 : 0
+                                    $.extend(pcard, cardstat)
+                                }
+                            })        
+                        })
+                    }
                 }
             })
         },

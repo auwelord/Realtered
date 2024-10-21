@@ -180,14 +180,20 @@ export default {
             const innerFav = params.deckbuilder && params.calculatedrarity.length == 1 && params.calculatedrarity[0] == 'UNIQUE'
 
             const recupFav = ((!params.deckbuilder || innerFav) && data.user !== undefined)
-            
+            const recupCollec = (data.user !== undefined)
+
             var effectPrefix = ''
 
             var select = '*' + (recupFav ? ', UniqueFav' + (innerFav ? '!inner' : '') + '(*)' : '')
+            
             if(!isLocaleFrench())
             {
-                select += ', CardTrad!inner(*)'
+                select += ', CardTrad(*)'
                 effectPrefix = 'CardTrad.'
+            }
+            if(recupCollec)
+            {
+                select += ', Collection(*)'
             }
 
             var req = anonSupabase
@@ -202,6 +208,10 @@ export default {
             if(!isLocaleFrench())
             {
                 req = req.eq('CardTrad.locale', getLocale())
+            }
+            if(recupCollec)
+            {
+                req = req.eq('Collection.userId', data.user.id)
             }
 
             if (params.currentName) req = req.ilike(effectPrefix + 'name', '%' + params.currentName + '%')
@@ -254,15 +264,25 @@ export default {
                 params.currentSort.forEach(sortref => {
                     var tab = sortref.split(',')
                     req = req.order(tab[0] == 'translations.name' ? effectPrefix + 'name' : tab[0], { ascending: tab.length == 1 })
-                });      
+                }); 
+                req = req.order('reference')  //permet d'avoir toujours le meme tri pour les doublons potentiels selon le tri   
             }
             
-            req = req.range((params.currentPage - 1) * params.itemsPerPage, (params.currentPage * params.itemsPerPage) )
+            const rangemin = (params.currentPage - 1) * params.itemsPerPage
+            const rangemax = (params.currentPage * params.itemsPerPage)
 
+            req = req.range(rangemin, rangemax)
+
+            var hasMore = false
             try {
                 const { data: cards, error } = await req
 
-                
+                hasMore = !error && cards.length > params.itemsPerPage
+                if(hasMore)
+                {
+                    cards.pop(); //on vire le dernier élément qui ne sert qu'à savoir si il y a d'autres cartes à fetch
+                }
+
                 if(!error && recupFav)
                 {
                     cards.forEach(card => 
@@ -270,17 +290,23 @@ export default {
                         card.favori = app.config.globalProperties.g_isUnique(card) && card.UniqueFav.length > 0
                         delete card.UniqueFav
 
+                        card.inMyCollection = recupCollec && card.Collection.length > 0 ? card.Collection[0].inMyCollection : 0
+                        card.inMyTradelist = recupCollec && card.Collection.length > 0 ? card.Collection[0].inMyTradelist : 0
+                        card.inMyWantlist = recupCollec && card.Collection.length > 0 ? card.Collection[0].inMyWantlist : 0
+                        card.foiled = recupCollec && card.Collection.length > 0 && card.Collection[0].foiled
+
+                        if(recupCollec) delete card.Collection
                         fusionnerTrad(card)
                     })
                 }
 
                 if(error) console.error(error)
-                pcallback(cards)
+                pcallback(cards, hasMore)
             }
             catch(error)
             {
                 console.error(error)
-                pcallback([])
+                pcallback([], false)
             }
         }
 
@@ -1738,12 +1764,22 @@ export default {
                     $.extend(headers.headers, { 'Authorization': "Bearer " + bearer });
                 }
 
-                const { data, error } = await axios.post(API_BASEURL + '/cards/stats', pcards, headers)
+                //split des uniques
+                const cards = []
+                const uniques = []
+                
+                pcards.forEach(card => {
+                    if(app.config.globalProperties.g_isUniqueFromReference(card.reference)) uniques.push(card)
+                    else cards.push(card)
+                })
+
+                const { data, error } = await axios.post(API_BASEURL + '/cards/stats', {cards: cards, uniques: uniques}, headers)
                 
                 if(error) console.error(error)
                 else
                 {
-                    var tmpcards = data["hydra:member"].map(pcard => {
+                    var tmpcards = data.cards["hydra:member"].map(pcard => 
+                    {
                         return {
                             reference: pcard.reference,
                             inMyCollection: pcard.inMyCollection,
@@ -1751,6 +1787,16 @@ export default {
                             inMyTradelist: pcard.inMyTradelist,
                             foiled: pcard.foiled
                         }
+                    })
+
+                    data.uniques.forEach(punique => {
+                        tmpcards.push({
+                            reference: punique.reference,
+                            inMyCollection: punique.inMyCollection,
+                            inMyWantlist: punique.inMyWantlist,
+                            inMyTradelist: punique.inMyTradelist,
+                            foiled: punique.foiled
+                        })
                     })
                     
                     pcallback(tmpcards)
@@ -1766,8 +1812,42 @@ export default {
 
         app.config.globalProperties.g_getCollection = function(pcards, pcallback)
         {
-            getCollection(pcards, pcallback)
+            if(this.g_isBearer())
+                getCollection(pcards, pcallback)
+            else pcallback(null, null)
         }
+
+        async function updateCollection(pcards, pcallback)
+        {
+            if(!pcards || pcards.length == 0) return
+
+            const zeCards = pcards.map(pcard => {
+                return {
+                    reference: pcard.reference,
+                    inMyCollection: pcard.inMyCollection,
+                    inMyTradelist: pcard.inMyTradelist,
+                    inMyWantlist: pcard.inMyWantlist,
+                    foiled: pcard.foiled,
+                }
+            })
+
+            try 
+            {
+                const { data, error } = await axios.post(API_BASEURL + '/cards/collection/update', zeCards, hparams())
+                pcallback(data, error)
+            }
+            catch(error)
+            {
+                handleApiError(error)
+                pcallback(null, error)
+            }
+        }
+
+        app.config.globalProperties.g_updateCollection = function(pcards, pcallback)
+        {
+            updateCollection(pcards, pcallback)
+        }
+        
 
         async function updateDeckFromAltered(pdeck, pcards, pcallback)
         {
