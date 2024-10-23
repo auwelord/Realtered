@@ -29,6 +29,7 @@ export default {
     {
         function hparams(withformdata)
         {
+            var token = Cookies.get('sb-fyqptmokmnymednlerpj-auth-token')
             var token0 = Cookies.get('sb-fyqptmokmnymednlerpj-auth-token.0')
             var token1 = Cookies.get('sb-fyqptmokmnymednlerpj-auth-token.1')
 
@@ -36,11 +37,12 @@ export default {
                 withCredentials: true
             }
             params.headers = {}
+            if(token) params.headers['token'] = token
             if(token0) params.headers['token0'] = token0
             if(token1) params.headers['token1'] = token1
             if(withformdata) params.headers['Content-Type'] = 'multipart/form-data'
 
-            if(!token0 && !token1 && !withformdata) delete params.headers
+            if(!token0 && !token1 && !token && !withformdata) delete params.headers
 
             return params
         }
