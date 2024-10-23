@@ -219,7 +219,7 @@ export default {
       return setTimeout(() => {
         this.g_updateCollection([this.card], pdata => {
           if(pdata && pdata.nbupdates == 1) toast("Collection mise à jour pour '" + this.card.name + "'", { type: TYPE.SUCCESS })
-          else toast("Une erreur s'est produite lors de la mise à jur de la collection de '" + this.card.name + "'", { type: TYPE.ERROR })
+          else toast("Une erreur s'est produite lors de la mise à jour de la collection de '" + this.card.name + "'", { type: TYPE.ERROR })
         })  
       }, 1000)
     },
