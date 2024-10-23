@@ -52,7 +52,7 @@
               <div class="mt-2 aw-tools aw-cursor-default d-flex justify-content-between align-items-center" v-if="user && !deckbuilder">
                 <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyWantlist > 0" @click="e_changeWant(-1)" />
                 <div>Want: {{ card.inMyWantlist || 0}}</div>
-                <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="!card.inMyWantlist || (!g_isUnique(card) && card.inMyWantlist > 0)" @click="e_changeWant(1)"/>
+                <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="canAddWant()" @click="e_changeWant(1)"/>
               </div>
             </div>
           </div>
@@ -122,7 +122,13 @@ export default {
       if(this.card.inMyCollection == 0 || this.card.echangeable == this.card.inMyCollection) return false
       return true
     },
-    getGridClass() {
+    canAddWant()
+    {
+      if(this.g_isUnique(this.card) && (this.card.inMyCollection == 1 || this.card.inMyWantlist == 1)) return false
+      return true
+    },
+    getGridClass() 
+    {
       if (this.deckbuilder)
         return "col-12 col-xl-6 col-xxl-4 mb-3";
       return "col-12 col-md-6 col-lg-4 col-xxl-2 mb-3";
@@ -163,6 +169,7 @@ export default {
 
       if(this.card.echangeable > this.card.inMyCollection) this.card.echangeable = this.card.inMyCollection
       if(this.card.inMyTradelist > this.card.inMyCollection) this.card.inMyTradelist = this.card.inMyCollection
+      if(this.g_isUnique(this.card) && this.card.inMyCollection == 1) this.card.inMyWantlist = 0
 
       if(this.timeoutcollection) clearTimeout(this.timeoutcollection)
       this.timeoutcollection = this.updateCollection()
@@ -188,7 +195,6 @@ export default {
     {
       if(!this.card.inMyWantlist) this.card.inMyWantlist = 0
       this.card.inMyWantlist += pqte
-      this.card.inMyWantlistTotal += pqte
 
       if(this.timeoutwant) clearTimeout(this.timeoutwant)
       this.timeoutwant = this.updateCollection()

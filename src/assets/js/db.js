@@ -196,7 +196,7 @@ export default {
             }
             if(recupCollec)
             {
-                select += ', Collection' + ((params.onlycollec || params.onlyechangeable) ? '!inner' : '') + '(*)'
+                select += ', Collection' + ((params.onlycollec || params.onlyechangeable || params.onlywant) ? '!inner' : '') + '(*)'
             }
 
             var req = anonSupabase
@@ -216,6 +216,11 @@ export default {
             {
                 req = req.eq('Collection.userId', data.user.id)
                 if(params.onlycollec) req = req.gt('Collection.inMyCollection', 0)
+                else if(params.onlywant) 
+                {
+                    req = req.eq('Collection.inMyCollection', 0)
+                    req = req.gt('Collection.inMyWantlist', 0)
+                }
                 if(params.onlyechangeable) req = req.gt('Collection.echangeable', 0)
             }
 

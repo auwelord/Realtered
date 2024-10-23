@@ -79,6 +79,9 @@
     <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder">
       <BFormCheckbox v-model="globalStore.cardfilter.onlyechangeable">Uniquement mes cartes échangeables</BFormCheckbox>
     </BInputGroup>
+    <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder"> <!--&& !globalStore.cardfilter.onlycollec && !globalStore.cardfilter.onlyechangeable--><!--à voir si c mieux niveau ergo de cacher les zones ou non-->
+      <BFormCheckbox v-model="globalStore.cardfilter.onlywant">Uniquement mes cartes manquantes</BFormCheckbox>
+    </BInputGroup>
     <BInputGroup>
       <BFormInput v-model="globalStore.cardfilter.name" type="text" class="form-control" :placeholder="$t('ui.lib.nomcarte')" @keyup.enter="e_searchCards" />
     </BInputGroup>
@@ -527,6 +530,7 @@ export default {
       if(this.deckbuilder)
       {
         this.globalStore.cardfilter.onlyechangeable = false
+        this.globalStore.cardfilter.onlywant = false
       }
       setTimeout(() => this.starting = false, 300)
   },
@@ -605,6 +609,18 @@ export default {
     },
     'globalStore.cardfilter.keywords'(newval, oldval){
       if(!this.starting) this.setTimeoutRechKeyword()
+    },
+    'globalStore.cardfilter.onlycollec'(newval, oldval){
+      if(newval) this.globalStore.cardfilter.onlywant = false
+    },
+    'globalStore.cardfilter.onlyechangeable'(newval, oldval){
+      if(newval) this.globalStore.cardfilter.onlywant = false
+    },
+    'globalStore.cardfilter.onlywant'(newval, oldval){
+      if(newval){
+          this.globalStore.cardfilter.onlyechangeable = false
+          this.globalStore.cardfilter.onlycollec = false
+      }
     },
   },
   inject: ['callShowWaitingScreen', 'callHideWaitingScreen'], // Injecter la méthode de App.vue
