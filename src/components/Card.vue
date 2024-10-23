@@ -91,7 +91,7 @@ export default {
   props: {
     user: {
       type: Object,
-      required: true
+      required: false
     },
     card: {
       type: Object,

@@ -182,8 +182,8 @@ export default {
             //dans le deckbuiler, la recherche d'unique ne peut être combinée avec les autres recherches
             const innerFav = params.deckbuilder && params.calculatedrarity.length == 1 && params.calculatedrarity[0] == 'UNIQUE'
 
-            const recupFav = ((!params.deckbuilder || innerFav) && data.user !== undefined)
-            const recupCollec = (data.user !== undefined)
+            const recupFav = ((!params.deckbuilder || innerFav) && data.user != null)
+            const recupCollec = (data.user != null)
 
             var effectPrefix = ''
 
@@ -307,7 +307,6 @@ export default {
                 {
                     cards.forEach(card => 
                     {
-                        console.log(card)
                         card.inMyCollection = recupCollec && card.collecMe.length > 0 ? card.collecMe[0].inMyCollection : 0
                         card.inMyTradelist = recupCollec && card.collecMe.length > 0 ? card.collecMe[0].inMyTradelist : 0
                         card.inMyWantlist = recupCollec && card.collecMe.length > 0 ? card.collecMe[0].inMyWantlist : 0

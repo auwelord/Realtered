@@ -73,19 +73,21 @@
       </a>
     </div>
     
-    <BInputGroup class="ms-1 mb-2">
-      <BFormCheckbox v-model="globalStore.cardfilter.onlycollec">Uniquement dans ma collection</BFormCheckbox>
-    </BInputGroup>
-    <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder">
-      <BFormCheckbox v-model="globalStore.cardfilter.onlyechangeable">Uniquement mes cartes échangeables</BFormCheckbox>
-    </BInputGroup>
-    <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder"> <!--&& !globalStore.cardfilter.onlycollec && !globalStore.cardfilter.onlyechangeable--><!--à voir si c mieux niveau ergo de cacher les zones ou non-->
-      <BFormCheckbox v-model="globalStore.cardfilter.onlywant">Uniquement mes cartes manquantes</BFormCheckbox>
-    </BInputGroup>
-    <div class="ms-4" v-if="globalStore.cardfilter.onlywant">
-      <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder"> <!--&& !globalStore.cardfilter.onlycollec && !globalStore.cardfilter.onlyechangeable--><!--à voir si c mieux niveau ergo de cacher les zones ou non-->
-        <BFormCheckbox v-model="globalStore.cardfilter.onlyechother">Et échangeables par d'autres personnes</BFormCheckbox>
+    <div v-if="user">
+      <BInputGroup class="ms-1 mb-2">
+        <BFormCheckbox v-model="globalStore.cardfilter.onlycollec">Uniquement dans ma collection</BFormCheckbox>
       </BInputGroup>
+      <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder">
+        <BFormCheckbox v-model="globalStore.cardfilter.onlyechangeable">Uniquement mes cartes échangeables</BFormCheckbox>
+      </BInputGroup>
+      <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder"> <!--&& !globalStore.cardfilter.onlycollec && !globalStore.cardfilter.onlyechangeable--><!--à voir si c mieux niveau ergo de cacher les zones ou non-->
+        <BFormCheckbox v-model="globalStore.cardfilter.onlywant">Uniquement mes cartes manquantes</BFormCheckbox>
+      </BInputGroup>
+      <div class="ms-4" v-if="globalStore.cardfilter.onlywant">
+        <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder"> <!--&& !globalStore.cardfilter.onlycollec && !globalStore.cardfilter.onlyechangeable--><!--à voir si c mieux niveau ergo de cacher les zones ou non-->
+          <BFormCheckbox v-model="globalStore.cardfilter.onlyechother">Et échangeables par d'autres personnes</BFormCheckbox>
+        </BInputGroup>
+      </div>
     </div>
     <BInputGroup>
       <BFormInput v-model="globalStore.cardfilter.name" type="text" class="form-control" :placeholder="$t('ui.lib.nomcarte')" @keyup.enter="e_searchCards" />
