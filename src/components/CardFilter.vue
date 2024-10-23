@@ -72,13 +72,14 @@
             <img src="@/assets/img/altered/factions/yzmir.webp" class="aw-faction" />
       </a>
     </div>
-    <div class="input-group">
-      <div class="d-flex flex-column flex-fill align-items-center">
-        <input type="text" class="form-control" :placeholder="$t('ui.lib.nomcarte')" v-model="globalStore.cardfilter.name"
-          @keyup.enter="e_searchCards" />
-      </div>
-    </div>
-
+    
+    <BInputGroup class="ms-1 mb-2">
+      <BFormCheckbox v-model="globalStore.cardfilter.onlycollec">Uniquement dans ma collection</BFormCheckbox>
+    </BInputGroup>
+    <BInputGroup>
+      <BFormInput v-model="globalStore.cardfilter.name" type="text" class="form-control" :placeholder="$t('ui.lib.nomcarte')" @keyup.enter="e_searchCards" />
+    </BInputGroup>
+    
     <div v-if="!gstunique">
       <hr>
       <div class="d-flex justify-content-between mt-3">

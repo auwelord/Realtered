@@ -7,10 +7,12 @@
           <img :src="g_getImageCardPublicUrl(card)" :title="card.name" class="img-fluid aw-alteredcard" />
           <img src="@/assets/img/sparkles.gif" alt="" class="image-sparkles mbm-color-dodge" />
         </div>
-        <div :class="['aw-collection', getClassCardCollection()]" v-if="user && !deckbuilder">
+        <div :class="['aw-collection', getClassCardCollection()]" v-if="user && (!deckbuilder || globalStore.cardfilter.onlycollec)">
           Collection: {{ card.inMyCollection }}<br>
+          <span v-if="!deckbuilder">
           Wantlist: {{ card.inMyWantlist }}<br>
           Tradelist: {{ card.inMyTradelist }}
+          </span>
         </div>
         <div class="aw-cardoptions" v-if="!g_isToken(card)">
           <div class="d-flex align-items-center">
@@ -75,6 +77,7 @@ const mouseLeaveCard = (pcard) => {
 </script>
 
 <script>
+import { useGlobalStore } from '@/stores/global'
 import { useToast, TYPE } from "vue-toastification"
 const toast = useToast()
 
@@ -103,6 +106,7 @@ export default {
       timeoutcollection: null,
       timeouttrade: null,
       timeoutwant: null,
+      globalStore: useGlobalStore(),
     }
   },
   methods: {

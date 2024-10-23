@@ -1297,17 +1297,19 @@ export default {
           })
           this.currentVersion = this.currentDeck.version
           
-          var factionDeck = this.currentDeck.main_faction;
+          var factionDeck = this.currentDeck.main_faction
           if(!factionDeck)
           {
-            var hero = this.getHeroCurrentDeck();
-            factionDeck = hero && hero.length == 1 ? hero[0].mainFaction : null;
+            var hero = this.getHeroCurrentDeck()
+            factionDeck = hero && hero.length == 1 ? hero[0].mainFaction : null
           }
-          if (factionDeck) {
-            if (this.globalStore.cardfilter.faction != factionDeck) {
-              this.searchCards(true, true); //faction différente -> on reset le résultat de la recherche
+          if (factionDeck) 
+          {
+            if (this.globalStore.cardfilter.faction != factionDeck) 
+            {
+              this.searchCards(true, true) //faction différente -> on reset le résultat de la recherche
             }
-            this.globalStore.cardfilter.faction = factionDeck;
+            this.globalStore.cardfilter.faction = factionDeck
           }
         }
 
@@ -1323,8 +1325,8 @@ export default {
     {
       if(this.deckModified && !this.showModalConfirmChangeDeck)
       {      
-        this.actionOriConfirmChangeDeck = "CLEARSELECTEDDECK";  
-        this.showModalConfirmChangeDeck = true;
+        this.actionOriConfirmChangeDeck = "CLEARSELECTEDDECK"; 
+        this.showModalConfirmChangeDeck = true
         return;
       }
       
@@ -1581,7 +1583,8 @@ export default {
     {
       this.searchCards(false, false)
     },
-    searchCards(pdontfetch, pshowstat) {
+    searchCards(pdontfetch, pshowstat) 
+    {
       this.fetchedCards.length = 0
       this.hasMore = true
       this.currentPage = 1
@@ -1592,7 +1595,8 @@ export default {
       {
         this.storeUiparams()
       }
-      if (!pdontfetch) {
+      if (!pdontfetch) 
+      {
         this.fetchCards()
       }
     },

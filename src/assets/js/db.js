@@ -196,7 +196,7 @@ export default {
             }
             if(recupCollec)
             {
-                select += ', Collection(*)'
+                select += ', Collection' + (params.onlycollec ? '!inner' : '') + '(*)'
             }
 
             var req = anonSupabase
@@ -215,6 +215,7 @@ export default {
             if(recupCollec)
             {
                 req = req.eq('Collection.userId', data.user.id)
+                if(params.onlycollec) req = req.gt('Collection.inMyCollection', 0)
             }
 
             if (params.currentName) req = req.ilike(effectPrefix + 'name', '%' + params.currentName + '%')
@@ -286,20 +287,23 @@ export default {
                     cards.pop(); //on vire le dernier élément qui ne sert qu'à savoir si il y a d'autres cartes à fetch
                 }
 
-                if(!error && recupFav)
+                if(!error)
                 {
                     cards.forEach(card => 
                     {
-                        card.favori = app.config.globalProperties.g_isUnique(card) && card.UniqueFav.length > 0
-                        delete card.UniqueFav
-
                         card.inMyCollection = recupCollec && card.Collection.length > 0 ? card.Collection[0].inMyCollection : 0
                         card.inMyTradelist = recupCollec && card.Collection.length > 0 ? card.Collection[0].inMyTradelist : 0
                         card.inMyWantlist = recupCollec && card.Collection.length > 0 ? card.Collection[0].inMyWantlist : 0
                         card.foiled = recupCollec && card.Collection.length > 0 && card.Collection[0].foiled
-
                         if(recupCollec) delete card.Collection
+
                         fusionnerTrad(card)
+
+                        if(recupFav)
+                        {
+                            card.favori = app.config.globalProperties.g_isUnique(card) && card.UniqueFav.length > 0
+                            delete card.UniqueFav
+                        }
                     })
                 }
 
