@@ -196,7 +196,11 @@ export default {
             }
             if(recupCollec)
             {
-                select += ', Collection' + ((params.onlycollec || params.onlyechangeable || params.onlywant) ? '!inner' : '') + '(*)'
+                select += ', collecMe:Collection'
+                if(params.onlycollec || params.onlyechangeable || params.onlywant ) select += '!inner'
+                select += '(*)'
+                
+                if(params.onlyechother) select += ', collecOther:Collection!Collection_reference_fkey!inner(*)'
             }
 
             var req = anonSupabase
@@ -214,14 +218,20 @@ export default {
             }
             if(recupCollec)
             {
-                req = req.eq('Collection.userId', data.user.id)
-                if(params.onlycollec) req = req.gt('Collection.inMyCollection', 0)
+                req = req.eq('collecMe.userId', data.user.id)
+                if(params.onlycollec) req = req.gt('collecMe.inMyCollection', 0)
                 else if(params.onlywant) 
                 {
-                    req = req.eq('Collection.inMyCollection', 0)
-                    req = req.gt('Collection.inMyWantlist', 0)
+                    req = req.eq('collecMe.inMyCollection', 0)
+                    req = req.gt('collecMe.inMyWantlist', 0)
+
+                    if(params.onlyechother)
+                    {
+                        req = req.neq('collecOther.userId', data.user.id)
+                        req = req.gt('collecOther.echangeable', 0)
+                    }
                 }
-                if(params.onlyechangeable) req = req.gt('Collection.echangeable', 0)
+                if(params.onlyechangeable) req = req.gt('collecMe.echangeable', 0)
             }
 
             if (params.currentName) req = req.ilike(effectPrefix + 'name', '%' + params.currentName + '%')
@@ -297,13 +307,14 @@ export default {
                 {
                     cards.forEach(card => 
                     {
-                        card.inMyCollection = recupCollec && card.Collection.length > 0 ? card.Collection[0].inMyCollection : 0
-                        card.inMyTradelist = recupCollec && card.Collection.length > 0 ? card.Collection[0].inMyTradelist : 0
-                        card.inMyWantlist = recupCollec && card.Collection.length > 0 ? card.Collection[0].inMyWantlist : 0
-                        card.echangeable = recupCollec && card.Collection.length > 0 ? card.Collection[0].echangeable : 0
-                        card.foiled = recupCollec && card.Collection.length > 0 && card.Collection[0].foiled
-                        if(recupCollec) delete card.Collection
-
+                        console.log(card)
+                        card.inMyCollection = recupCollec && card.collecMe.length > 0 ? card.collecMe[0].inMyCollection : 0
+                        card.inMyTradelist = recupCollec && card.collecMe.length > 0 ? card.collecMe[0].inMyTradelist : 0
+                        card.inMyWantlist = recupCollec && card.collecMe.length > 0 ? card.collecMe[0].inMyWantlist : 0
+                        card.echangeable = recupCollec && card.collecMe.length > 0 ? card.collecMe[0].echangeable : 0
+                        card.foiled = recupCollec && card.collecMe.length > 0 && card.collecMe[0].foiled
+                        delete card.collecMe
+                        delete card.collecOther
                         fusionnerTrad(card)
 
                         if(recupFav)

@@ -1,6 +1,6 @@
 <template>
 
-  <div :class="getGridClass()">
+  <div :class="getGridClass()" :data-ref="card.reference">
     <div :class="['d-flex flex-column align-items-center aw-card', getClassCard()]" @mouseenter="mouseEnterCard(card)" @mouseleave="mouseLeaveCard(card)">
       <div>
         <div class="position-relative">
