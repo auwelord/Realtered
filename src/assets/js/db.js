@@ -196,7 +196,7 @@ export default {
             }
             if(recupCollec)
             {
-                select += ', Collection' + (params.onlycollec ? '!inner' : '') + '(*)'
+                select += ', Collection' + ((params.onlycollec || params.onlyechangeable) ? '!inner' : '') + '(*)'
             }
 
             var req = anonSupabase
@@ -216,6 +216,7 @@ export default {
             {
                 req = req.eq('Collection.userId', data.user.id)
                 if(params.onlycollec) req = req.gt('Collection.inMyCollection', 0)
+                if(params.onlyechangeable) req = req.gt('Collection.echangeable', 0)
             }
 
             if (params.currentName) req = req.ilike(effectPrefix + 'name', '%' + params.currentName + '%')
@@ -294,6 +295,7 @@ export default {
                         card.inMyCollection = recupCollec && card.Collection.length > 0 ? card.Collection[0].inMyCollection : 0
                         card.inMyTradelist = recupCollec && card.Collection.length > 0 ? card.Collection[0].inMyTradelist : 0
                         card.inMyWantlist = recupCollec && card.Collection.length > 0 ? card.Collection[0].inMyWantlist : 0
+                        card.echangeable = recupCollec && card.Collection.length > 0 ? card.Collection[0].echangeable : 0
                         card.foiled = recupCollec && card.Collection.length > 0 && card.Collection[0].foiled
                         if(recupCollec) delete card.Collection
 
@@ -1792,6 +1794,7 @@ export default {
                             inMyCollection: pcard.inMyCollection,
                             inMyWantlist: pcard.inMyWantlist,
                             inMyTradelist: pcard.inMyTradelist,
+                            echangeable: 0,
                             foiled: pcard.foiled
                         }
                     })
@@ -1802,6 +1805,7 @@ export default {
                             inMyCollection: punique.inMyCollection,
                             inMyWantlist: punique.inMyWantlist,
                             inMyTradelist: punique.inMyTradelist,
+                            echangeable: 0,
                             foiled: punique.foiled
                         })
                     })
@@ -1829,13 +1833,19 @@ export default {
             if(!pcards || pcards.length == 0) return
 
             const zeCards = pcards.map(pcard => {
-                return {
+                var collec = {
                     reference: pcard.reference,
                     inMyCollection: pcard.inMyCollection,
                     inMyTradelist: pcard.inMyTradelist,
                     inMyWantlist: pcard.inMyWantlist,
+                    echangeable: pcard.echangeable,
                     foiled: pcard.foiled,
                 }
+
+                //ne pas update 'echangeable' dans le cas de la maj par lot issue du site officiel
+                if(pcards.length > 1) delete collec.echangeable
+
+                return collec
             })
 
             try 

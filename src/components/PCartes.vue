@@ -1631,7 +1631,18 @@ export default {
         pcards.forEach(card => 
         {
             var zecard = this.deckbuilder ? this.g_getCardInDeck(card.reference, this.currentDeck) : card;
-            if (zecard) this.fetchedCards.push(zecard);
+            if (zecard) 
+            {
+              //fusion des propriétés de collection
+              $.extend(zecard, {
+                inMyCollection: card.inMyCollection,
+                inMyTradelist: card.inMyTradelist,
+                inMyWantlist: card.inMyWantlist,
+                echangeable: card.echangeable,
+                foiled: card.foiled,
+              })
+              this.fetchedCards.push(zecard);
+            }
             else 
             {
                 card.quantite = 0;

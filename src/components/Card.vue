@@ -10,13 +10,14 @@
         <div :class="['aw-collection', getClassCardCollection()]" v-if="user && (!deckbuilder || globalStore.cardfilter.onlycollec)">
           Collection: {{ card.inMyCollection }}<br>
           <span v-if="!deckbuilder">
-          Wantlist: {{ card.inMyWantlist }}<br>
-          Tradelist: {{ card.inMyTradelist }}
+            Echangeable: {{ card.echangeable }}<br>
+            Tradelist: {{ card.inMyTradelist }}<br>
+            Wantlist: {{ card.inMyWantlist }}
           </span>
         </div>
         <div class="aw-cardoptions" v-if="!g_isToken(card)">
           <div class="d-flex align-items-center">
-            <div class="d-flex flex-column align-items-center flex-fill">
+            <div class="d-flex flex-column flex-fill">
               <div class="d-flex justify-content-between aw-tools" v-if="deckbuilder && !g_isOOF(card, currentDeck)">
                 <div class="aw-button d-flex align-items-center" v-visible="card.quantite > 0" @click="removeCardFromDeck(card)">
                   <font-awesome-icon :icon="['fa', 'circle-minus']" class="fs-3" />
@@ -37,6 +38,11 @@
                 <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyCollection > 0" @click="e_changeCollection(-1)"/>
                 Collection: {{ card.inMyCollection || 0}}
                 <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="!g_isUnique(card) || !card.inMyCollection" @click="e_changeCollection(1)"/>
+              </div>
+              <div class="mt-2 aw-tools aw-cursor-default d-flex justify-content-between align-items-center" v-if="user && !deckbuilder">
+                <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.echangeable > 0" @click="e_changeEchangeable(-1)" />
+                <div>Echangeable: {{ card.echangeable || 0}}</div>
+                <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="canAddEchangeable()" @click="e_changeEchangeable(1)"/>
               </div>
               <div class="mt-2 aw-tools aw-cursor-default d-flex justify-content-between align-items-center" v-if="user && !deckbuilder">
                 <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyTradelist > 0" @click="e_changeTrade(-1)"/>
@@ -106,10 +112,16 @@ export default {
       timeoutcollection: null,
       timeouttrade: null,
       timeoutwant: null,
+      timeoutechangeable: null,
       globalStore: useGlobalStore(),
     }
   },
   methods: {
+    canAddEchangeable()
+    {
+      if(this.card.inMyCollection == 0 || this.card.echangeable == this.card.inMyCollection) return false
+      return true
+    },
     getGridClass() {
       if (this.deckbuilder)
         return "col-12 col-xl-6 col-xxl-4 mb-3";
@@ -149,14 +161,11 @@ export default {
       this.card.inMyCollection += pqte
       this.card.inMyCollectionTotal += pqte
 
+      if(this.card.echangeable > this.card.inMyCollection) this.card.echangeable = this.card.inMyCollection
+      if(this.card.inMyTradelist > this.card.inMyCollection) this.card.inMyTradelist = this.card.inMyCollection
+
       if(this.timeoutcollection) clearTimeout(this.timeoutcollection)
-      this.timeoutcollection = setTimeout(() => 
-      {
-        this.g_updateCollection([this.card], pdata => {
-          if(pdata && pdata.nbupdates == 1) toast("Collection mise à jour pour '" + this.card.name + "'", { type: TYPE.SUCCESS })
-          else toast("Une erreur s'est produite lors de la mise à jur de la collection de '" + this.card.name + "'", { type: TYPE.ERROR })
-        })  
-      }, 1000)
+      this.timeoutcollection = this.updateCollection()
     },
     e_changeTrade(pqte)
     {
@@ -165,7 +174,15 @@ export default {
       this.card.inMyTradelistTotal += pqte
 
       if(this.timeouttrade) clearTimeout(this.timeouttrade)
-      this.timeouttrade = setTimeout(() => console.log('trade'), 1000)
+      this.timeouttrade = this.updateCollection()
+    },
+    e_changeEchangeable(pqte)
+    {
+      if(!this.card.echangeable) this.card.echangeable = 0
+      this.card.echangeable += pqte
+
+      if(this.timeoutechangeable) clearTimeout(this.timeoutechangeable)
+      this.timeoutechangeable = this.updateCollection()
     },
     e_changeWant(pqte)
     {
@@ -174,7 +191,16 @@ export default {
       this.card.inMyWantlistTotal += pqte
 
       if(this.timeoutwant) clearTimeout(this.timeoutwant)
-      this.timeoutwant = setTimeout(() => console.log('want'), 1000)
+      this.timeoutwant = this.updateCollection()
+    },
+    updateCollection()
+    {
+      return setTimeout(() => {
+        this.g_updateCollection([this.card], pdata => {
+          if(pdata && pdata.nbupdates == 1) toast("Collection mise à jour pour '" + this.card.name + "'", { type: TYPE.SUCCESS })
+          else toast("Une erreur s'est produite lors de la mise à jur de la collection de '" + this.card.name + "'", { type: TYPE.ERROR })
+        })  
+      }, 1000)
     },
     e_onToggleFavori(pcard)
     {

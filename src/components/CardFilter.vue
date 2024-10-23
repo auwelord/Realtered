@@ -76,6 +76,9 @@
     <BInputGroup class="ms-1 mb-2">
       <BFormCheckbox v-model="globalStore.cardfilter.onlycollec">Uniquement dans ma collection</BFormCheckbox>
     </BInputGroup>
+    <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder">
+      <BFormCheckbox v-model="globalStore.cardfilter.onlyechangeable">Uniquement mes cartes échangeables</BFormCheckbox>
+    </BInputGroup>
     <BInputGroup>
       <BFormInput v-model="globalStore.cardfilter.name" type="text" class="form-control" :placeholder="$t('ui.lib.nomcarte')" @keyup.enter="e_searchCards" />
     </BInputGroup>
@@ -520,6 +523,10 @@ export default {
       {
         this.globalStore.cardfilter.unique = true
         this.globalStore.controlerFiltreUnique(true) //true pour forcer rare et common à false
+      }
+      if(this.deckbuilder)
+      {
+        this.globalStore.cardfilter.onlyechangeable = false
       }
       setTimeout(() => this.starting = false, 300)
   },

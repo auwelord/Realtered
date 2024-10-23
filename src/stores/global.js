@@ -10,6 +10,7 @@ export const useGlobalStore = defineStore('global', {
     cardfilter: {
       faction: null,
       onlycollec: false,
+      onlyechangeable: false,
       name: null,
       character: false,
       spell: false,
@@ -214,6 +215,7 @@ export const useGlobalStore = defineStore('global', {
           currentSort: this.getNotEmptySorts(),
           currentFaction: this.cardfilter.faction,
           onlycollec: this.cardfilter.onlycollec,
+          onlyechangeable: this.cardfilter.onlyechangeable,
           currentName: this.cardfilter.name,
           currentEditions: this.cardfilter.editions,
           currentSoustypes: this.cardfilter.subtypes,
