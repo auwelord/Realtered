@@ -7,7 +7,8 @@ import {
     faPersonWalking, faMagnifyingGlassArrowRight, faCirclePlus, faCircleMinus, faCheck, faChartColumn, 
     faExpand, faFileImport, faLock, faLeftLong, faRightLong, faGear, faFileExport, faList, faFileArrowDown,
     faCodeCompare, faChevronUp, faChevronRight, faEraser, faPenClip, faBan, faHeartCirclePlus, faHeartCircleMinus,
-    faHeart, faCodeBranch, faShuffle, faRotateLeft, faRotateRight, faVial, faRobot, faBookmark, faLanguage, faDatabase } 
+    faHeart, faCodeBranch, faShuffle, faRotateLeft, faRotateRight, faVial, faRobot, faBookmark, faLanguage, faDatabase,
+    faRightToBracket, faRightFromBracket } 
     from "@fortawesome/free-solid-svg-icons";
 import { faJs, faVuejs, faDiscord, faThreads } 
     from "@fortawesome/free-brands-svg-icons";
@@ -23,7 +24,7 @@ library.add(faPhone, faUser, faFlag, faJs, faVuejs, faDiscord, faMagnifyingGlass
     faFileArrowDown, faImage, faCodeCompare, faChevronUp, faChevronRight, faThreads, faEraser, faCopy,
     faPenClip, faCircle, faBan, faHeartCirclePlus, faHeartCircleMinus, faHeart, faSquarePlus, faSquareMinus, faCodeBranch,
     faShuffle, faRectangleXmark, faSquareCaretLeft, faRotateLeft, faVial, faEyeSlash, faRobot, faBookmark,
-    faLanguage, faRotateRight, faDatabase
+    faLanguage, faRotateRight, faDatabase, faRightToBracket, faRightFromBracket
 );
 
 export default FontAwesomeIcon;

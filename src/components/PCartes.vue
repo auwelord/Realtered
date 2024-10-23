@@ -25,7 +25,7 @@
                   <template #button-content>
                     <font-awesome-icon :icon="['fas', 'circle-plus']" class="me-2"/>{{$t('ui.action.creer')}}
                   </template>
-                  <BDropdownItem v-if="!user" @click="g_connectUser($route.path)">Connectez-vous pour importer un deck</BDropdownItem>
+                  <BDropdownItem v-if="!user">Connectez-vous pour importer un deck</BDropdownItem>
 
                   <BDropdownItem @click="copierDeck" v-if="user && currentSelectedDeck > 0">
                     <font-awesome-icon :icon="['far', 'copy']" class="me-2" />{{$t('ui.action.copier')}}
@@ -460,12 +460,12 @@ watch(() => props.user, async (newUser, oldUser) =>
 </script>
 
 <script>
-import { useToast, TYPE } from "vue-toastification";
-import MarkdownIt from "markdown-it";
-import { useRouter } from 'vue-router';
+import { useToast, TYPE } from "vue-toastification"
+import MarkdownIt from "markdown-it"
+import { useRouter } from 'vue-router'
 import { useGlobalStore } from '@/stores/global'
 
-const toast = useToast();
+const toast = useToast()
 
 export default {
   name: 'Collection',

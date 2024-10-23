@@ -1,7 +1,7 @@
 <template>
    <BToastOrchestrator />
 
-  <Menu :user="user" @deconnect="onDeconnexion" />
+  <Menu :user="user" @deconnect="onDeconnexion" @connect="onConnect" />
   
   <RouterView :user="user"/>
 
@@ -37,6 +37,10 @@ export default
   },
   methods: 
   {
+    onConnect()
+    {
+      this.g_retrieveuser(puser => this.user = puser);
+    },
     onDeconnexion()
     {
       this.g_deconnectUser(() => this.user = null);

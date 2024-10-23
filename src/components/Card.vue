@@ -54,12 +54,23 @@
                 <div>Want: {{ card.inMyWantlist || 0}}</div>
                 <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="canAddWant()" @click="e_changeWant(1)"/>
               </div>
+              <div class="mt-2 aw-tools d-flex justify-content-between align-items-center" v-if="card.collecOther" @click="e_afficherCollecOther">
+                  Qui peut échanger ?
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <BModal v-model="modalCollecOther" centered hide-footer title="Joueurs échangeant la carte">
+    <div class="aw-collecother">
+      <div v-for="collec in card.collecOther">
+        {{ collec.userName }} : {{ collec.echangeable }}
+      </div>
+    </div>
+  </BModal>
 </template>
 
 <script setup>
@@ -113,10 +124,14 @@ export default {
       timeouttrade: null,
       timeoutwant: null,
       timeoutechangeable: null,
+      modalCollecOther: false,
       globalStore: useGlobalStore(),
     }
   },
   methods: {
+    e_afficherCollecOther(){
+      this.modalCollecOther = true
+    },
     canAddEchangeable()
     {
       if(this.card.inMyCollection == 0 || this.card.echangeable == this.card.inMyCollection) return false
@@ -224,6 +239,11 @@ export default {
 </script>
 
 <style scoped>
+.aw-collecother
+{
+  max-height: 500px;
+  overflow-y: auto;
+}
 .image-sparkles.mbm-color-dodge {
     z-index: 11;
 }

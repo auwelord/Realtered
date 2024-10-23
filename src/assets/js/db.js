@@ -71,7 +71,7 @@ export default {
             }
         }
 
-        async function connectUser (predirectTo)
+        async function connectUserDiscord (predirectTo)
         {
             try {
                 const { data, error } = await anonSupabase.auth.signInWithOAuth({
@@ -87,9 +87,9 @@ export default {
             }    
         }
 
-        app.config.globalProperties.g_connectUser = function(predirectTo)
+        app.config.globalProperties.g_connectUserDiscord = function(predirectTo)
         {
-            connectUser(predirectTo)
+            connectUserDiscord(predirectTo)
         }
 
         async function assignRoles(puser, pcallback)
@@ -313,7 +313,7 @@ export default {
                         card.echangeable = recupCollec && card.collecMe.length > 0 ? card.collecMe[0].echangeable : 0
                         card.foiled = recupCollec && card.collecMe.length > 0 && card.collecMe[0].foiled
                         delete card.collecMe
-                        delete card.collecOther
+                        if(!params.onlyechother) delete card.collecOther
                         fusionnerTrad(card)
 
                         if(recupFav)
@@ -343,10 +343,10 @@ export default {
         {
             if(params.ipp)
             {
-                if(params.page === undefined) params.page = 1;
-                preq = preq.range((params.page - 1) * params.ipp, (params.page * params.ipp) );
+                if(params.page === undefined) params.page = 1
+                preq = preq.range((params.page - 1) * params.ipp, (params.page * params.ipp) )
             }
-            const { data: decks, error: erreur } = await preq;
+            const { data: decks, error: erreur } = await preq
 
             if(params.ipp)
             {
@@ -355,8 +355,8 @@ export default {
             }
             
             if(erreur){
-                console.log(erreur);
-                return;
+                console.log(erreur)
+                return
             }
 
             if(params.withfavs) {
@@ -371,7 +371,7 @@ export default {
             {
                 for(let deck of decks)
                 {
-                    $.extend(deck, {cards: []});
+                    $.extend(deck, {cards: []})
 
                     if(deck.CardsDeck)
                     {
@@ -385,10 +385,10 @@ export default {
                             .order('cardType')
                             .order('mainCost')
                             .order('recallCost')
-                            .order('name');
+                            .order('name')
 
                         if(!isLocaleFrench()) req = req.eq('CardTrad.locale', getLocale())
-                        const {data: datacard, error: errorcard} = await req;
+                        const {data: datacard, error: errorcard} = await req
 
                         if(errorcard)
                         {
@@ -402,14 +402,14 @@ export default {
                             
                             fusionnerTrad(card)
     
-                            deck.cards.push(card);
+                            deck.cards.push(card)
                         })
                         delete deck.CardsDeck
                     }
                 }
             }
 
-            if(params.callback) params.callback(decks ? decks : pdftval);
+            if(params.callback) params.callback(decks ? decks : pdftval)
         }
 
         async function fetchDecks(params)

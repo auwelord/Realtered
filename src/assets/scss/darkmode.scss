@@ -281,6 +281,14 @@ body.aw-darkmode {
     & .modal-header {
         border-bottom-color: rgb(53, 58, 60);
     }
+
+    .form-floating > .form-control:focus ~ label::after, .form-floating > .form-control:not(:placeholder-shown) ~ label::after, .form-floating > .form-control-plaintext ~ label::after, .form-floating > .form-select ~ label::after {
+        background-color: var(--darkreader-bg--bs-body-bg, #181a1b);
+    }
+    input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill, input:-internal-autofill-selected {
+        background-color: #404400 !important;
+        color: #e8e6e3 !important;
+    }
 }
 
 
