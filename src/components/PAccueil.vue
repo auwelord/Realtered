@@ -377,12 +377,6 @@ export default {
   border-color: #DA7C1C;
 }
 
-@media (max-width: 767px) {
-  .hero-section .hero-img img {
-    width: 100%;
-  }
-}
-
 .hero-section .hero-shape .shape {
   position: absolute;
   z-index: -1;
