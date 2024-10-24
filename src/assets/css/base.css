@@ -222,9 +222,9 @@ img.aw-alteredcard
   border-bottom-left-radius: 0;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1300px) {
   .navbar-nav .nav-item {
-    margin-left: 20px !important;
+    margin-left: 5px !important;
   }
 }
 

@@ -360,16 +360,16 @@ export default {
 @media (max-width: 992px) {
     #nav-collapse.show .aw-language
     {
-        margin-left: 20px;
+        margin-left: 5px;
         margin-bottom: 10px;
+        margin-top: 15px;
     }
     #nav-collapse.show .aw-user {
-        margin-left: 20px;
-        width: auto;
+        margin-left: 5px;
     }
     .aw-md-modesombre
     {
-        margin-left: 20px;
+        margin-left: 5px;
     }
 }
 .aw-language
@@ -401,6 +401,15 @@ export default {
 .navbar-nav .nav-item a.btn.aw-discord img {
     height: 30px;
     padding-right: 10px;
+}
+.navbar-toggler{
+    transition: all 0.3s;    
+    margin-right: 15px;
+    transform: rotate(0deg);
+}
+.navbar-toggler.not-collapsed{
+    transition: all 0.3s;    
+    transform: rotate(90deg);
 }
 </style>
 
