@@ -49,6 +49,7 @@ export const useGlobalStore = defineStore('global', {
       notemptysupport: false,
       support: null,
       ui:{
+        showfilters: true,
         showtools: false,
         showrarity: true,
         showkeyword: true,

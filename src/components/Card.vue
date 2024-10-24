@@ -16,47 +16,45 @@
           </span>
         </div>
         <div class="aw-cardoptions" v-if="!g_isToken(card)">
-          <div class="d-flex align-items-center">
-            <div class="d-flex flex-column flex-fill">
-              <div class="d-flex justify-content-between aw-tools" v-if="deckbuilder && !g_isOOF(card, currentDeck)">
-                <div class="aw-button d-flex align-items-center" v-visible="card.quantite > 0" @click="removeCardFromDeck(card)">
-                  <font-awesome-icon :icon="['fa', 'circle-minus']" class="fs-3" />
-                </div>
-                <div class="aw-quantite fs-4">{{ card.quantite }}</div>
-                <div class="aw-button d-flex align-items-center" v-visible="g_canAddCardToDeck(card, currentDeck)" @click="addCardToDeck(card)">
-                  <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-3" />
-                </div>
+          <div class="d-flex flex-column h-100 justify-content-around flex-fill">
+            <div class="d-flex justify-content-between aw-tools align-items-center flex-fill" v-if="deckbuilder && !g_isOOF(card, currentDeck)">
+              <div class="aw-button d-flex align-items-center" v-visible="card.quantite > 0" @click="removeCardFromDeck(card)">
+                <font-awesome-icon :icon="['fa', 'circle-minus']" class="fs-3" />
               </div>
-              <div class="mt-2 aw-tools d-flex flex-column align-items-center" @click="onShowCardDetail(card)" :title="$t('ui.action.comparerraretes')">
-                <font-awesome-icon :icon="['fas', 'code-compare']" class="fs-6" />
+              <div class="aw-quantite fs-4">{{ card.quantite }}</div>
+              <div class="aw-button d-flex align-items-center" v-visible="g_canAddCardToDeck(card, currentDeck)" @click="addCardToDeck(card)">
+                <font-awesome-icon :icon="['fa', 'circle-plus']" class="fs-3" />
               </div>
-              <div class="mt-2 aw-tools d-flex flex-column align-items-center" @click="e_onToggleFavori(card)" :title="$t('ui.action.addorremovefav')" v-if="user && !deckbuilder && g_isUnique(card)">
-                <font-awesome-icon :icon="['fas', 'heart']" style="color: red" v-if="card.favori" />
-                <font-awesome-icon :icon="['fas', 'heart']" v-else />
-              </div>
-              <div class="mt-2 aw-tools aw-cursor-default d-flex justify-content-between align-items-center" v-if="user && !deckbuilder">
-                <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyCollection > 0" @click="e_changeCollection(-1)"/>
-                Collection: {{ card.inMyCollection || 0}}
-                <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="!g_isUnique(card) || !card.inMyCollection" @click="e_changeCollection(1)"/>
-              </div>
-              <div class="mt-2 aw-tools aw-cursor-default d-flex justify-content-between align-items-center" v-if="user && !deckbuilder">
-                <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.echangeable > 0" @click="e_changeEchangeable(-1)" />
-                <div>Echangeable: {{ card.echangeable || 0}}</div>
-                <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="canAddEchangeable()" @click="e_changeEchangeable(1)"/>
-              </div>
-              <div class="mt-2 aw-tools aw-cursor-default d-flex justify-content-between align-items-center" v-if="user && !deckbuilder">
-                <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyTradelist > 0" @click="e_changeTrade(-1)"/>
-                Trade: {{ card.inMyTradelist || 0 }}
-                <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyTradelist < card.inMyCollection && (!g_isUnique(card) || !card.inMyTradelist)" @click="e_changeTrade(1)" />
-              </div>
-              <div class="mt-2 aw-tools aw-cursor-default d-flex justify-content-between align-items-center" v-if="user && !deckbuilder">
-                <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyWantlist > 0" @click="e_changeWant(-1)" />
-                <div>Want: {{ card.inMyWantlist || 0}}</div>
-                <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="canAddWant()" @click="e_changeWant(1)"/>
-              </div>
-              <div class="mt-2 aw-tools d-flex justify-content-between align-items-center" v-if="card.collecOther" @click="e_afficherCollecOther">
-                  Qui peut échanger ?
-              </div>
+            </div>
+            <div class="aw-tools d-flex justify-content-center align-items-center flex-fill" @click="onShowCardDetail(card)" :title="$t('ui.action.comparerraretes')">
+              <font-awesome-icon :icon="['fas', 'code-compare']" />
+            </div>
+            <div class="aw-tools d-flex justify-content-center align-items-center flex-fill" @click="e_onToggleFavori(card)" :title="$t('ui.action.addorremovefav')" v-if="user && !deckbuilder && g_isUnique(card)">
+              <font-awesome-icon :icon="['fas', 'heart']" style="color: red" v-if="card.favori" />
+              <font-awesome-icon :icon="['fas', 'heart']" v-else />
+            </div>
+            <div class="aw-tools aw-cursor-default d-flex justify-content-between align-items-center flex-fill" v-if="user && !deckbuilder">
+              <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyCollection > 0" @click="e_changeCollection(-1)"/>
+              Collection: {{ card.inMyCollection || 0}}
+              <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="!g_isUnique(card) || !card.inMyCollection" @click="e_changeCollection(1)"/>
+            </div>
+            <div class="aw-tools aw-cursor-default d-flex justify-content-between align-items-center flex-fill" v-if="user && !deckbuilder">
+              <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.echangeable > 0" @click="e_changeEchangeable(-1)" />
+              <div>Echangeable: {{ card.echangeable || 0}}</div>
+              <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="canAddEchangeable()" @click="e_changeEchangeable(1)"/>
+            </div>
+            <div class="aw-tools aw-cursor-default d-flex justify-content-between align-items-center flex-fill" v-if="user && !deckbuilder">
+              <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyTradelist > 0" @click="e_changeTrade(-1)"/>
+              Trade: {{ card.inMyTradelist || 0 }}
+              <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyTradelist < card.inMyCollection && (!g_isUnique(card) || !card.inMyTradelist)" @click="e_changeTrade(1)" />
+            </div>
+            <div class="aw-tools aw-cursor-default d-flex justify-content-between align-items-center flex-fill" v-if="user && !deckbuilder">
+              <font-awesome-icon :icon="['far', 'square-minus']" class="me-2 aw-hoverscale15 aw-cursor-pointer" v-visible="card.inMyWantlist > 0" @click="e_changeWant(-1)" />
+              <div>Want: {{ card.inMyWantlist || 0}}</div>
+              <font-awesome-icon :icon="['far', 'square-plus']" class="ms-2 aw-hoverscale15 aw-cursor-pointer" v-visible="canAddWant()" @click="e_changeWant(1)"/>
+            </div>
+            <div class="aw-tools d-flex justify-content-between align-items-center" v-if="card.collecOther" @click="e_afficherCollecOther">
+                Qui peut échanger ?
             </div>
           </div>
         </div>
@@ -145,8 +143,8 @@ export default {
     getGridClass() 
     {
       if (this.deckbuilder)
-        return "col-12 col-xl-6 col-xxl-4 mb-3";
-      return "col-12 col-md-6 col-lg-4 col-xxl-2 mb-3";
+        return "col-12 col-sm-6 col-md-4 col-xl-6 col-xxl-4 mb-3";
+      return "col-12 col-md-4 col-lg-3 col-xxl-2 mb-3";
     },
     getClassCard()
     {

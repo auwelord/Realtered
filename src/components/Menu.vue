@@ -4,76 +4,79 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
-                        <nav class="navbar navbar-expand-lg fixed-top">
-                            <router-link to="/" class="navbar-brand">
-                                <img src="@/assets/img/altered/Realtereddark_tp.png" width="150" v-if="globalStore && globalStore.modesombre">
-                                <img src="@/assets/img/altered/Realtered_tp.png" width="150" v-else>
-                            </router-link>
-                            <button class="navbar-toggler" type="button" data-toggle="collapse"
-                                data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                                aria-expanded="false" aria-label="Toggle navigation">
-                                <span class="toggler-icon"></span>
-                                <span class="toggler-icon"></span>
-                                <span class="toggler-icon"></span>
-                            </button>
+                        <BNavbar toggleable="lg" :class="getClassNavbar()">
+                            <!-- Navbar brand (Logo or Name) -->
+                            <BNavbarBrand href="#">
+                                <router-link to="/" class="navbar-brand">
+                                    <img src="@/assets/img/altered/Realtereddark_tp.png" width="150" v-if="globalStore && globalStore.modesombre">
+                                    <img src="@/assets/img/altered/Realtered_tp.png" width="150" v-else>
+                                </router-link>
+                            </BNavbarBrand>
 
-                            <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
-                                <ul id="nav" class="navbar-nav ml-auto">
-                                    <li class="nav-item">
-                                        <router-link to="/" class="page-scroll" href="#">{{ $t('ui.menu.accueil')}}</router-link>
-                                    </li>
-                                    <li class="nav-item">
-                                        <router-link to="/cartes" class="page-scroll" href="#">{{ $t('ui.menu.cartes')}}</router-link>
-                                    </li>
-                                    <li class="nav-item">
-                                        <router-link to="/uniques" class="page-scroll" href="#">Uniques</router-link>
-                                    </li>
-                                    <li class="nav-item">
-                                        <router-link to="/tournois" class="page-scroll" href="#">{{ $t('ui.menu.tournois')}}</router-link>
-                                    </li>
-                                    <li class="nav-item">
-                                        <router-link to="/decklists" class="page-scroll" href="#">Decks</router-link>
-                                    </li>
-                                    <li class="nav-item">
-                                        <router-link to="/decktest" class="page-scroll" href="#">Test</router-link>
-                                    </li>
-                                    <li class="nav-item">
-                                        <router-link to="/deckbuilder" class="page-scroll" href="#">Deckbuilder</router-link>
-                                    </li>
-                                    <li class="nav-item d-flex align-items-center" v-if="globalStore">
-                                        <BDropdown size="sm" split variant="primary" class="me-2">
-                                            <template #button-content>
-                                                <font-awesome-icon :icon="['fas', 'language']" class="me-2"/>{{ getLanguage() }}
-                                            </template>
-                                            <BDropdownItem @click="e_setlanguage('fr')">
-                                                Français
-                                            </BDropdownItem>
-                                            <BDropdownItem @click="e_setlanguage('en')">
-                                                English
-                                            </BDropdownItem>
-                                        </BDropdown>
-                                    </li>
-                                    <li class="nav-item d-flex align-items-center" v-if="globalStore">
-                                        <span class="me-2 pb-1">{{ $t('ui.modesombre')}}</span>
-                                        <label class="switch me-2">
+                            <!-- Navbar toggle button (for mobile) -->
+                            <BNavbarToggle target="nav-collapse"></BNavbarToggle>
+
+                            <!-- Collapsible content (links) -->
+                            <BCollapse id="nav-collapse" is-nav>
+                            <BNavbarNav>
+                                <BNavItem href="#" to="/cartes">{{ $t('ui.menu.cartes')}}</BNavItem>
+                                <BNavItem href="#" to="/uniques">Uniques</BNavItem>
+                                <BNavItem href="#" to="/tournois">{{ $t('ui.menu.tournois')}}</BNavItem>
+                                <BNavItem href="#" to="/decklists">Decks</BNavItem>
+                                <BNavItem href="#" to="/decktest">Test</BNavItem>
+                                <BNavItem href="#" to="/deckbuilder">Deckbuilder</BNavItem>
+                            </BNavbarNav>
+
+                            <!-- Right aligned items -->
+                            <BNavbarNav class="ml-auto">
+                                <BDropdown split variant="light" class="me-2 aw-language"  v-if="globalStore">
+                                    <template #button-content>
+                                        <img :src="getImageLanguage()"/>
+                                    </template>
+                                    <BDropdownItem @click="e_setlanguage('fr')">
+                                        <img src="@/assets/img/pays/fr.48.png" class="me-2"/>Français
+                                    </BDropdownItem>
+                                    <BDropdownItem @click="e_setlanguage('en')">
+                                        <img src="@/assets/img/pays/en.48.png" class="me-2"/>English
+                                    </BDropdownItem>
+                                </BDropdown>
+                                <div class="d-flex align-items-center d-block d-lg-none aw-md-modesombre" v-if="globalStore">
+                                    <label class="switch">
                                         <input type="checkbox" v-model="globalStore.modesombre">
                                         <span class="slider round"></span>
-                                        </label>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a @click="e_onClickConnect" class="btn aw-discord">
-                                            <span v-if="user">
-                                                <img :src="user.user_metadata.avatar_url" v-if="user.user_metadata.avatar_url" />
-                                                <span v-else><font-awesome-icon :icon="['fas', 'user']" class="me-2"/></span>
-                                                {{ getDisplayName() }}
-                                            </span>
-                                            <span v-else><font-awesome-icon :icon="['fas', 'right-to-bracket']" class="me-2" /> Se connecter</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <!-- navbar collapse -->
-                        </nav>
+                                    </label>
+                                    <span class="ms-2 pb-2">{{ $t('ui.modesombre')}}</span>
+                                </div>
+                                <BButton @click="e_onClickConnect" variant="primary" size="sm" class="ms-2 color-white text-nowrap d-block d-lg-none" v-if="user">
+                                    <img class="aw-avatar":src="user.user_metadata.avatar_url" v-if="user.user_metadata.avatar_url" />
+                                    <span v-else><font-awesome-icon :icon="['fas', 'user']" class="me-2"/></span>
+                                    {{ getDisplayName() }}
+                                </BButton>
+                                <BButton @click="e_onClickConnect" variant="primary" size="sm" class="ms-2 color-white text-nowrap" v-else>
+                                    <font-awesome-icon :icon="['fas', 'right-to-bracket']" class="me-2" /> Se connecter
+                                </BButton>
+                                <BDropdown variant="primary" split class="aw-user d-none d-lg-block text-nowrap">
+                                    <template #button-content>
+                                        <span v-if="user" class="color-white text-nowrap" @click="e_onClickConnect">
+                                            <img class="aw-avatar":src="user.user_metadata.avatar_url" v-if="user.user_metadata.avatar_url" />
+                                            <span v-else><font-awesome-icon :icon="['fas', 'user']" class="me-2"/></span>
+                                            {{ getDisplayName() }}
+                                        </span>
+                                        <span v-else @click="e_onClickConnect"><font-awesome-icon :icon="['fas', 'right-to-bracket']" class="me-2" /> Se connecter</span>
+                                    </template>
+                                    <BDropdownItem v-if="globalStore" >
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2 pb-1">{{ $t('ui.modesombre')}}</span>
+                                            <label class="switch mt-2">
+                                                <input type="checkbox" v-model="globalStore.modesombre">
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </div>
+                                    </BDropdownItem>
+                                </BDropdown>
+                            </BNavbarNav>
+                            </BCollapse>
+                        </BNavbar>
                         <!-- navbar -->
                     </div>
                 </div>
@@ -188,6 +191,9 @@ export default {
         }
     },
     methods: {
+        getClassNavbar(){
+            return this.globalStore && this.globalStore.modesombre ? 'navbar-dark' : 'navbar-light'
+        },
         e_annulerConnexion()
         {
             if(this.creatingCompte) this.creatingCompte = false
@@ -307,11 +313,11 @@ export default {
             if(this.globalStore.modesombre && !$body.hasClass('aw-darkmode')) $body.addClass('aw-darkmode')
             else if(!this.globalStore.modesombre) $body.removeClass('aw-darkmode')
         },
-        getLanguage()
+        getImageLanguage()
         {
-            if(this.globalStore.language == 'fr') return 'Français'
-            return 'English'
+            return 'src/assets/img/pays/' + this.globalStore.language + '.48.png'
         }
+        
     },
     mounted() 
     {
@@ -351,6 +357,32 @@ export default {
 </script>
 
 <style>
+@media (max-width: 992px) {
+    #nav-collapse.show .aw-language
+    {
+        margin-left: 20px;
+        margin-bottom: 10px;
+    }
+    #nav-collapse.show .aw-user {
+        margin-left: 20px;
+        width: auto;
+    }
+    .aw-md-modesombre
+    {
+        margin-left: 20px;
+    }
+}
+.aw-language
+{
+    width: 100px;
+}
+.aw-language img
+{
+    width: 25px;
+}
+.aw-avatar{
+    width: 22px;
+}
 .navbar-nav .nav-item a.aw-discord {
     background-color: #7289da;
     color: white;

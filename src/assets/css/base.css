@@ -222,6 +222,11 @@ img.aw-alteredcard
   border-bottom-left-radius: 0;
 }
 
+@media (max-width: 1200px) {
+  .navbar-nav .nav-item {
+    margin-left: 20px !important;
+  }
+}
 
 @media (min-width: 1400px) {
   .col-xxl {
@@ -912,7 +917,8 @@ input:checked+.slider:before {
   z-index: 99;
   height: 100%;
 }
-.aw-cardoptions:hover {
+.aw-card:hover .aw-cardoptions,
+.aw-carddeck:hover .aw-cardoptions {
   opacity: 1;
 }
 .aw-cardoptions > div{
@@ -927,10 +933,48 @@ input:checked+.slider:before {
 {
   width: 100%;
   background-color: #000000B2;
-  padding: 7px calc(0.006* 100vw);
   color: white;
   transition: .5s ease;
-  border-radius: 4px;
+  font-size: 32px;
+  padding: 7px 7px;
+}
+.aw-cardoptions .aw-tools:first-child
+{
+  border-radius: 4px 4px 0 0;
+}
+.aw-cardoptions .aw-tools:last-child
+{
+  border-radius: 0 0 4px 4px;
+}
+@media (min-width: 768px) {
+  .aw-cardoptions .aw-tools
+  {
+    font-size: 16px
+  } 
+}
+@media (min-width: 991px) {
+  .aw-cardoptions .aw-tools
+  {
+    font-size: 13px
+  } 
+}
+@media (min-width: 1200px) {
+  .aw-cardoptions .aw-tools
+  {
+    font-size: 15px
+  } 
+}
+@media (min-width: 1400px) {
+  .aw-cardoptions .aw-tools
+  {
+    font-size: 14px
+  } 
+}
+@media (min-width: 1800px) {
+  .aw-cardoptions .aw-tools
+  {
+    font-size: 15px
+  } 
 }
 .aw-cardoptions .aw-button
 {
@@ -1067,6 +1111,10 @@ a.aw-unique::after {
 .aw-hoverscale15:hover
 {
   scale: 1.5;
+}
+.navbar-toggler-icon
+{
+  background-image: var(--bs-navbar-toggler-icon-bg) !important;
 }
 
 @media (prefers-color-scheme: dark) 

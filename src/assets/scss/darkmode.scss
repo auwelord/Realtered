@@ -289,6 +289,20 @@ body.aw-darkmode {
         background-color: #404400 !important;
         color: #e8e6e3 !important;
     }
+
+    .aw-helpsearch
+    {
+        color: white;
+    }
+    
+    @media only screen and (max-width: 991px) {
+        .navbar-collapse {
+            background-color: #252b31;
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 15px 20px 0px;
+        }
+    }
+    
+
 }
 
 

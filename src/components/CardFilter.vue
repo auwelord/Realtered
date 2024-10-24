@@ -1,35 +1,43 @@
 <template>
 <div class="card card-outline card-warning">
   <div class="card-header">
-    <div class="d-flex justify-content-end">
-      <div v-if="!gstunique && g_isAdmin(user) && globalStore.cardfilter.faction" class="mt-2 me-2">
-        <BFormCheckbox v-model="globalStore.database">BDD</BFormCheckbox>
-      </div>
-      <BButton @click="globalStore.clearCardFilter(gstunique)" variant="light" size="sm" class="me-2" title="Supprimer tous les filtres (hors factions/éditions/tris)">
-        <font-awesome-icon :icon="['fas', 'eraser']" />
-      </BButton>
-      <BDropdown v-model="showDDOptionsCardSearch" size="sm" v-if="!gstunique && !deckbuilder" variant="secondary" class="me-2">
-        <template #button-content>
-          <font-awesome-icon :icon="['fas', 'gear']" />
-        </template>
-        <BDropdownItem id="awid-affmissingcollection" @click="e_showMissingCollection" v-if="!affmissingcollection">
-          <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Indiquer les cartes manquantes
-        </BDropdownItem>
-        <BDropdownItem id="awid-affmissingtrade" @click="e_showMissingTrade" v-if="!affmissingtrade">
-          <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Indiquer les trades manquants
-        </BDropdownItem>
-        <BDropdownItem id="awid-affmissingwant" @click="e_showMissingWant" v-if="!affmissingwant">
-          <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Indiquer les wants manquants
-        </BDropdownItem>
-      </BDropdown>
-      <BButton @click="e_searchCards" variant="unique" size="sm">
-        <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="me-2" />{{$t('ui.action.rechercher')}}
-      </BButton>
-      <BButton @click="e_showAddUnique" variant="success" size="sm" class="ms-2" title="Ajouter une Unique" v-if="gstunique">
-        <font-awesome-icon :icon="['fas', 'circle-plus']" />
-      </BButton>
-      <div class="aw-collapsible ms-3" v-b-toggle.awid-filtrestools  v-if="g_isBearer()">
+    <div class="d-flex justify-content-between">
+      <div class="aw-collapsible flex-fill d-flex d-xl-none justify-content-start align-items-center " v-b-toggle.awid-filtres>
         <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+      </div>
+      <div class="d-flex flex-fill justify-content-end">
+        <div v-if="!gstunique && g_isAdmin(user) && globalStore.cardfilter.faction" class="mt-2 me-2">
+          <BFormCheckbox v-model="globalStore.database">BDD</BFormCheckbox>
+        </div>
+        <BButton @click="globalStore.clearCardFilter(gstunique)" variant="light" size="sm" class="me-2" title="Supprimer tous les filtres (hors factions/éditions/tris)">
+          <font-awesome-icon :icon="['fas', 'eraser']" />
+        </BButton>
+        <BDropdown v-model="showDDOptionsCardSearch" size="sm" v-if="!gstunique && !deckbuilder" variant="secondary" class="me-2">
+          <template #button-content>
+            <font-awesome-icon :icon="['fas', 'gear']" />
+          </template>
+          <BDropdownItem id="awid-affmissingcollection" @click="e_showMissingCollection" v-if="!affmissingcollection">
+            <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Indiquer les cartes manquantes
+          </BDropdownItem>
+          <BDropdownItem id="awid-affmissingtrade" @click="e_showMissingTrade" v-if="!affmissingtrade">
+            <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Indiquer les trades manquants
+          </BDropdownItem>
+          <BDropdownItem id="awid-affmissingwant" @click="e_showMissingWant" v-if="!affmissingwant">
+            <font-awesome-icon :icon="['far', 'eye']" class="me-2" />Indiquer les wants manquants
+          </BDropdownItem>
+        </BDropdown>
+        <BButton @click="e_clearSearch" variant="danger" size="sm" class="me-2" title="Effacer le résultat de la recherche">
+          <font-awesome-icon :icon="['fas', 'ban']" />
+        </BButton>
+        <BButton @click="e_searchCards" variant="unique" size="sm">
+          <font-awesome-icon :icon="['fas', 'magnifying-glass']" class="me-2" />{{$t('ui.action.rechercher')}}
+        </BButton>
+        <BButton @click="e_showAddUnique" variant="success" size="sm" class="ms-2" title="Ajouter une Unique" v-if="gstunique">
+          <font-awesome-icon :icon="['fas', 'circle-plus']" />
+        </BButton>
+        <div class="aw-collapsible ms-3" v-b-toggle.awid-filtrestools  v-if="g_isBearer()">
+          <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+        </div>
       </div>
     </div>
     <BCollapse id="awid-filtrestools" v-model="globalStore.cardfilter.ui.showtools" v-if="g_isBearer()">
@@ -52,380 +60,382 @@
     </BButton>
   </div>
   <div class="card-body">
-    <div class="card-group justify-content-between aw-factionsel mb-4">
-      <a href="#" id="AX" :title="getTitleFaction('AX')" :class="['mb-2', getClassFaction('AX')]" @click="e_changeFaction">
-            <img src="@/assets/img/altered/factions/axiom.webp" class="aw-faction" />
-      </a>
-      <a href="#" id="BR" :title="getTitleFaction('BR')" :class="['mb-2', getClassFaction('BR')]" @click="e_changeFaction">
-            <img src="@/assets/img/altered/factions/bravos.webp" class="aw-faction" />
-      </a>
-      <a href="#" id="LY" :title="getTitleFaction('LY')" :class="['mb-2', getClassFaction('LY')]" @click="e_changeFaction">
-            <img src="@/assets/img/altered/factions/lyra.webp" class="aw-faction" />
-      </a>
-      <a href="#" id="MU" :title="getTitleFaction('MU')" :class="['mb-2', getClassFaction('MU')]" @click="e_changeFaction">
-            <img src="@/assets/img/altered/factions/muna.webp" class="aw-faction" />
-      </a>
-      <a href="#" id="OR" :title="getTitleFaction('OR')" :class="['mb-2', getClassFaction('OR')]" @click="e_changeFaction">
-            <img src="@/assets/img/altered/factions/ordis.webp" class="aw-faction" />
-      </a>
-      <a href="#" id="YZ" :title="getTitleFaction('YZ')" :class="['mb-2', getClassFaction('YZ')]" @click="e_changeFaction">
-            <img src="@/assets/img/altered/factions/yzmir.webp" class="aw-faction" />
-      </a>
-    </div>
-    
-    <div v-if="user">
-      <BInputGroup class="ms-1 mb-2">
-        <BFormCheckbox v-model="globalStore.cardfilter.onlycollec">Uniquement dans ma collection</BFormCheckbox>
-      </BInputGroup>
-      <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder">
-        <BFormCheckbox v-model="globalStore.cardfilter.onlyechangeable">Uniquement mes cartes échangeables</BFormCheckbox>
-      </BInputGroup>
-      <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder"> <!--&& !globalStore.cardfilter.onlycollec && !globalStore.cardfilter.onlyechangeable--><!--à voir si c mieux niveau ergo de cacher les zones ou non-->
-        <BFormCheckbox v-model="globalStore.cardfilter.onlywant">Uniquement mes cartes manquantes</BFormCheckbox>
-      </BInputGroup>
-      <div class="ms-4" v-if="globalStore.cardfilter.onlywant">
-        <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder"> <!--&& !globalStore.cardfilter.onlycollec && !globalStore.cardfilter.onlyechangeable--><!--à voir si c mieux niveau ergo de cacher les zones ou non-->
-          <BFormCheckbox v-model="globalStore.cardfilter.onlyechother">Et échangeables par d'autres personnes</BFormCheckbox>
+    <BCollapse id="awid-filtres" v-model="globalStore.cardfilter.ui.showfilters">
+      <div class="card-group justify-content-between aw-factionsel mb-4">
+        <a href="#" id="AX" :title="getTitleFaction('AX')" :class="['mb-2', getClassFaction('AX')]" @click="e_changeFaction">
+              <img src="@/assets/img/altered/factions/axiom.webp" class="aw-faction" />
+        </a>
+        <a href="#" id="BR" :title="getTitleFaction('BR')" :class="['mb-2', getClassFaction('BR')]" @click="e_changeFaction">
+              <img src="@/assets/img/altered/factions/bravos.webp" class="aw-faction" />
+        </a>
+        <a href="#" id="LY" :title="getTitleFaction('LY')" :class="['mb-2', getClassFaction('LY')]" @click="e_changeFaction">
+              <img src="@/assets/img/altered/factions/lyra.webp" class="aw-faction" />
+        </a>
+        <a href="#" id="MU" :title="getTitleFaction('MU')" :class="['mb-2', getClassFaction('MU')]" @click="e_changeFaction">
+              <img src="@/assets/img/altered/factions/muna.webp" class="aw-faction" />
+        </a>
+        <a href="#" id="OR" :title="getTitleFaction('OR')" :class="['mb-2', getClassFaction('OR')]" @click="e_changeFaction">
+              <img src="@/assets/img/altered/factions/ordis.webp" class="aw-faction" />
+        </a>
+        <a href="#" id="YZ" :title="getTitleFaction('YZ')" :class="['mb-2', getClassFaction('YZ')]" @click="e_changeFaction">
+              <img src="@/assets/img/altered/factions/yzmir.webp" class="aw-faction" />
+        </a>
+      </div>
+      
+      <div v-if="user">
+        <BInputGroup class="ms-1 mb-2">
+          <BFormCheckbox v-model="globalStore.cardfilter.onlycollec">Uniquement dans ma collection</BFormCheckbox>
         </BInputGroup>
+        <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder">
+          <BFormCheckbox v-model="globalStore.cardfilter.onlyechangeable">Uniquement mes cartes échangeables</BFormCheckbox>
+        </BInputGroup>
+        <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder"> <!--&& !globalStore.cardfilter.onlycollec && !globalStore.cardfilter.onlyechangeable--><!--à voir si c mieux niveau ergo de cacher les zones ou non-->
+          <BFormCheckbox v-model="globalStore.cardfilter.onlywant">Uniquement mes cartes manquantes</BFormCheckbox>
+        </BInputGroup>
+        <div class="ms-4" v-if="globalStore.cardfilter.onlywant">
+          <BInputGroup class="ms-1 mb-2" v-if="!deckbuilder"> <!--&& !globalStore.cardfilter.onlycollec && !globalStore.cardfilter.onlyechangeable--><!--à voir si c mieux niveau ergo de cacher les zones ou non-->
+            <BFormCheckbox v-model="globalStore.cardfilter.onlyechother">Et échangeables par d'autres personnes</BFormCheckbox>
+          </BInputGroup>
+        </div>
       </div>
-    </div>
-    <BInputGroup>
-      <BFormInput v-model="globalStore.cardfilter.name" type="text" class="form-control" :placeholder="$t('ui.lib.nomcarte')" @keyup.enter="e_searchCards" />
-    </BInputGroup>
-    
-    <div v-if="!gstunique">
+      <BInputGroup>
+        <BFormInput v-model="globalStore.cardfilter.name" type="text" class="form-control" :placeholder="$t('ui.lib.nomcarte')" @keyup.enter="e_searchCards" />
+      </BInputGroup>
+      
+      <div v-if="!gstunique">
+        <hr>
+        <div class="d-flex justify-content-between mt-3">
+          <div>
+            <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechRarete && globalStore.cardfilter.faction">
+              <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+            </BButton>
+            {{$t('ui.lib.rarete')}}
+          </div>
+          <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtresrarity>
+            <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+          </div>
+        </div>
+        <BCollapse id="awid-filtresrarity" v-model="globalStore.cardfilter.ui.showrarity">
+          <div class="d-flex justify-content-evenly aw-raritysel mt-2">
+            <a href="javascript:" id="COMMON" :class="getClassRarity('COMMON')" @click="e_selectCommon"><Common :width="40" /></a>
+            <a href="javascript:" id="RARE" :class="getClassRarity('RARE')" @click="e_selectRare"><Rare :width="40" /></a>
+            <a href="javascript:" id="UNIQUE" v-if="user" :class="getClassRarity('UNIQUE')" @click="e_selectUnique"><Unique :width="40" /></a>
+            <img v-else class="aw-cursor-notallowed" src="@/assets/img/altered/rarities/unique.png" title="Connectez-vous pour rechercher vos uniques ajoutées à vos favoris"/>
+          </div>
+
+        </BCollapse>
+
+        <hr v-if="!gstunique">
+        <div class="d-flex justify-content-between mt-3">
+          <div>
+            <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechType && globalStore.cardfilter.faction">
+              <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+            </BButton>
+            Type
+          </div>
+          <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrestype>
+            <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+          </div>
+        </div>
+        <BCollapse id="awid-filtrestype" v-model="globalStore.cardfilter.ui.showtype">
+          <div class="card-group justify-content-between aw-type mt-2">
+            <a href="javascript:" id="CHARACTER" :title="getTitleType('CHARACTER')"
+                :class="['d-flex flex-column align-items-center mb-3', getClassType('CHARACTER')]"
+                @click="e_selectCharacter">
+                  <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-4" /><span>{{$t('ui.lib.personnage')}}</span>
+            </a>
+            <a href="javascript:" id="SPELL" :title="getTitleType('SPELL')"
+                :class="['d-flex flex-column align-items-center mb-3', getClassType('SPELL')]"
+                @click="e_selectSpell">
+                  <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-4" /><span>{{$t('ui.lib.sort')}}</span>
+            </a>
+            <a href="javascript:" id="PERMANENT" :title="getTitleType('PERMANENT')"
+                :class="['d-flex flex-column align-items-center mb-3', getClassType('PERMANENT')]"
+                @click="e_selectPermanent">
+                  <font-awesome-icon :icon="['fas', 'building-shield']" class="fs-4" /><span>{{$t('ui.lib.permanent')}}</span>
+            </a>
+            <a href="javascript:" id="HERO" :title="getTitleType('HERO')"
+                :class="['d-flex flex-column align-items-center mb-3', getClassType('HERO')]"
+                @click="e_selectHero">
+                  <font-awesome-icon :icon="['fas', 'mask']" class="fs-4" /><span>{{$t('ui.lib.hero')}}</span>
+            </a>
+            <a href="javascript:" v-if="g_isAdmin(user)" id="TOKEN" :title="getTitleType('TOKEN')"
+                :class="['d-flex flex-column align-items-center mb-3', getClassType('TOKEN')]"
+                @click="e_selectToken">
+                  <font-awesome-icon :icon="['fas', 'robot']" class="fs-4" /><span>{{$t('ui.lib.token')}}</span>
+            </a>
+          </div>
+        </BCollapse>
+      </div>
+      
       <hr>
       <div class="d-flex justify-content-between mt-3">
         <div>
-          <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechRarete && globalStore.cardfilter.faction">
+          <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechMaincost && globalStore.cardfilter.faction">
             <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
           </BButton>
-          {{$t('ui.lib.rarete')}}
+          {{$t('ui.lib.maincost')}}
         </div>
-        <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtresrarity>
+        <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrescoutmain>
           <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
         </div>
       </div>
-      <BCollapse id="awid-filtresrarity" v-model="globalStore.cardfilter.ui.showrarity">
-        <div class="d-flex justify-content-evenly aw-raritysel mt-2">
-          <a href="javascript:" id="COMMON" :class="getClassRarity('COMMON')" @click="e_selectCommon"><Common :width="40" /></a>
-          <a href="javascript:" id="RARE" :class="getClassRarity('RARE')" @click="e_selectRare"><Rare :width="40" /></a>
-          <a href="javascript:" id="UNIQUE" v-if="user" :class="getClassRarity('UNIQUE')" @click="e_selectUnique"><Unique :width="40" /></a>
-          <img v-else class="aw-cursor-notallowed" src="@/assets/img/altered/rarities/unique.png" title="Connectez-vous pour rechercher vos uniques ajoutées à vos favoris"/>
+      <BCollapse id="awid-filtrescoutmain" v-model="globalStore.cardfilter.ui.showmaincost">
+        <div class="d-flex flex-column ">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="fs-3">{{ globalStore.cardfilter.maincost }}</div>
+            <div>
+              <BFormCheckbox v-model="globalStore.cardfilter.maincostormore" value="ouplus">{{$t('ui.lib.etplus')}}</BFormCheckbox>
+            </div>
+            <div>
+              <BFormCheckbox v-model="globalStore.cardfilter.maincostormore" value="oumoins">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
+            </div>
+          </div>
+          <div class="aw-slider aw-handcost">
+            <input type="range" id="awid-fmaincost" v-model="globalStore.cardfilter.maincost" class="w-100 mt-0" min="0" max="10" step="1" value="1" />
+          </div>
         </div>
-
       </BCollapse>
 
-      <hr v-if="!gstunique">
-      <div class="d-flex justify-content-between mt-3">
+      <hr>
+      <div class="d-flex justify-content-between mt-3 mb-2">
         <div>
-          <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechType && globalStore.cardfilter.faction">
+          <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechRecallcost && globalStore.cardfilter.faction">
             <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
           </BButton>
-          Type
+          {{$t('ui.lib.recallcost')}}
         </div>
-        <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrestype>
+        <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrescoutreserve>
           <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
         </div>
       </div>
-      <BCollapse id="awid-filtrestype" v-model="globalStore.cardfilter.ui.showtype">
-        <div class="card-group justify-content-between aw-type mt-2">
-          <a href="javascript:" id="CHARACTER" :title="getTitleType('CHARACTER')"
-              :class="['d-flex flex-column align-items-center mb-3', getClassType('CHARACTER')]"
-              @click="e_selectCharacter">
-                <font-awesome-icon :icon="['fas', 'person-walking']" class="fs-4" /><span>{{$t('ui.lib.personnage')}}</span>
-          </a>
-          <a href="javascript:" id="SPELL" :title="getTitleType('SPELL')"
-              :class="['d-flex flex-column align-items-center mb-3', getClassType('SPELL')]"
-              @click="e_selectSpell">
-                <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" class="fs-4" /><span>{{$t('ui.lib.sort')}}</span>
-          </a>
-          <a href="javascript:" id="PERMANENT" :title="getTitleType('PERMANENT')"
-              :class="['d-flex flex-column align-items-center mb-3', getClassType('PERMANENT')]"
-              @click="e_selectPermanent">
-                <font-awesome-icon :icon="['fas', 'building-shield']" class="fs-4" /><span>{{$t('ui.lib.permanent')}}</span>
-          </a>
-          <a href="javascript:" id="HERO" :title="getTitleType('HERO')"
-              :class="['d-flex flex-column align-items-center mb-3', getClassType('HERO')]"
-              @click="e_selectHero">
-                <font-awesome-icon :icon="['fas', 'mask']" class="fs-4" /><span>{{$t('ui.lib.hero')}}</span>
-          </a>
-          <a href="javascript:" v-if="g_isAdmin(user)" id="TOKEN" :title="getTitleType('TOKEN')"
-              :class="['d-flex flex-column align-items-center mb-3', getClassType('TOKEN')]"
-              @click="e_selectToken">
-                <font-awesome-icon :icon="['fas', 'robot']" class="fs-4" /><span>{{$t('ui.lib.token')}}</span>
-          </a>
+      <BCollapse id="awid-filtrescoutreserve" v-model="globalStore.cardfilter.ui.showrecallcost">
+        <div class="d-flex flex-column ">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="fs-3">{{ globalStore.cardfilter.recallcost }}</div>
+            <div>
+              <BFormCheckbox v-model="globalStore.cardfilter.recallcostormore" value="ouplus">{{$t('ui.lib.etplus')}}</BFormCheckbox>
+            </div>
+            <div>
+              <BFormCheckbox v-model="globalStore.cardfilter.recallcostormore" value="oumoins">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
+            </div>
+          </div>
+          <div class="aw-slider aw-reservecost">
+            <input type="range" id="awid-frecallcost" v-model="globalStore.cardfilter.recallcost" class="w-100 mt-0" min="0" max="10" step="1" value="1" />
+          </div>
         </div>
       </BCollapse>
-    </div>
-    
-    <hr>
-    <div class="d-flex justify-content-between mt-3">
-      <div>
-        <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechMaincost && globalStore.cardfilter.faction">
-          <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-        </BButton>
-        {{$t('ui.lib.maincost')}}
-      </div>
-      <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrescoutmain>
-        <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-      </div>
-    </div>
-    <BCollapse id="awid-filtrescoutmain" v-model="globalStore.cardfilter.ui.showmaincost">
-      <div class="d-flex flex-column ">
-        <div class="d-flex justify-content-between align-items-center">
-          <div class="fs-3">{{ globalStore.cardfilter.maincost }}</div>
-          <div>
-            <BFormCheckbox v-model="globalStore.cardfilter.maincostormore" value="ouplus">{{$t('ui.lib.etplus')}}</BFormCheckbox>
-          </div>
-          <div>
-            <BFormCheckbox v-model="globalStore.cardfilter.maincostormore" value="oumoins">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
-          </div>
-        </div>
-        <div class="aw-slider aw-handcost">
-          <input type="range" id="awid-fmaincost" v-model="globalStore.cardfilter.maincost" class="w-100 mt-0" min="0" max="10" step="1" value="1" />
-        </div>
-      </div>
-    </BCollapse>
 
-    <hr>
-    <div class="d-flex justify-content-between mt-3 mb-2">
-      <div>
-        <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechRecallcost && globalStore.cardfilter.faction">
-          <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-        </BButton>
-        {{$t('ui.lib.recallcost')}}
-      </div>
-      <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrescoutreserve>
-        <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-      </div>
-    </div>
-    <BCollapse id="awid-filtrescoutreserve" v-model="globalStore.cardfilter.ui.showrecallcost">
-      <div class="d-flex flex-column ">
-        <div class="d-flex justify-content-between align-items-center">
-          <div class="fs-3">{{ globalStore.cardfilter.recallcost }}</div>
+      <div v-if="globalStore.cardfilter.character">
+        <hr>
+        <div class="d-flex justify-content-between mt-3">
           <div>
-            <BFormCheckbox v-model="globalStore.cardfilter.recallcostormore" value="ouplus">{{$t('ui.lib.etplus')}}</BFormCheckbox>
+            <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechPower && globalStore.cardfilter.faction">
+              <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+            </BButton>
+            {{$t('ui.lib.patates')}}
           </div>
-          <div>
-            <BFormCheckbox v-model="globalStore.cardfilter.recallcostormore" value="oumoins">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
+          <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrespower>
+            <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
           </div>
         </div>
-        <div class="aw-slider aw-reservecost">
-          <input type="range" id="awid-frecallcost" v-model="globalStore.cardfilter.recallcost" class="w-100 mt-0" min="0" max="10" step="1" value="1" />
-        </div>
+        <BCollapse id="awid-filtrespower" v-model="globalStore.cardfilter.ui.showpower">
+          <div class="d-flex flex-column aw-stats">
+            <div class="card-group justify-content-between align-items-center">
+              <div><i class="altered-forest fs-5 me-2"></i><span class="fs-3">{{ globalStore.cardfilter.forest }}</span></div>
+              <div>
+                <BFormCheckbox v-model="globalStore.cardfilter.forestormore" value="ouplus">{{$t('ui.lib.etplus')}}</BFormCheckbox>
+              </div>
+              <div>
+                <BFormCheckbox v-model="globalStore.cardfilter.forestormore" value="oumoins">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
+              </div>
+            </div>
+            <div class="aw-slider">
+              <input type="range" id="awid-forest" v-model="globalStore.cardfilter.forest" class="w-100" min="0" max="10" step="1" value="0" />
+            </div>
+            <div class="card-group justify-content-between align-items-center mt-2">
+              <div><i class="altered-mountain fs-5 me-2"></i><span class="fs-3">{{ globalStore.cardfilter.mountain }}</span></div>
+              <div>
+                <BFormCheckbox v-model="globalStore.cardfilter.mountainormore" value="ouplus">{{$t('ui.lib.etplus')}}</BFormCheckbox>
+              </div>
+              <div>
+                <BFormCheckbox v-model="globalStore.cardfilter.mountainormore" value="oumoins">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
+              </div>
+            </div>
+            <div class="aw-slider">
+              <input type="range" id="awid-mountain" v-model="globalStore.cardfilter.mountain" class="w-100" min="0" max="10" step="1" value="0" />
+            </div>
+            <div class="card-group justify-content-between align-items-center mt-2">
+              <div><i class="altered-ocean fs-5 me-2"></i><span class="fs-3">{{ globalStore.cardfilter.ocean }}</span></div>
+              <div>
+                <BFormCheckbox v-model="globalStore.cardfilter.oceanormore" value="ouplus">{{$t('ui.lib.etplus')}}</BFormCheckbox>
+              </div>
+              <div>
+                <BFormCheckbox v-model="globalStore.cardfilter.oceanormore" value="oumoins">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
+              </div>
+            </div>
+            <div class="aw-slider">
+              <input type="range" id="awid-ocean" v-model="globalStore.cardfilter.ocean" class="w-100" min="0" max="10" step="1" value="0" />
+            </div>
+          </div>
+        </BCollapse>
       </div>
-    </BCollapse>
 
-    <div v-if="globalStore.cardfilter.character">
       <hr>
       <div class="d-flex justify-content-between mt-3">
-        <div>
-          <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechPower && globalStore.cardfilter.faction">
+        <div class="mb-1">
+          <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechKeyword && globalStore.cardfilter.faction">
             <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
           </BButton>
-          {{$t('ui.lib.patates')}}
+          {{$t('ui.lib.motscles')}} / {{$t('ui.lib.capacites')}}
         </div>
-        <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrespower>
+        <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtreskeyword>
           <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
         </div>
       </div>
-      <BCollapse id="awid-filtrespower" v-model="globalStore.cardfilter.ui.showpower">
-        <div class="d-flex flex-column aw-stats">
-          <div class="card-group justify-content-between align-items-center">
-            <div><i class="altered-forest fs-5 me-2"></i><span class="fs-3">{{ globalStore.cardfilter.forest }}</span></div>
-            <div>
-              <BFormCheckbox v-model="globalStore.cardfilter.forestormore" value="ouplus">{{$t('ui.lib.etplus')}}</BFormCheckbox>
-            </div>
-            <div>
-              <BFormCheckbox v-model="globalStore.cardfilter.forestormore" value="oumoins">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
-            </div>
-          </div>
-          <div class="aw-slider">
-            <input type="range" id="awid-forest" v-model="globalStore.cardfilter.forest" class="w-100" min="0" max="10" step="1" value="0" />
-          </div>
-          <div class="card-group justify-content-between align-items-center mt-2">
-            <div><i class="altered-mountain fs-5 me-2"></i><span class="fs-3">{{ globalStore.cardfilter.mountain }}</span></div>
-            <div>
-              <BFormCheckbox v-model="globalStore.cardfilter.mountainormore" value="ouplus">{{$t('ui.lib.etplus')}}</BFormCheckbox>
-            </div>
-            <div>
-              <BFormCheckbox v-model="globalStore.cardfilter.mountainormore" value="oumoins">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
-            </div>
-          </div>
-          <div class="aw-slider">
-            <input type="range" id="awid-mountain" v-model="globalStore.cardfilter.mountain" class="w-100" min="0" max="10" step="1" value="0" />
-          </div>
-          <div class="card-group justify-content-between align-items-center mt-2">
-            <div><i class="altered-ocean fs-5 me-2"></i><span class="fs-3">{{ globalStore.cardfilter.ocean }}</span></div>
-            <div>
-              <BFormCheckbox v-model="globalStore.cardfilter.oceanormore" value="ouplus">{{$t('ui.lib.etplus')}}</BFormCheckbox>
-            </div>
-            <div>
-              <BFormCheckbox v-model="globalStore.cardfilter.oceanormore" value="oumoins">{{$t('ui.lib.etmoins')}}</BFormCheckbox>
-            </div>
-          </div>
-          <div class="aw-slider">
-            <input type="range" id="awid-ocean" v-model="globalStore.cardfilter.ocean" class="w-100" min="0" max="10" step="1" value="0" />
-          </div>
-        </div>
-      </BCollapse>
-    </div>
+      <BCollapse id="awid-filtreskeyword" v-model="globalStore.cardfilter.ui.showkeyword">
+        <Multiselect mode="tags" class="mb-2"
+            v-model="globalStore.cardfilter.keywords"
+            :close-on-select="true" 
+            :create-option="true" 
+            :searchable="false"
+            :options="keywords" />
 
-    <hr>
-    <div class="d-flex justify-content-between mt-3">
-      <div class="mb-1">
-        <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechKeyword && globalStore.cardfilter.faction">
-          <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-        </BButton>
-        {{$t('ui.lib.motscles')}} / {{$t('ui.lib.capacites')}}
+
+        <BInputGroup class="mt-2 ms-5">
+          <BFormCheckbox v-model="globalStore.notemptystatic">{{$t('ui.lib.staticabilnotempty')}}</BFormCheckbox>
+        </BInputGroup>
+        <BInputGroup>
+          <template #prepend>
+            <BInputGroupText><font-awesome-icon :icon="['fas', 'ban']" /></BInputGroupText>
+          </template>
+          <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
+              :disabled="globalStore.notemptystatic"
+              v-model="globalStore.static"
+              @keyup.enter="e_searchCards" />
+        </BInputGroup>
+        <BInputGroup class="mt-2 ms-5">
+          <BFormCheckbox v-model="globalStore.notemptyetb">{{$t('ui.lib.capacite')}} <i class="altered-etb"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
+        </BInputGroup>
+        <BInputGroup>
+          <template #prepend>
+            <BInputGroupText><i class="altered-etb"></i></BInputGroupText>
+          </template>
+          <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
+              :disabled="globalStore.notemptyetb"
+              v-model="globalStore.etb"
+              @keyup.enter="e_searchCards" />
+        </BInputGroup>
+        <BInputGroup class="mt-2 ms-5">
+          <BFormCheckbox v-model="globalStore.notemptyhand">{{$t('ui.lib.capacite')}} <i class="altered-hand"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
+        </BInputGroup>
+        <BInputGroup>
+          <template #prepend>
+            <BInputGroupText>	<i class="altered-hand"></i></BInputGroupText>
+          </template>
+          <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
+              :disabled="globalStore.notemptyhand"
+              v-model="globalStore.hand"
+              @keyup.enter="e_searchCards" />
+        </BInputGroup>
+        <BInputGroup class="mt-2 ms-5">
+          <BFormCheckbox v-model="globalStore.notemptyrecall">{{$t('ui.lib.capacite')}} <i class="altered-reserve"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
+        </BInputGroup>
+        <BInputGroup>
+          <template #prepend>
+            <BInputGroupText><i class="altered-reserve"></i></BInputGroupText>
+          </template>
+          <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
+              :disabled="globalStore.notemptyrecall"
+              v-model="globalStore.recall"
+              @keyup.enter="e_searchCards" />
+        </BInputGroup>
+        <BInputGroup class="mt-2 ms-5">
+          <BFormCheckbox v-model="globalStore.notemptyexhaust">{{$t('ui.lib.capacite')}} <i class="altered-exhaust"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
+        </BInputGroup>
+        <BInputGroup>
+          <template #prepend>
+            <BInputGroupText><i class="altered-exhaust"></i></BInputGroupText>
+          </template>
+          <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
+              :disabled="globalStore.notemptyexhaust"
+              v-model="globalStore.exhaust"
+              @keyup.enter="e_searchCards" />
+        </BInputGroup>
+        <BInputGroup class="mt-2 ms-5">
+          <BFormCheckbox v-model="globalStore.notemptysupport">{{$t('ui.lib.capacite')}} <i class="altered-support"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
+        </BInputGroup>
+        <BInputGroup>
+          <template #prepend>
+            <BInputGroupText><i class="altered-support"></i></BInputGroupText>
+          </template>
+          <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
+              :disabled="globalStore.notemptysupport"
+              v-model="globalStore.support"
+              @keyup.enter="e_searchCards" />
+        </BInputGroup>                  
+      </BCollapse>
+
+      <hr>
+      <div class="d-flex justify-content-between mt-3">
+        <div class="mb-1">
+          <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechSubtype && globalStore.cardfilter.faction">
+            <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+          </BButton>
+          {{$t('ui.lib.soustypes')}}
+        </div>
+        <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtressubtype>
+          <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+        </div>
       </div>
-      <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtreskeyword>
-        <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-      </div>
-    </div>
-    <BCollapse id="awid-filtreskeyword" v-model="globalStore.cardfilter.ui.showkeyword">
+      <BCollapse id="awid-filtressubtype" v-model="globalStore.cardfilter.ui.showsubtype">
       <Multiselect mode="tags" class="mb-2"
-          v-model="globalStore.cardfilter.keywords"
+          v-model="globalStore.cardfilter.subtypes"
           :close-on-select="true" 
           :create-option="true" 
-          :searchable="false"
-          :options="keywords" />
+          :searchable="true"
+          :options="soustypes" />
+      </BCollapse>
 
-
-      <BInputGroup class="mt-2 ms-5">
-        <BFormCheckbox v-model="globalStore.notemptystatic">{{$t('ui.lib.staticabilnotempty')}}</BFormCheckbox>
-      </BInputGroup>
-      <BInputGroup>
-        <template #prepend>
-          <BInputGroupText><font-awesome-icon :icon="['fas', 'ban']" /></BInputGroupText>
-        </template>
-        <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
-            :disabled="globalStore.notemptystatic"
-            v-model="globalStore.static"
-            @keyup.enter="e_searchCards" />
-      </BInputGroup>
-      <BInputGroup class="mt-2 ms-5">
-        <BFormCheckbox v-model="globalStore.notemptyetb">{{$t('ui.lib.capacite')}} <i class="altered-etb"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
-      </BInputGroup>
-      <BInputGroup>
-        <template #prepend>
-          <BInputGroupText><i class="altered-etb"></i></BInputGroupText>
-        </template>
-        <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
-            :disabled="globalStore.notemptyetb"
-            v-model="globalStore.etb"
-            @keyup.enter="e_searchCards" />
-      </BInputGroup>
-      <BInputGroup class="mt-2 ms-5">
-        <BFormCheckbox v-model="globalStore.notemptyhand">{{$t('ui.lib.capacite')}} <i class="altered-hand"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
-      </BInputGroup>
-      <BInputGroup>
-        <template #prepend>
-          <BInputGroupText>	<i class="altered-hand"></i></BInputGroupText>
-        </template>
-        <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
-            :disabled="globalStore.notemptyhand"
-            v-model="globalStore.hand"
-            @keyup.enter="e_searchCards" />
-      </BInputGroup>
-      <BInputGroup class="mt-2 ms-5">
-        <BFormCheckbox v-model="globalStore.notemptyrecall">{{$t('ui.lib.capacite')}} <i class="altered-reserve"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
-      </BInputGroup>
-      <BInputGroup>
-        <template #prepend>
-          <BInputGroupText><i class="altered-reserve"></i></BInputGroupText>
-        </template>
-        <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
-            :disabled="globalStore.notemptyrecall"
-            v-model="globalStore.recall"
-            @keyup.enter="e_searchCards" />
-      </BInputGroup>
-      <BInputGroup class="mt-2 ms-5">
-        <BFormCheckbox v-model="globalStore.notemptyexhaust">{{$t('ui.lib.capacite')}} <i class="altered-exhaust"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
-      </BInputGroup>
-      <BInputGroup>
-        <template #prepend>
-          <BInputGroupText><i class="altered-exhaust"></i></BInputGroupText>
-        </template>
-        <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
-            :disabled="globalStore.notemptyexhaust"
-            v-model="globalStore.exhaust"
-            @keyup.enter="e_searchCards" />
-      </BInputGroup>
-      <BInputGroup class="mt-2 ms-5">
-        <BFormCheckbox v-model="globalStore.notemptysupport">{{$t('ui.lib.capacite')}} <i class="altered-support"></i> {{$t('ui.lib.nonvide')}}</BFormCheckbox>
-      </BInputGroup>
-      <BInputGroup>
-        <template #prepend>
-          <BInputGroupText><i class="altered-support"></i></BInputGroupText>
-        </template>
-        <BFormInput :placeholder="$t('ui.lib.textedanscapa')"
-            :disabled="globalStore.notemptysupport"
-            v-model="globalStore.support"
-            @keyup.enter="e_searchCards" />
-      </BInputGroup>                  
-    </BCollapse>
-
-    <hr>
-    <div class="d-flex justify-content-between mt-3">
-      <div class="mb-1">
-        <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechSubtype && globalStore.cardfilter.faction">
-          <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-        </BButton>
-        {{$t('ui.lib.soustypes')}}
+      <hr>
+      <div class="d-flex justify-content-between mt-3">
+        <div class="mb-1">
+          <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechEdition && globalStore.cardfilter.faction">
+            <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+          </BButton>
+          Editions
+        </div>
+        <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtresedition>
+          <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+        </div>
       </div>
-      <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtressubtype>
-        <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-      </div>
-    </div>
-    <BCollapse id="awid-filtressubtype" v-model="globalStore.cardfilter.ui.showsubtype">
-    <Multiselect mode="tags" class="mb-2"
-        v-model="globalStore.cardfilter.subtypes"
-        :close-on-select="true" 
-        :create-option="true" 
-        :searchable="true"
-        :options="soustypes" />
-    </BCollapse>
-
-    <hr>
-    <div class="d-flex justify-content-between mt-3">
-      <div class="mb-1">
-        <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechEdition && globalStore.cardfilter.faction">
-          <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-        </BButton>
-        Editions
-      </div>
-      <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtresedition>
-        <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-      </div>
-    </div>
-    <BCollapse id="awid-filtresedition" v-model="globalStore.cardfilter.ui.showedition"> 
-    <Multiselect mode="tags" class="mb-2"
-        v-model="globalStore.cardfilter.editions"
-        :close-on-select="true" 
-        :create-option="true" 
-        :options="editions" />
-    </BCollapse>
-
-    <hr>
-    <div class="d-flex justify-content-between mt-3">
-      <div class="mb-1">
-        <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechSort && globalStore.cardfilter.faction">
-          <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-        </BButton>
-        {{$t('ui.lib.trierpar')}}
-      </div>
-      <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrestri>
-        <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
-      </div>
-    </div>
-    <BCollapse id="awid-filtrestri" v-model="globalStore.cardfilter.ui.showsort">
-      <Multiselect class="mb-2" mode="tags" 
-          v-model="globalStore.cardfilter.sorts" 
+      <BCollapse id="awid-filtresedition" v-model="globalStore.cardfilter.ui.showedition"> 
+      <Multiselect mode="tags" class="mb-2"
+          v-model="globalStore.cardfilter.editions"
           :close-on-select="true" 
-          :create-option="true"
-          :options="sortingTypes"/>
+          :create-option="true" 
+          :options="editions" />
+      </BCollapse>
+
+      <hr>
+      <div class="d-flex justify-content-between mt-3">
+        <div class="mb-1">
+          <BButton @click="e_searchCards" variant="unique" size="xs" title="Rechercher" class="pulse animated infinite" v-if="showRechSort && globalStore.cardfilter.faction">
+            <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+          </BButton>
+          {{$t('ui.lib.trierpar')}}
+        </div>
+        <div class="aw-collapsible flex-fill d-flex justify-content-end" v-b-toggle.awid-filtrestri>
+          <font-awesome-icon :icon="['fas', 'chevron-right']" class="aw-arrowcollapse" />
+        </div>
+      </div>
+      <BCollapse id="awid-filtrestri" v-model="globalStore.cardfilter.ui.showsort">
+        <Multiselect class="mb-2" mode="tags" 
+            v-model="globalStore.cardfilter.sorts" 
+            :close-on-select="true" 
+            :create-option="true"
+            :options="sortingTypes"/>
+      </BCollapse>
     </BCollapse>
   </div>
 </div>
@@ -716,6 +726,10 @@ export default {
         }
         toast("Cartes mises à jour : " + pdata.nbupdates, { type: TYPE.SUCCESS }) 
       })
+    },
+    e_clearSearch()
+    {
+      this.fetchedCards.length = 0
     },
     e_searchCards()
     {

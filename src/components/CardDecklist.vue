@@ -102,11 +102,11 @@ export default {
       return "aw-" + this.card.rarity;
     },
     getClassGrid() {
-      var classe = "aw-qte" + this.card.quantite + " mt-2 aw-" + this.card.cardType;
+      var classe = "aw-qte" + this.card.quantite + " mt-2 aw-" + this.card.cardType
 
-      if(this.g_isHero(this.card)) classe += " d-flex col-12 justify-content-md-center";
-      else classe += " col-12 col-sm-6 col-lg-3"; //col-xxl-2
-      return classe;
+      if(this.g_isHero(this.card)) classe += " d-flex col-12 justify-content-md-center"
+      else classe += " col-12 col-sm-6 col-md-4 col-lg-3 col-xl-4 col-xxl-3"
+      return classe
     }
   }
 };

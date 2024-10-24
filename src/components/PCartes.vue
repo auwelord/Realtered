@@ -131,7 +131,7 @@
           <div class="container-fluid">
             <div class="row" v-if="!hasResult() && !loading && !uiparams.afficherstats">
               <div class="col-12 d-flex flex-column align-items-center">
-                  <div class="fs-4">{{$t('ui.alert.selectfaction')}}</div>
+                  <div class="fs-4 aw-helpsearch">{{$t('ui.alert.selectfaction')}}</div>
                   <img src="/src/assets/img/empty.png" alt="" class="mt-5" style="width: 300px" />
               </div>
             </div>
@@ -156,7 +156,7 @@
                   @mouseleavecard="mouseleaveCard" />
               </div>
               <div class="row d-flex p-2">
-                <BButton v-if="hasMore && currentPage > 1 && !loading" @click="fetchCards" variant="unique" size="sm">
+                <BButton v-if="hasResult() && hasMore && currentPage > 1 && !loading" @click="fetchCards" variant="unique" size="sm">
                   <font-awesome-icon :icon="['far', 'circle-down']" class="me-2" />Voir Plus
                 </BButton>
                 <div v-if="loading">
@@ -168,13 +168,14 @@
         </div>
         <div class="col-12 col-xl-5" v-if="deckbuilder && currentDeck">
           <div class="card card-outline card-primary mb-1 aw-decklist">
-            <div class="card-header position-relative">
-              <div class="d-flex justify-content-between">
+            <div class="card-header position-relative ps-3 pe-2">
                 <div class="d-flex flex-column">
-                  <h3 class="fs-5" v-if="currentDeck"><font-awesome-icon :icon="['fas', 'lock']" class="me-2" v-if="!currentDeck.public"/>{{ currentDeck.name }}</h3>
-                  <div class="fs-7">{{$t('ui.lib.cartes')}}: {{ g_getTotalCardsInDeck({deck: currentDeck}) }}</div>
+                  <span class="fs-5" v-if="currentDeck">
+                    <font-awesome-icon :icon="['fas', 'lock']" class="me-2" v-if="!currentDeck.public"/>{{ currentDeck.name }}
+                  </span>
+                  <span class="fs-7">{{$t('ui.lib.cartes')}}: {{ g_getTotalCardsInDeck({deck: currentDeck}) }}</span>
                 </div>
-                <div class="d-flex align-items-center">
+                <div class="d-flex justify-content-end align-items-center">
                   <div class="me-2" v-if="!showVersionsEvol">
                       <div class="input-group flex-nowrap" v-if="user && currentSelectedDeck > 0 && !currentDeck.tournoiId">
                         <Multiselect class="m-0 me-2 aw-selectversion"
@@ -185,8 +186,7 @@
                           :canDeselect="false"
                           />
                         <span class="input-group-append">
-                          
-                          <BDropdown v-model="showVersionsOptions" start  variant="outline-secondary">
+                          <BDropdown v-model="showVersionsOptions" start  variant="secondary">
                             <template #button-content>
                               <font-awesome-icon :icon="['fas', 'code-branch']" />
                             </template>
@@ -206,19 +206,19 @@
                       </div>
                     </div>
                     <BButton @click="saveDeck()" variant="primary"  class="me-2 text-nowrap" v-if="user && !showVersionsEvol && currentDeck.hero">
-                      <font-awesome-icon :icon="['far', 'floppy-disk']" class="me-2" />{{$t('ui.action.enregistrer')}}
+                      <font-awesome-icon :icon="['far', 'floppy-disk']" />
                     </BButton>
-                      <Multiselect class="me-2 aw-selecttournoi" v-if="tournois && !currentDeck.userId && g_isAdmin(user)"
-                          v-model="currentDeck.tournoiId" 
-                          :close-on-select="true" 
-                          :options="tournois"
-                          :canClear="true"
-                          :canDeselect="true"
-                          />
+                    <Multiselect class="me-2 aw-selecttournoi" v-if="tournois && !currentDeck.userId && g_isAdmin(user)"
+                        v-model="currentDeck.tournoiId" 
+                        :close-on-select="true" 
+                        :options="tournois"
+                        :canClear="true"
+                        :canDeselect="true"
+                        />
                     <BFormInput v-model="currentDeck.tournoiPos" placeholder="Position" class="me-2 aw-ftournoipos" type="number" min="1" v-if="currentDeck.tournoiId && g_isAdmin(user)" />
                           
                                         
-                    <BDropdown v-model="showDecklistoptions" start  variant="outline-secondary" v-if="!showVersionsEvol">
+                    <BDropdown v-model="showDecklistoptions" start  variant="secondary" v-if="!showVersionsEvol" class="me-2">
                       <template #button-content>
                         <font-awesome-icon :icon="['fas', 'gear']" />
                       </template>
@@ -251,11 +251,10 @@
                     <BButton @click="e_hideVersionsEvol" variant="secondary" class="me-2" :title="$t('ui.lib.backtodl')" v-if="showVersionsEvol">
                       <font-awesome-icon :icon="['far', 'square-caret-left']" class="me-2"/>{{$t('ui.lib.back')}}
                     </BButton>
-                    <BButton @click="e_updateFromIdAltered" variant="info" class="me-2" :title="$t('ui.action.updatealtid')" v-if="currentDeck.idaltered">
+                    <BButton @click="e_updateFromIdAltered" variant="info" :title="$t('ui.action.updatealtid')" v-if="currentDeck.idaltered">
                       <font-awesome-icon :icon="['fas', 'rotate-right']" />
                     </BButton>
                 </div>
-              </div>
             </div> <!-- /.card-header -->
             <div class="card-body position-relative">
               <div v-if="showVersionsEvol">
@@ -589,7 +588,7 @@ export default {
       this.loadDecks();
     }
   },
-  inject: ['callShowWaitingScreen', 'callHideWaitingScreen'], // Injecter la méthode de App.vue
+  inject: ['callShowWaitingScreen', 'callHideWaitingScreen', 'getViewportWidth'], // Injecter la méthode de App.vue
   methods: {
     canSelectFaction()
     {
@@ -974,6 +973,7 @@ export default {
     },
     mouseenterCard(card) 
     {
+      if(this.getViewportWidth() < 1200) return
       if(this.mousetimeout) clearTimeout(this.mousetimeout)
       this.imagePathFullsize = this.g_getImageCardPublicUrl(card)
       this.showImageFullsize = true
@@ -1694,7 +1694,8 @@ export default {
             }
           })
         })
-        this.loading = false;
+        this.loading = false
+        if(this.getViewportWidth() < 1200) this.globalStore.cardfilter.ui.showfilters = false
       })
     },
     getAllSetsOtherCodes(psetcode)
