@@ -15,9 +15,17 @@
                         :deckbuilder="false"
                         :canselectfaction="true"
                         :gstunique="true"
+                        :fetchedCards="fetchedCards"
                         @searchcards="e_searchCards" />
                 </BCol>
                 <BCol lg="9">
+                    <Loader v-if="loading"/>
+                    <BRow v-if="!loading">
+                        <BCol lg="12" class="d-flex flex-column align-items-center" v-if="fetchedCards.length == 0">
+                            <div class="fs-4 aw-helpsearch">{{$t('ui.alert.selectfaction')}}</div>
+                            <img src="/src/assets/img/empty.png" alt="" class="mt-5" style="width: 300px" />
+                        </BCol>
+                    </BRow>
                     <BRow>
                         <Card v-for="card in fetchedCards" 
                             :key="card.id" 
@@ -64,6 +72,7 @@ export default {
             mousetimeout: null,
             currentCardDetail: null,
             afficherDetails: false,
+            loading: false,
         }
     },
     mounted(){
@@ -80,6 +89,7 @@ export default {
 
             if (this.currentPage > 1 && !this.hasMore) return;
 
+            this.loading = true
             var calcparams = $.extend(
             {
                 itemsPerPage: this.itemsPerPage,
@@ -116,6 +126,7 @@ export default {
                         })
                     }
                 }
+                this.loading = false
             })
         },
         e_mouseenterCard(card) 
